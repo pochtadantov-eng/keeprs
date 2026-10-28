@@ -1,5 +1,5 @@
 // Service worker for the Кошелёк PWA — offline-first.
-const CACHE = "koshelek-v4";
+const CACHE = "koshelek-v5";
 const ASSETS = [
   "./",
   "./index.html",
@@ -8,6 +8,14 @@ const ASSETS = [
   "./icon-192.png",
   "./icon-512.png",
   "./icon-maskable-512.png",
+  "./fonts/mulish-cyrillic-400-normal.woff2",
+  "./fonts/mulish-latin-400-normal.woff2",
+  "./fonts/mulish-cyrillic-500-normal.woff2",
+  "./fonts/mulish-latin-500-normal.woff2",
+  "./fonts/mulish-cyrillic-600-normal.woff2",
+  "./fonts/mulish-latin-600-normal.woff2",
+  "./fonts/mulish-cyrillic-700-normal.woff2",
+  "./fonts/mulish-latin-700-normal.woff2",
 ];
 
 self.addEventListener("install", (e) => {
