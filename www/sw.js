@@ -1,5 +1,5 @@
 // Service worker for the Кошелёк PWA — offline-first.
-const CACHE = "koshelek-v6";
+const CACHE = "koshelek-v7";
 const ASSETS = [
   "./",
   "./index.html",
@@ -10,6 +10,31 @@ const ASSETS = [
   "./icon-maskable-512.png",
   "./fonts/onest-cyrillic-wght-normal.woff2",
   "./fonts/onest-latin-wght-normal.woff2",
+  "./img/a-bitrefill.webp",
+  "./img/a-ston.webp",
+  "./img/a-storm.webp",
+  "./img/a-swapcoffee.webp",
+  "./img/a-tokenstore.webp",
+  "./img/a-tonmobile.webp",
+  "./img/a-tonvpn.webp",
+  "./img/a-upscale.webp",
+  "./img/banner.webp",
+  "./img/s-aapl.webp",
+  "./img/s-amzn.webp",
+  "./img/s-coin.webp",
+  "./img/s-crcl.webp",
+  "./img/s-googl.webp",
+  "./img/s-nvda.webp",
+  "./img/s-tsla.webp",
+  "./img/s-xaut.webp",
+  "./img/t-atf.webp",
+  "./img/t-evaa.webp",
+  "./img/t-groyp.webp",
+  "./img/t-not.webp",
+  "./img/t-px.webp",
+  "./img/t-redo.webp",
+  "./img/t-sp.webp",
+  "./img/t-utya.webp",
 ];
 
 self.addEventListener("install", (e) => {
