@@ -684,7 +684,7 @@ body:not(.t-wallet) .app-header { display: none; }
   display: inline-flex; align-items: center; gap: 8px;
   height: 36px; padding: 0 10px 0 6px;
   background: var(--pill); border: none; border-radius: 999px;
-  color: var(--fg); font-size: 16px; font-weight: 500;
+  color: var(--fg); font-size: 15px; font-weight: 500;
 }
 .tokpill svg.ud { color: var(--fg-dim); }
 .tk24 { width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; flex: none; }
@@ -700,7 +700,7 @@ body:not(.t-wallet) .app-header { display: none; }
   display: inline-flex; align-items: center; justify-content: center; color: var(--fg);
   z-index: 2;
 }
-.cta-row { margin-top: auto; padding-bottom: 16px; }
+.cta-row { margin-top: auto; padding-bottom: max(16px, env(safe-area-inset-bottom, 0px)); }
 .foot { text-align: center; color: var(--fg-faint); font-size: 14px; line-height: 17px; font-weight: 450; margin-bottom: 16px; }
 .foot b { color: var(--fg-dim); font-weight: 450; }
 .stake-card { background: var(--surface); border-radius: 20px; height: 187px; box-sizing: border-box; padding-top: 50px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 6.5px; }
@@ -718,60 +718,42 @@ body:not(.t-wallet) .app-header { display: none; }
 .provider .t { font-size: 16px; line-height: 24px; font-weight: 500; }
 .provider .s { font-size: 14px; line-height: 20px; color: var(--fg-dim); font-weight: 450; }
 .provider svg { color: var(--fg-dim); }
-.cta2 { display: block; width: 100%; height: 56px; border: none; border-radius: 16px; background: var(--accent); color: #fff; font-size: 16px; font-weight: 500; opacity: .7; }
-.cta2.on { opacity: 1; }
+.cta2 { display: block; width: 100%; height: 56px; border: none; border-radius: 16px; background: #2F6FC5; color: rgba(255,255,255,.5); font-size: 16px; font-weight: 500; }
+.cta2.on { background: var(--accent); color: #fff; }
 
-/* numeric keyboard (iOS look) */
-.kbd {
-  flex: none;
-  background: #1F2022;
-  border-radius: 40px 40px 0 0;
-  padding: 24px 4px calc(env(safe-area-inset-bottom, 0px) + 35px);
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 6.6px;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Onest", sans-serif;
-}
-.key {
-  height: 47.5px; border: none; border-radius: 10px;
-  background: #3F4045; color: #fff;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 0; line-height: 1;
-}
-.key:active { background: #5A5B61; }
-.key b { font-size: 26px; font-weight: 500; line-height: 28px; margin-top: 2px; }
-.key i { font-style: normal; font-size: 9px; font-weight: 700; letter-spacing: .2em; margin-top: 1px; padding-left: .2em; }
-.key.plain { background: transparent; }
-.key.plain:active { background: #34353A; }
-.key.plain b { font-size: 24px; }
-.key i.sp { visibility: hidden; }
+
 
 /* ===== Pull to refresh / updating ===== */
 .wallet-body { min-height: calc(100% + 130px); }
 .ptr {
   position: fixed;
   left: 50%;
-  top: calc(env(safe-area-inset-top, 0px) + 64px + 15px);
-  width: 30px; height: 30px;
-  margin-left: -15px;
-  color: var(--fg-dim);
+  top: calc(env(safe-area-inset-top, 0px) + 64px + 29.8px);
+  width: 36px; height: 36px;
+  margin: -18px 0 0 -18px;
+  color: #7B7D8D;
   opacity: 0;
   z-index: 1;
   pointer-events: none;
 }
-.ptr svg, .updating svg { width: 100%; height: 100%; }
-.spin { animation: spin .9s steps(12) infinite; }
-.ring-spin { animation: spin .8s linear infinite; }
+.ptr svg { width: 100%; height: 100%; }
+.ptr rect { opacity: 0; }
+.ptr.pop svg { animation: ptrpop .14s ease-out; }
+@keyframes ptrpop { 50% { transform: scale(1.2); } }
+#hist-ptr { top: calc(env(safe-area-inset-top, 0px) + 149.7px); z-index: 4; }
+.ring-spin { animation: spin .85s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .updating {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 4.7px;
   margin-top: 5.5px;
   padding: 4px 8px;
   color: var(--fg-dim);
   font-size: 14px;
   line-height: 20px;
 }
-.updating svg { width: 15px; height: 15px; }
+.updating svg { width: 12px; height: 12px; }
 
 /* ===== Search field ===== */
 .search {
@@ -994,6 +976,82 @@ body:not(.t-wallet) .app-header { display: none; }
 .open-btn { padding-top: 3px; }
 .b-app .s { position: relative; top: .8px; }
 .opt .t, .opt .s { position: relative; top: 1.7px; }
+
+/* ===== История (экран, который выезжает справа) ===== */
+.hist {
+  position: fixed; inset: 0; z-index: 45;
+  background: var(--bg);
+  transform: translateX(100%);
+  visibility: hidden;
+  transition: transform .36s cubic-bezier(.22,.9,.28,1), visibility 0s .36s;
+  will-change: transform;
+}
+.hist.open { transform: none; visibility: visible; transition: transform .36s cubic-bezier(.22,.9,.28,1); }
+.hist.dragging { transition: none; }
+.hist::before { content: ""; position: absolute; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); background: var(--bg); z-index: 5; pointer-events: none; }
+.hist-scroll { position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.hist-safe { height: env(safe-area-inset-top, 0px); }
+.hist-scroll::-webkit-scrollbar { display: none; }
+.hist-head { position: relative; height: 64px; display: flex; align-items: center; justify-content: center; }
+.hist-head h1 { margin: 0; position: relative; top: 1.3px; font-size: 20.3px; line-height: 28px; font-weight: 600; }
+.hist-back {
+  position: absolute; left: 16px; top: 16px;
+  width: 32px; height: 32px; border: none; border-radius: 50%;
+  background: var(--surface); color: #fff; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.hist-back:active { background: var(--surface-2); }
+.hist-chips {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 3;
+  display: flex; gap: 6px; padding: 8px 16px;
+  background: var(--bg); overflow-x: auto; scrollbar-width: none;
+}
+.hist-chips::-webkit-scrollbar { display: none; }
+.hchip {
+  flex: none; height: 32px; padding: 0 13.3px; border: none; border-radius: 16px;
+  background: var(--surface); color: #fff; font-size: 13.8px; font-weight: 450; padding-top: 1.5px;
+}
+.hchip.active { background: #3388F9; }
+.hist-list { padding: 0 16px 120px; will-change: transform; }
+.hist-date { position: relative; top: -1.3px; margin: 22px 0 10px; font-size: 16px; line-height: 24px; font-weight: 500; }
+.hist-date.later { margin: 29px 0 11px; }
+.htx {
+  display: grid; grid-template-columns: 44px 1fr auto; column-gap: 16px; align-items: start;
+  padding: 16px; margin-bottom: 8.3px;
+  background: var(--surface); border-radius: 20px;
+}
+.htx .ic { grid-row: 1; width: 44px; height: 44px; border-radius: 50%; background: #28303E; display: flex; align-items: center; justify-content: center; }
+.htx .ic .hi { position: relative; top: -1.4px; }
+.htx .mid { min-width: 0; }
+.htx .t { position: relative; top: .7px; font-size: 16px; line-height: 24px; font-weight: 500; color: #fff; }
+.htx .a { position: relative; top: 1.2px; font-size: 14px; line-height: 20px; font-weight: 400; color: var(--fg-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.htx .r { text-align: right; white-space: nowrap; }
+.htx .am { position: relative; top: .6px; font-size: 16px; line-height: 24px; font-weight: 500; color: #fff; }
+.htx .am.in { color: var(--green); }
+.htx .tm { position: relative; top: 1.3px; font-size: 14px; line-height: 20px; font-weight: 400; color: var(--fg-dim); }
+.htx .cm {
+  grid-column: 2 / 4; justify-self: start; margin-top: 8px; max-width: 173px;
+  padding: 8px 12px; border-radius: 15px; background: #262E3B;
+  font-size: 15px; line-height: 20px; font-weight: 450; color: #fff; overflow-wrap: anywhere;
+}
+.hist-empty { padding: 60px 0; text-align: center; color: var(--fg-dim); font-size: 15px; }
+body.hist-open .app-header, body.hist-open .panel.active, body.hist-open .tabbar {
+  transform: translateX(-28%); transition: transform .36s cubic-bezier(.22,.9,.28,1);
+}
+.app-header, .panel, .tabbar { transition: transform .36s cubic-bezier(.22,.9,.28,1); }
+
+/* real keyboard: invisible inputs sit over the amount, we draw digits and the caret ourselves */
+.ov { position: absolute; left: 0; top: 0; width: calc(100% - 150px); height: 100%; opacity: 0; border: 0; padding: 0; margin: 0; background: transparent; font-size: 16px; color: transparent; caret-color: transparent; z-index: 3; -webkit-appearance: none; appearance: none; outline: none; }
+.swap-card .r2 { position: relative; }
+.stake-card { position: relative; }
+.stake-card .ov { width: 100%; }
+.kb-proxy { position: fixed; left: 0; top: 0; width: 1px; height: 1px; opacity: 0; border: 0; padding: 0; font-size: 16px; pointer-events: none; z-index: -1; }
+.swap-card .r1 .err { color: var(--red); }
+.val .ap { margin-right: .22em; }
+.swap-rate { margin: 12px 0 0; text-align: center; color: var(--fg-dim); font-size: 16px; line-height: 24px; font-weight: 450; }
+.swap-btn svg { transition: transform .3s ease; }
+.swap-btn.flipped svg { transform: rotate(180deg); }
+.psheet { bottom: var(--kb, 0px); }
 </style>
 </head>
 <body class="t-wallet">
@@ -1024,7 +1082,7 @@ body:not(.t-wallet) .app-header { display: none; }
   </header>
 </div>
 
-<div class="ptr" id="ptr"><svg viewBox="0 0 30 30" aria-hidden="true"><line x1="15" y1="1" x2="15" y2="9.5" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity="1.00" transform="rotate(0 15 15)"/><line x1="15" y1="1" x2="15" y2="9.5" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity="0.93" transform="rotate(30 15 15)"/><line x1="15" y1="1" x2="15" y2="9.5" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity="0.85" transform="rotate(60 15 15)"/><line x1="15" y1="1" x2="15" y2="9.5" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity="0.78" transform="rotate(90 15 15)"/><line x1="15" y1="1" x2="15" y2="9.5" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity="0.70" transform="rotate(120 15 15)"/><line x1="15" y1="1" x2="15" y2="9.5" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity="0.62" transform="rotate(150 15 15)"/><line x1="15" y1="1" x2="15" y2="9.5" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity="0.55" transform="rotate(180 15 15)"/><line x1="15" y1="1" x2="15" y2="9.5" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity="0.47" transform="rotate(210 15 15)"/><line x1="15" y1="1" x2="15" y2="9.5" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity="0.40" transform="rotate(240 15 15)"/><line x1="15" y1="1" x2="15" y2="9.5" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity="0.33" transform="rotate(270 15 15)"/><line x1="15" y1="1" x2="15" y2="9.5" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity="0.25" transform="rotate(300 15 15)"/><line x1="15" y1="1" x2="15" y2="9.5" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity="0.18" transform="rotate(330 15 15)"/></svg></div>
+<div class="ptr" id="ptr"><svg viewBox="0 0 36 36" aria-hidden="true" fill="currentColor"><rect x="16.2" y="3" width="3.6" height="10" rx="1.8" transform="rotate(0 18 18)"/><rect x="16.2" y="3" width="3.6" height="10" rx="1.8" transform="rotate(45 18 18)"/><rect x="16.2" y="3" width="3.6" height="10" rx="1.8" transform="rotate(90 18 18)"/><rect x="16.2" y="3" width="3.6" height="10" rx="1.8" transform="rotate(135 18 18)"/><rect x="16.2" y="3" width="3.6" height="10" rx="1.8" transform="rotate(180 18 18)"/><rect x="16.2" y="3" width="3.6" height="10" rx="1.8" transform="rotate(225 18 18)"/><rect x="16.2" y="3" width="3.6" height="10" rx="1.8" transform="rotate(270 18 18)"/><rect x="16.2" y="3" width="3.6" height="10" rx="1.8" transform="rotate(315 18 18)"/></svg></div>
 
 <div class="screen">
   <!-- WALLET PANEL -->
@@ -1042,7 +1100,7 @@ body:not(.t-wallet) .app-header { display: none; }
           <span id="address-text">UQBQ...<span style="opacity:.6">_</span>nR4</span>
           <span class="badge-chain">W5</span>
         </button>
-        <span class="updating" id="updating" hidden>Обновление <svg class="ring-spin" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="44 13"/></svg></span>
+        <span class="updating" id="updating" hidden>Обновление <svg class="ring-spin" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="5.1" fill="none" stroke="#3A414D" stroke-width="1.7"/><circle cx="6" cy="6" r="5.1" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-dasharray="9 23.05"/></svg></span>
       </div>
     </section>
 
@@ -1301,20 +1359,20 @@ body:not(.t-wallet) .app-header { display: none; }
       <div class="swap-cards">
         <div class="swap-card focus">
           <div class="r1"><span>Отправить</span><span class="bal">Баланс: <span id="swap-bal">0,000287</span> GRAM <button class="max" data-max>MAX</button></span></div>
-          <div class="r2"><div class="val" data-val><i class="caret"></i><span class="ph">0</span></div><button class="tokpill"><span class="tk24 gram"><svg viewBox="0 0 30 20" aria-hidden="true"><path d="M8 2h14l6.5 5.6L15 18.2 1.5 7.6z" fill="#fff" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/><path d="M15 5.4l1.5 3.3 3.3 1.5-3.3 1.5L15 15l-1.5-3.3-3.3-1.5 3.3-1.5z" fill="#30A1F5"/></svg></span>GRAM<svg class="ud" viewBox="0 0 38 47.5" width="12.67" height="15.83" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M18.4 45.3C17.8 45.1 16.8 44.4 14.5 42.7C13.7 42.2 12.8 41.5 12.5 41.3C12.2 41.1 11.7 40.8 11.6 40.6C11.4 40.5 10.7 39.9 9.9 39.4C9.1 38.8 7.8 37.9 7.0 37.2C6.2 36.6 4.8 35.6 4.0 35.0C2.3 33.7 1.8 32.7 2.3 31.5C2.9 29.9 4.6 29.8 6.5 31.2C7.3 31.8 8.6 32.7 9.4 33.3C10.2 33.9 12.0 35.3 13.4 36.3C19.4 40.7 18.8 40.6 22.4 37.9C33.5 29.6 34.3 29.1 35.5 31.1C36.6 32.8 36.2 33.4 31.9 36.6C29.9 38.0 28.1 39.4 27.8 39.7C22.3 43.9 19.4 45.6 18.4 45.3ZM2.8 16.8C2.1 16.1 1.9 15.1 2.2 14.3C2.5 13.6 4.4 12.1 10.8 7.4C11.5 6.9 13.2 5.6 14.6 4.6C19.4 1.1 18.4 0.9 27.0 7.2C31.5 10.6 33.0 11.7 33.8 12.2C35.6 13.5 36.3 14.7 35.7 16.0C34.9 18.1 33.3 17.7 28.4 14.0C27.8 13.5 26.4 12.5 25.4 11.8C24.4 11.1 22.7 9.8 21.6 9.0C19.0 7.0 18.9 7.0 15.2 9.9C5.5 17.2 4.0 18.0 2.8 16.8Z"/></svg></button></div>
+          <div class="r2"><div class="val" data-val><i class="caret"></i><span class="ph">0</span></div><input class="ov" inputmode="decimal" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-label="Сумма"><button class="tokpill"><span class="tk24 gram"><svg viewBox="0 0 30 20" aria-hidden="true"><path d="M8 2h14l6.5 5.6L15 18.2 1.5 7.6z" fill="#fff" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/><path d="M15 5.4l1.5 3.3 3.3 1.5-3.3 1.5L15 15l-1.5-3.3-3.3-1.5 3.3-1.5z" fill="#30A1F5"/></svg></span>GRAM<svg class="ud" viewBox="0 0 38 47.5" width="12.67" height="15.83" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M18.4 45.3C17.8 45.1 16.8 44.4 14.5 42.7C13.7 42.2 12.8 41.5 12.5 41.3C12.2 41.1 11.7 40.8 11.6 40.6C11.4 40.5 10.7 39.9 9.9 39.4C9.1 38.8 7.8 37.9 7.0 37.2C6.2 36.6 4.8 35.6 4.0 35.0C2.3 33.7 1.8 32.7 2.3 31.5C2.9 29.9 4.6 29.8 6.5 31.2C7.3 31.8 8.6 32.7 9.4 33.3C10.2 33.9 12.0 35.3 13.4 36.3C19.4 40.7 18.8 40.6 22.4 37.9C33.5 29.6 34.3 29.1 35.5 31.1C36.6 32.8 36.2 33.4 31.9 36.6C29.9 38.0 28.1 39.4 27.8 39.7C22.3 43.9 19.4 45.6 18.4 45.3ZM2.8 16.8C2.1 16.1 1.9 15.1 2.2 14.3C2.5 13.6 4.4 12.1 10.8 7.4C11.5 6.9 13.2 5.6 14.6 4.6C19.4 1.1 18.4 0.9 27.0 7.2C31.5 10.6 33.0 11.7 33.8 12.2C35.6 13.5 36.3 14.7 35.7 16.0C34.9 18.1 33.3 17.7 28.4 14.0C27.8 13.5 26.4 12.5 25.4 11.8C24.4 11.1 22.7 9.8 21.6 9.0C19.0 7.0 18.9 7.0 15.2 9.9C5.5 17.2 4.0 18.0 2.8 16.8Z"/></svg></button></div>
         </div>
         <div class="swap-mid"><button class="swap-btn" aria-label="Поменять местами"><svg class="" viewBox="0 0 53.25 41" width="17.75" height="13.67" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M7.6 34.2C1.6 28.3 1.2 27.6 2.6 26.1C3.9 24.8 5.0 25.2 8.3 28.5C10.3 30.4 10.8 30.8 11.0 30.5C11.1 30.3 11.2 25.1 11.2 17.6C11.2 5.5 11.3 5.0 11.7 4.4C12.8 3.1 15.0 3.4 15.5 4.8C15.7 5.3 15.8 9.7 15.8 17.9L15.8 30.2L16.3 30.2C16.7 30.2 17.5 29.6 18.9 28.2C21.7 25.3 23.1 24.8 24.4 26.1C25.8 27.6 25.4 28.3 19.4 34.2C14.7 38.9 14.5 39.0 13.5 39.0C12.5 39.0 12.4 38.9 7.6 34.2ZM39.1 37.2C37.8 36.7 37.8 36.2 37.8 22.9L37.8 10.5L37.2 10.6C36.9 10.7 35.6 11.8 34.4 13.0C31.7 15.6 30.4 16.1 29.1 14.9C27.7 13.5 28.3 12.6 34.1 6.8C40.5 0.4 39.5 0.4 46.1 7.0C51.1 11.9 51.1 11.9 51.2 13.2C51.3 14.7 50.7 15.5 49.5 15.5C48.4 15.5 48.0 15.2 45.3 12.6C43.2 10.5 42.7 10.1 42.4 10.3C42.4 10.3 42.3 16.2 42.3 23.4L42.1 36.4L41.3 36.9C40.4 37.5 40.0 37.6 39.1 37.2Z"/></svg></button></div>
         <div class="swap-card b">
           <div class="r1"><span>Получить</span></div>
-          <div class="r2"><div class="val"></div><button class="tokpill"><span class="tk24 usdt"><svg viewBox="0 0 30 20" aria-hidden="true"><path d="M8 2h14l6.5 5.6L15 18.2 1.5 7.6z" fill="#fff" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/><rect x="8.5" y="3.6" width="13" height="2.6" rx="1.3" fill="#009393"/><rect x="13.7" y="3.6" width="2.6" height="11.6" rx="1.3" fill="#009393"/><ellipse cx="15" cy="9.4" rx="6" ry="1.7" fill="none" stroke="#009393" stroke-width="1.5"/></svg></span>USD₮<svg class="ud" viewBox="0 0 38 47.5" width="12.67" height="15.83" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M18.4 45.3C17.8 45.1 16.8 44.4 14.5 42.7C13.7 42.2 12.8 41.5 12.5 41.3C12.2 41.1 11.7 40.8 11.6 40.6C11.4 40.5 10.7 39.9 9.9 39.4C9.1 38.8 7.8 37.9 7.0 37.2C6.2 36.6 4.8 35.6 4.0 35.0C2.3 33.7 1.8 32.7 2.3 31.5C2.9 29.9 4.6 29.8 6.5 31.2C7.3 31.8 8.6 32.7 9.4 33.3C10.2 33.9 12.0 35.3 13.4 36.3C19.4 40.7 18.8 40.6 22.4 37.9C33.5 29.6 34.3 29.1 35.5 31.1C36.6 32.8 36.2 33.4 31.9 36.6C29.9 38.0 28.1 39.4 27.8 39.7C22.3 43.9 19.4 45.6 18.4 45.3ZM2.8 16.8C2.1 16.1 1.9 15.1 2.2 14.3C2.5 13.6 4.4 12.1 10.8 7.4C11.5 6.9 13.2 5.6 14.6 4.6C19.4 1.1 18.4 0.9 27.0 7.2C31.5 10.6 33.0 11.7 33.8 12.2C35.6 13.5 36.3 14.7 35.7 16.0C34.9 18.1 33.3 17.7 28.4 14.0C27.8 13.5 26.4 12.5 25.4 11.8C24.4 11.1 22.7 9.8 21.6 9.0C19.0 7.0 18.9 7.0 15.2 9.9C5.5 17.2 4.0 18.0 2.8 16.8Z"/></svg></button></div>
+          <div class="r2"><div class="val"><span class="ph">0</span></div><input class="ov" inputmode="decimal" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-label="Сумма"><button class="tokpill"><span class="tk24 usdt"><svg viewBox="0 0 30 20" aria-hidden="true"><path d="M8 2h14l6.5 5.6L15 18.2 1.5 7.6z" fill="#fff" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/><rect x="8.5" y="3.6" width="13" height="2.6" rx="1.3" fill="#009393"/><rect x="13.7" y="3.6" width="2.6" height="11.6" rx="1.3" fill="#009393"/><ellipse cx="15" cy="9.4" rx="6" ry="1.7" fill="none" stroke="#009393" stroke-width="1.5"/></svg></span>USD₮<svg class="ud" viewBox="0 0 38 47.5" width="12.67" height="15.83" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M18.4 45.3C17.8 45.1 16.8 44.4 14.5 42.7C13.7 42.2 12.8 41.5 12.5 41.3C12.2 41.1 11.7 40.8 11.6 40.6C11.4 40.5 10.7 39.9 9.9 39.4C9.1 38.8 7.8 37.9 7.0 37.2C6.2 36.6 4.8 35.6 4.0 35.0C2.3 33.7 1.8 32.7 2.3 31.5C2.9 29.9 4.6 29.8 6.5 31.2C7.3 31.8 8.6 32.7 9.4 33.3C10.2 33.9 12.0 35.3 13.4 36.3C19.4 40.7 18.8 40.6 22.4 37.9C33.5 29.6 34.3 29.1 35.5 31.1C36.6 32.8 36.2 33.4 31.9 36.6C29.9 38.0 28.1 39.4 27.8 39.7C22.3 43.9 19.4 45.6 18.4 45.3ZM2.8 16.8C2.1 16.1 1.9 15.1 2.2 14.3C2.5 13.6 4.4 12.1 10.8 7.4C11.5 6.9 13.2 5.6 14.6 4.6C19.4 1.1 18.4 0.9 27.0 7.2C31.5 10.6 33.0 11.7 33.8 12.2C35.6 13.5 36.3 14.7 35.7 16.0C34.9 18.1 33.3 17.7 28.4 14.0C27.8 13.5 26.4 12.5 25.4 11.8C24.4 11.1 22.7 9.8 21.6 9.0C19.0 7.0 18.9 7.0 15.2 9.9C5.5 17.2 4.0 18.0 2.8 16.8Z"/></svg></button></div>
         </div>
       </div>
+      <div class="swap-rate" id="swap-rate">1 GRAM ≈ 1,23 USD₮</div>
       <div class="cta-row">
         <div class="foot">Сервис предоставлен <b>STON.fi</b><br>Условия · Политика</div>
         <button class="cta2" data-cta disabled>Продолжить</button>
       </div>
     </div>
-    <div class="kbd"><button class="key" data-k="1"><b>1</b><i class="sp">А</i></button><button class="key" data-k="2"><b>2</b><i>АБВГ</i></button><button class="key" data-k="3"><b>3</b><i>ДЕЖЗ</i></button><button class="key" data-k="4"><b>4</b><i>ИЙКЛ</i></button><button class="key" data-k="5"><b>5</b><i>МНОП</i></button><button class="key" data-k="6"><b>6</b><i>РСТУ</i></button><button class="key" data-k="7"><b>7</b><i>ФХЦЧ</i></button><button class="key" data-k="8"><b>8</b><i>ШЩЪЫ</i></button><button class="key" data-k="9"><b>9</b><i>ЬЭЮЯ</i></button><button class="key plain" data-k=","><b>,</b></button><button class="key" data-k="0"><b>0</b><i class="sp">А</i></button><button class="key plain" data-k="back" aria-label="Стереть"><svg class="" viewBox="0 0 79 66" width="26.33" height="22" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M33.4 63.7C28.5 62.3 28.3 62.2 20.6 54.6C4.8 39.1 3.7 37.8 2.6 35.5C1.5 33.0 2.1 30.4 4.3 27.6C5.2 26.6 16.5 15.0 17.4 14.2C17.6 14.0 19.6 12.0 21.9 9.8C27.9 3.9 28.4 3.6 31.9 2.5C33.6 2.0 34.0 2.0 51.2 2.0L68.7 2.0L70.6 2.6C72.7 3.3 72.9 3.4 74.5 5.1C75.5 6.0 75.8 6.6 76.3 8.3L77.0 10.4L77.0 33.0L77.0 55.7L76.4 57.6C75.7 59.6 75.7 59.7 74.4 61.1C73.3 62.2 72.6 62.7 70.4 63.4L68.4 64.0L51.3 64.0C41.8 64.0 33.8 63.9 33.4 63.7ZM68.5 58.2C71.6 57.0 71.5 57.9 71.5 33.0C71.5 7.6 71.7 8.8 68.1 7.7C65.9 7.0 36.0 7.0 33.5 7.7C31.3 8.3 31.4 8.1 19.5 20.0C7.7 31.8 8.0 31.4 8.0 32.9C8.0 34.5 8.4 35.0 24.4 50.7C31.7 57.8 31.8 57.9 34.1 58.3C37.0 59.0 66.9 58.8 68.5 58.2ZM32.4 46.4C30.6 44.7 31.0 43.9 36.6 38.2C39.3 35.6 41.5 33.2 41.5 33.0C41.5 32.8 39.4 30.5 36.9 28.0C31.0 22.2 30.7 21.7 32.3 19.9C33.0 19.1 33.2 19.0 34.2 19.0L35.3 19.0L40.3 23.9C43.0 26.7 45.4 28.9 45.5 29.0C45.9 29.1 46.6 28.4 51.3 23.9C53.7 21.5 56.0 19.4 56.4 19.2C57.7 18.7 58.6 18.9 59.5 19.9C61.1 21.7 60.7 22.3 54.8 27.9C51.2 31.4 50.1 32.5 50.1 33.0C50.1 33.5 51.2 34.7 55.0 38.2C60.8 43.8 61.0 44.2 59.7 45.9C58.9 46.9 58.8 47.0 57.6 47.0C56.3 47.0 56.1 46.8 50.7 41.6C48.1 39.1 45.9 37.0 45.8 37.0C45.6 37.0 43.7 38.8 41.6 40.9C35.8 46.7 35.5 47.0 34.1 47.0C33.2 47.0 32.8 46.9 32.4 46.4Z"/></svg></button></div>
   </section>
 </div>
 <div class="sheet-layer" id="sh-stake" aria-hidden="true">
@@ -1328,16 +1386,28 @@ body:not(.t-wallet) .app-header { display: none; }
     <div class="sh-body">
       <div class="stake-card">
         <div class="big" data-val><span class="v"><span class="ph">0</span></span><i class="caret"></i><span class="u">GRAM</span></div>
-        <span class="usdpill">0 USD <svg class="ud" viewBox="0 0 38 47.5" width="12.67" height="15.83" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M18.4 45.3C17.8 45.1 16.8 44.4 14.5 42.7C13.7 42.2 12.8 41.5 12.5 41.3C12.2 41.1 11.7 40.8 11.6 40.6C11.4 40.5 10.7 39.9 9.9 39.4C9.1 38.8 7.8 37.9 7.0 37.2C6.2 36.6 4.8 35.6 4.0 35.0C2.3 33.7 1.8 32.7 2.3 31.5C2.9 29.9 4.6 29.8 6.5 31.2C7.3 31.8 8.6 32.7 9.4 33.3C10.2 33.9 12.0 35.3 13.4 36.3C19.4 40.7 18.8 40.6 22.4 37.9C33.5 29.6 34.3 29.1 35.5 31.1C36.6 32.8 36.2 33.4 31.9 36.6C29.9 38.0 28.1 39.4 27.8 39.7C22.3 43.9 19.4 45.6 18.4 45.3ZM2.8 16.8C2.1 16.1 1.9 15.1 2.2 14.3C2.5 13.6 4.4 12.1 10.8 7.4C11.5 6.9 13.2 5.6 14.6 4.6C19.4 1.1 18.4 0.9 27.0 7.2C31.5 10.6 33.0 11.7 33.8 12.2C35.6 13.5 36.3 14.7 35.7 16.0C34.9 18.1 33.3 17.7 28.4 14.0C27.8 13.5 26.4 12.5 25.4 11.8C24.4 11.1 22.7 9.8 21.6 9.0C19.0 7.0 18.9 7.0 15.2 9.9C5.5 17.2 4.0 18.0 2.8 16.8Z"/></svg></span>
+        <input class="ov" inputmode="decimal" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-label="Сумма">
+        <span class="usdpill"><span id="stake-usd">0</span> USD <svg class="ud" viewBox="0 0 38 47.5" width="12.67" height="15.83" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M18.4 45.3C17.8 45.1 16.8 44.4 14.5 42.7C13.7 42.2 12.8 41.5 12.5 41.3C12.2 41.1 11.7 40.8 11.6 40.6C11.4 40.5 10.7 39.9 9.9 39.4C9.1 38.8 7.8 37.9 7.0 37.2C6.2 36.6 4.8 35.6 4.0 35.0C2.3 33.7 1.8 32.7 2.3 31.5C2.9 29.9 4.6 29.8 6.5 31.2C7.3 31.8 8.6 32.7 9.4 33.3C10.2 33.9 12.0 35.3 13.4 36.3C19.4 40.7 18.8 40.6 22.4 37.9C33.5 29.6 34.3 29.1 35.5 31.1C36.6 32.8 36.2 33.4 31.9 36.6C29.9 38.0 28.1 39.4 27.8 39.7C22.3 43.9 19.4 45.6 18.4 45.3ZM2.8 16.8C2.1 16.1 1.9 15.1 2.2 14.3C2.5 13.6 4.4 12.1 10.8 7.4C11.5 6.9 13.2 5.6 14.6 4.6C19.4 1.1 18.4 0.9 27.0 7.2C31.5 10.6 33.0 11.7 33.8 12.2C35.6 13.5 36.3 14.7 35.7 16.0C34.9 18.1 33.3 17.7 28.4 14.0C27.8 13.5 26.4 12.5 25.4 11.8C24.4 11.1 22.7 9.8 21.6 9.0C19.0 7.0 18.9 7.0 15.2 9.9C5.5 17.2 4.0 18.0 2.8 16.8Z"/></svg></span>
       </div>
       <div class="stake-row"><button class="maxchip" data-max>MAX</button><span>Доступно: <span id="stake-bal">0,000287</span> GRAM</span></div>
       <button class="provider"><img src="img/o-tonstakers.webp" alt="" width="44" height="44"><span class="txt"><div class="t">Tonstakers</div><div class="s">APY ≈ 12,58 %</div></span><svg class="" viewBox="0 0 38 47.5" width="12.67" height="15.83" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M18.4 45.3C17.8 45.1 16.8 44.4 14.5 42.7C13.7 42.2 12.8 41.5 12.5 41.3C12.2 41.1 11.7 40.8 11.6 40.6C11.4 40.5 10.7 39.9 9.9 39.4C9.1 38.8 7.8 37.9 7.0 37.2C6.2 36.6 4.8 35.6 4.0 35.0C2.3 33.7 1.8 32.7 2.3 31.5C2.9 29.9 4.6 29.8 6.5 31.2C7.3 31.8 8.6 32.7 9.4 33.3C10.2 33.9 12.0 35.3 13.4 36.3C19.4 40.7 18.8 40.6 22.4 37.9C33.5 29.6 34.3 29.1 35.5 31.1C36.6 32.8 36.2 33.4 31.9 36.6C29.9 38.0 28.1 39.4 27.8 39.7C22.3 43.9 19.4 45.6 18.4 45.3ZM2.8 16.8C2.1 16.1 1.9 15.1 2.2 14.3C2.5 13.6 4.4 12.1 10.8 7.4C11.5 6.9 13.2 5.6 14.6 4.6C19.4 1.1 18.4 0.9 27.0 7.2C31.5 10.6 33.0 11.7 33.8 12.2C35.6 13.5 36.3 14.7 35.7 16.0C34.9 18.1 33.3 17.7 28.4 14.0C27.8 13.5 26.4 12.5 25.4 11.8C24.4 11.1 22.7 9.8 21.6 9.0C19.0 7.0 18.9 7.0 15.2 9.9C5.5 17.2 4.0 18.0 2.8 16.8Z"/></svg></button>
       <div class="cta-row"><button class="cta2" data-cta disabled>Продолжить</button></div>
     </div>
-    <div class="kbd"><button class="key" data-k="1"><b>1</b><i class="sp">А</i></button><button class="key" data-k="2"><b>2</b><i>АБВГ</i></button><button class="key" data-k="3"><b>3</b><i>ДЕЖЗ</i></button><button class="key" data-k="4"><b>4</b><i>ИЙКЛ</i></button><button class="key" data-k="5"><b>5</b><i>МНОП</i></button><button class="key" data-k="6"><b>6</b><i>РСТУ</i></button><button class="key" data-k="7"><b>7</b><i>ФХЦЧ</i></button><button class="key" data-k="8"><b>8</b><i>ШЩЪЫ</i></button><button class="key" data-k="9"><b>9</b><i>ЬЭЮЯ</i></button><button class="key plain" data-k=","><b>,</b></button><button class="key" data-k="0"><b>0</b><i class="sp">А</i></button><button class="key plain" data-k="back" aria-label="Стереть"><svg class="" viewBox="0 0 79 66" width="26.33" height="22" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M33.4 63.7C28.5 62.3 28.3 62.2 20.6 54.6C4.8 39.1 3.7 37.8 2.6 35.5C1.5 33.0 2.1 30.4 4.3 27.6C5.2 26.6 16.5 15.0 17.4 14.2C17.6 14.0 19.6 12.0 21.9 9.8C27.9 3.9 28.4 3.6 31.9 2.5C33.6 2.0 34.0 2.0 51.2 2.0L68.7 2.0L70.6 2.6C72.7 3.3 72.9 3.4 74.5 5.1C75.5 6.0 75.8 6.6 76.3 8.3L77.0 10.4L77.0 33.0L77.0 55.7L76.4 57.6C75.7 59.6 75.7 59.7 74.4 61.1C73.3 62.2 72.6 62.7 70.4 63.4L68.4 64.0L51.3 64.0C41.8 64.0 33.8 63.9 33.4 63.7ZM68.5 58.2C71.6 57.0 71.5 57.9 71.5 33.0C71.5 7.6 71.7 8.8 68.1 7.7C65.9 7.0 36.0 7.0 33.5 7.7C31.3 8.3 31.4 8.1 19.5 20.0C7.7 31.8 8.0 31.4 8.0 32.9C8.0 34.5 8.4 35.0 24.4 50.7C31.7 57.8 31.8 57.9 34.1 58.3C37.0 59.0 66.9 58.8 68.5 58.2ZM32.4 46.4C30.6 44.7 31.0 43.9 36.6 38.2C39.3 35.6 41.5 33.2 41.5 33.0C41.5 32.8 39.4 30.5 36.9 28.0C31.0 22.2 30.7 21.7 32.3 19.9C33.0 19.1 33.2 19.0 34.2 19.0L35.3 19.0L40.3 23.9C43.0 26.7 45.4 28.9 45.5 29.0C45.9 29.1 46.6 28.4 51.3 23.9C53.7 21.5 56.0 19.4 56.4 19.2C57.7 18.7 58.6 18.9 59.5 19.9C61.1 21.7 60.7 22.3 54.8 27.9C51.2 31.4 50.1 32.5 50.1 33.0C50.1 33.5 51.2 34.7 55.0 38.2C60.8 43.8 61.0 44.2 59.7 45.9C58.9 46.9 58.8 47.0 57.6 47.0C56.3 47.0 56.1 46.8 50.7 41.6C48.1 39.1 45.9 37.0 45.8 37.0C45.6 37.0 43.7 38.8 41.6 40.9C35.8 46.7 35.5 47.0 34.1 47.0C33.2 47.0 32.8 46.9 32.4 46.4Z"/></svg></button></div>
   </section>
 </div>
 
+
+<div class="hist" id="hist" aria-hidden="true">
+  <div class="hist-scroll" id="hist-scroll">
+    <div class="hist-safe"></div>
+    <div class="hist-head"><button class="hist-back" id="hist-back" aria-label="Назад"><svg class="hb" viewBox="0 0 22.0 38.5" width="7.33" height="12.83" fill-rule="evenodd" aria-hidden="true"><path d="M16.7 36.1C16.4 35.9 14.6 34.2 12.8 32.2C11.1 30.2 9.2 28.2 8.7 27.6C0.9 19.0 1.0 19.3 4.3 15.7C5.0 15.0 7.5 12.2 9.9 9.6C15.6 3.2 16.0 2.8 16.8 2.3C18.5 1.5 20.4 3.3 19.7 5.1C19.5 5.6 16.7 8.8 13.5 12.3C10.0 16.2 7.8 18.9 7.8 19.2C7.8 19.7 10.6 23.0 16.8 29.8C20.2 33.5 20.6 34.5 19.0 35.9C18.1 36.6 17.7 36.6 16.7 36.1Z" fill="currentColor"/></svg></button><h1>История</h1></div>
+    <div class="hist-chips" id="hist-chips">
+      <button class="hchip active" data-f="all">Все</button><button class="hchip" data-f="out">Отправлено</button><button class="hchip" data-f="in">Получено</button><button class="hchip" data-f="spam">Спам</button>
+    </div>
+    <div class="hist-list" id="hist-list"></div>
+  </div>
+  <div class="ptr" id="hist-ptr"><svg viewBox="0 0 36 36" aria-hidden="true" fill="currentColor"><rect x="16.2" y="3" width="3.6" height="10" rx="1.8" transform="rotate(0 18 18)"/><rect x="16.2" y="3" width="3.6" height="10" rx="1.8" transform="rotate(45 18 18)"/><rect x="16.2" y="3" width="3.6" height="10" rx="1.8" transform="rotate(90 18 18)"/><rect x="16.2" y="3" width="3.6" height="10" rx="1.8" transform="rotate(135 18 18)"/><rect x="16.2" y="3" width="3.6" height="10" rx="1.8" transform="rotate(180 18 18)"/><rect x="16.2" y="3" width="3.6" height="10" rx="1.8" transform="rotate(225 18 18)"/><rect x="16.2" y="3" width="3.6" height="10" rx="1.8" transform="rotate(270 18 18)"/><rect x="16.2" y="3" width="3.6" height="10" rx="1.8" transform="rotate(315 18 18)"/></svg></div>
+</div>
 <div class="scrim" id="scrim"></div>
 <!-- Dev menu: открывается долгим зажатием шестерёнки -->
 <div class="sheet-layer" id="sh-dev" aria-hidden="true">
@@ -1445,50 +1515,107 @@ document.querySelectorAll(".seg").forEach(b => b.addEventListener("click", () =>
   document.querySelectorAll(".seg").forEach(x => x.classList.toggle("active", x === b));
 }));
 
-// Pull-to-refresh на главном экране
-(() => {
-  const wp = $("#panel-wallet"), body = $("#wallet-body"), ptr = $("#ptr"), svg = ptr.querySelector("svg");
-  const spokes = [...svg.querySelectorAll("line")];
-  let y0 = null, pull = 0, busy = false;
-  const apply = (px, t) => { body.style.transition = t || "none"; body.style.transform = px ? `translateY(${px}px)` : ""; };
-  wp.addEventListener("touchstart", e => {
-    if (busy || wp.scrollTop > 0 || e.touches.length !== 1) return;
-    y0 = e.touches[0].clientY; pull = 0;
+// Pull-to-refresh: контент следует за пальцем, индикатор (8 лучей) стоит на месте,
+// лучи проявляются по мере вытягивания. Цифры сняты с записи оригинала.
+const PTR_TH = [74, 98, 115, 126, 135, 141, 145, 150];   // сдвиг (pt), с которого появляется k-й луч
+const PTR_TRIGGER = 125;
+function makePTR({ scroller, content, ptr, onTrigger }) {
+  const spokes = [...ptr.querySelectorAll("rect")];
+  let y0 = null, shift = 0, popped = false, busy = false;
+  const apply = (px, t) => { content.style.transition = t || "none"; content.style.transform = px ? `translateY(${px}px)` : ""; };
+  const paint = s => {
+    const a = Math.max(0, Math.min(1, .28 + (s - 64) * .0065));
+    const tail = Math.max(0, Math.min(1, (174 - s) / 50));
+    spokes.forEach((sp, k) => { sp.style.opacity = s >= PTR_TH[k] ? a * (1 - .048 * k * tail) : 0; });
+    ptr.style.opacity = s >= PTR_TH[0] - 10 ? 1 : 0;
+    if (s >= 150 && !popped) { popped = true; ptr.classList.remove("pop"); void ptr.offsetWidth; ptr.classList.add("pop"); }
+    if (s < 110) popped = false;
+  };
+  scroller.addEventListener("touchstart", e => {
+    if (busy || scroller.scrollTop > 0 || e.touches.length !== 1) return;
+    y0 = e.touches[0].clientY; shift = 0;
   }, { passive: true });
-  wp.addEventListener("touchmove", e => {
+  scroller.addEventListener("touchmove", e => {
     if (y0 == null) return;
     const dy = e.touches[0].clientY - y0;
-    if (dy <= 0) { if (pull) { pull = 0; apply(0); ptr.style.opacity = 0; } return; }
-    pull = Math.min(156, dy * 0.55);
-    apply(pull);
-    const n = Math.max(0, Math.min(12, Math.floor((pull - 60) / 96 * 12) + 1));
-    ptr.style.opacity = 1;
-    spokes.forEach((l, i) => { l.style.opacity = i < n ? .7 : 0; });
+    if (dy <= 0) { if (shift) { shift = 0; apply(0); paint(0); } return; }
+    shift = Math.min(190, dy <= 110 ? dy * .95 : 104.5 + (dy - 110) * .4);
+    apply(shift); paint(shift);
     if (e.cancelable) e.preventDefault();
   }, { passive: false });
   const release = () => {
     if (y0 == null) return;
     y0 = null;
-    if (pull >= 80) {
-      busy = true;
-      apply(60, "transform .25s cubic-bezier(.2,.8,.2,1)");
-      spokes.forEach(l => { l.style.opacity = ""; });
-      svg.classList.add("spin");
-      setTimeout(() => {
-        apply(0, "transform .35s cubic-bezier(.2,.8,.2,1)");
-        ptr.style.opacity = 0; svg.classList.remove("spin"); spokes.forEach(l => { l.style.opacity = ""; });
-        showUpdating(600);
-        busy = false;
-      }, 900);
+    const s = shift; shift = 0;
+    if (s >= PTR_TRIGGER) {
+      busy = true; popped = false;
+      ptr.style.opacity = 0; spokes.forEach(sp => { sp.style.opacity = 0; });
+      apply(60, "transform .12s ease-out");
+      if (onTrigger) onTrigger();
+      setTimeout(() => { apply(0, "transform .32s cubic-bezier(.2,.8,.2,1)"); busy = false; }, 140);
     } else {
-      apply(0, "transform .3s cubic-bezier(.2,.8,.2,1)");
-      ptr.style.opacity = 0;
+      apply(0, "transform .28s cubic-bezier(.2,.8,.2,1)");
+      ptr.style.opacity = 0; popped = false;
     }
-    pull = 0;
   };
-  wp.addEventListener("touchend", release);
-  wp.addEventListener("touchcancel", release);
+  scroller.addEventListener("touchend", release);
+  scroller.addEventListener("touchcancel", release);
+}
+makePTR({ scroller: $("#panel-wallet"), content: $("#wallet-body"), ptr: $("#ptr"), onTrigger: () => showUpdating(480) });
+
+// ===== История =====
+const HIST = [
+  { d: "26 Октября", items: [ ["in","UQCA…Hyl6","+0,0001","GRAM","12:54"] ] },
+  { d: "25 Октября", items: [ ["out","UQAO…Hnl6","37,48","USD₮","18:12"], ["out","UQAO…Hnl6","105,68","GRAM","18:11"], ["out","UQAO…Hnl6","1","GRAM","18:11"], ["in","UQAT…uuK8","4,19","GRAM","02:44","726e63de-d6fd-494f-b208-375346ffe38e"] ] },
+  { d: "24 Октября", items: [ ["in","UQAT…uuK8","16","GRAM","22:22","3ab3fa2f-3dd6-4862-ae3b-2e2b6af28f6d"], ["out","Portals Marketplace","1","GRAM","18:56","0e2d8cdc-85e0-4f2d-bf79-85f4dc96534b"], ["out","Portals Marketplace","1","GRAM","18:55","1c5f11bb-8f43-4c2e-9d95-c2f3be8d4a07"] ] },
+  { d: "23 Октября", items: [ ["in","UQAT…uuK8","2","GRAM","11:02"], ["out","UQAO…Hnl6","0,5","GRAM","09:40"] ] },
+];
+const HICON = { in: `<svg class="hi" viewBox="0 0 73.5 70.5" width="24.50" height="23.50" fill-rule="evenodd" aria-hidden="true"><path d="M4.7 68.0C3.4 67.0 1.9 64.8 2.1 64.2C2.3 63.5 19.9 45.8 20.6 45.6C21.4 45.4 21.0 44.7 18.7 42.3C15.4 38.9 15.2 38.7 15.2 36.5C15.2 33.3 17.1 31.4 20.1 31.4C22.3 31.4 22.6 31.6 27.7 36.7C30.6 39.7 31.5 40.4 31.5 39.8C31.5 39.7 31.5 32.2 31.6 23.1C31.6 5.5 31.6 6.1 32.9 4.2C34.8 1.4 39.2 1.4 41.1 4.2C42.5 6.3 42.5 6.1 42.5 23.8C42.5 35.7 42.6 40.0 42.8 40.0C42.9 40.0 44.5 38.5 46.3 36.7C51.4 31.6 51.7 31.4 53.9 31.4C57.0 31.4 58.7 33.3 58.7 36.5C58.7 38.7 58.6 38.9 55.3 42.3C53.0 44.7 52.6 45.4 53.4 45.6C54.2 45.8 71.5 63.3 71.5 63.9C71.5 64.4 69.0 67.5 68.2 68.1C67.2 68.8 5.5 68.7 4.7 68.0ZM39.7 57.0C40.3 56.6 49.3 47.6 54.6 42.0C56.0 40.6 57.4 39.0 57.7 38.5C59.8 35.0 55.6 30.8 52.0 32.6C51.5 32.9 49.2 35.0 46.9 37.3C42.7 41.5 41.8 42.1 41.4 41.1C41.3 40.9 41.2 33.0 41.2 23.6C41.2 9.6 41.2 6.3 40.9 5.7C39.5 2.3 34.5 2.4 33.1 5.7C32.8 6.3 32.8 9.6 32.8 23.6C32.8 33.0 32.7 40.9 32.6 41.1C32.2 42.1 31.3 41.5 27.3 37.5C23.0 33.1 21.8 32.2 20.1 32.2C17.1 32.2 14.7 35.8 16.2 38.3C17.5 40.4 34.3 57.4 35.2 57.6C36.6 57.9 38.9 57.6 39.7 57.0Z" fill="#424A56"/><path d="M35.2 57.6C34.3 57.4 17.5 40.4 16.2 38.3C14.7 35.8 17.1 32.2 20.1 32.2C21.8 32.2 23.0 33.1 27.3 37.5C31.3 41.5 32.2 42.1 32.6 41.1C32.7 40.9 32.8 33.0 32.8 23.6C32.8 9.6 32.8 6.3 33.1 5.7C34.5 2.4 39.5 2.3 40.9 5.7C41.2 6.3 41.2 9.6 41.2 23.6C41.2 33.0 41.3 40.9 41.4 41.1C41.8 42.1 42.7 41.5 46.9 37.3C49.2 35.0 51.5 32.9 52.0 32.6C55.6 30.8 59.8 35.0 57.7 38.5C57.4 39.0 56.0 40.6 54.6 42.0C49.3 47.6 40.3 56.6 39.7 57.0C38.9 57.6 36.6 57.9 35.2 57.6Z" fill="#7D8797"/></svg>`, out: `<svg class="hi" viewBox="0 0 73.5 70.5" width="24.50" height="23.50" fill-rule="evenodd" aria-hidden="true"><path d="M4.7 68.0C4.4 67.7 3.6 66.9 3.0 66.1L1.9 64.7L2.3 63.9C3.1 62.5 20.2 45.6 21.6 44.9C22.8 44.3 23.0 44.2 26.9 44.2C30.2 44.2 31.0 44.2 31.3 43.9C31.5 43.6 31.7 27.0 31.5 20.7C31.5 20.2 30.9 20.8 26.9 24.7C23.5 28.1 22.7 28.8 21.7 29.0C18.2 30.0 15.3 27.7 15.2 24.2C15.2 21.9 15.1 22.1 20.3 16.9C35.6 1.3 34.7 2.1 37.0 2.1C39.0 2.2 39.7 2.6 44.6 7.6C60.4 23.7 58.8 21.7 58.8 24.2C58.8 27.0 56.7 29.3 54.1 29.2C51.9 29.2 51.4 28.9 47.1 24.7C42.9 20.5 42.5 20.2 42.5 20.8C42.4 26.8 42.6 43.7 42.8 43.9C43.0 44.2 44.1 44.3 47.1 44.2C50.9 44.2 51.2 44.3 52.4 44.9C53.9 45.6 71.5 63.1 71.5 63.9C71.5 64.4 69.0 67.5 68.2 68.1C67.2 68.8 5.5 68.7 4.7 68.0ZM39.7 57.0C40.1 56.7 40.7 55.9 41.0 55.3C41.7 54.0 41.7 55.3 41.4 32.4C41.2 18.7 41.2 18.6 42.5 19.2C42.9 19.4 45.0 21.4 47.4 23.7C50.5 26.8 51.9 28.0 52.6 28.2C56.3 29.4 59.6 25.4 57.7 22.1C57.2 21.2 53.9 17.9 43.7 7.9C37.0 1.2 37.0 1.2 29.3 8.9C16.3 21.6 15.7 22.2 15.8 24.1C15.8 27.1 19.2 29.4 21.8 28.1C22.3 27.9 24.5 25.8 26.9 23.5C31.1 19.3 32.1 18.6 32.6 19.3C32.7 19.5 32.7 26.2 32.7 37.0C32.5 55.2 32.5 55.1 33.7 56.3C35.2 57.9 38.1 58.2 39.7 57.0Z" fill="#424A56"/><path d="M35.1 57.4C34.2 57.0 33.1 55.8 32.8 55.0C32.6 54.5 32.6 48.4 32.7 37.0C32.7 26.2 32.7 19.5 32.6 19.3C32.1 18.6 31.1 19.3 26.9 23.5C24.5 25.8 22.3 27.9 21.8 28.1C19.2 29.4 15.8 27.1 15.8 24.1C15.7 22.2 16.3 21.6 29.3 8.9C37.0 1.2 37.0 1.2 43.7 7.9C53.9 17.9 57.2 21.2 57.7 22.1C59.6 25.4 56.3 29.4 52.6 28.2C51.9 28.0 50.5 26.8 47.4 23.7C45.0 21.4 42.9 19.4 42.5 19.2C41.2 18.6 41.2 18.7 41.4 32.4C41.7 55.3 41.7 54.0 41.0 55.3C40.0 57.4 37.2 58.4 35.1 57.4Z" fill="#7D8797"/></svg>` };
+let histFilter = "all";
+function renderHist() {
+  const list = $("#hist-list"); let html = "", first = true, any = false;
+  for (const g of HIST) {
+    const rows = g.items.filter(x => histFilter === "all" || x[0] === histFilter);
+    if (!rows.length) continue;
+    any = true;
+    html += `<div class="hist-date${first ? "" : " later"}">${g.d}</div>`; first = false;
+    for (const [k, addr, amt, tok, tm, cm] of rows) {
+      const sign = k === "in" ? (amt[0] === "+" ? "" : "+") : "−";
+      const gap = "&thinsp;";
+      html += `<div class="htx"><span class="ic">${HICON[k]}</span><div class="mid"><div class="t">${k === "in" ? "Получено" : "Отправлено"}</div><div class="a">${addr}</div></div>` +
+              `<div class="r"><div class="am${k === "in" ? " in" : ""}">${sign}${gap}${amt}&nbsp;${tok}</div><div class="tm">${tm}</div></div>` +
+              (cm ? `<div class="cm">${cm}</div>` : "") + `</div>`;
+    }
+  }
+  list.innerHTML = any ? html : '<div class="hist-empty">Здесь пока ничего нет</div>';
+}
+renderHist();
+$("#hist-chips").addEventListener("click", e => {
+  const b = e.target.closest(".hchip"); if (!b) return;
+  histFilter = b.dataset.f;
+  document.querySelectorAll(".hchip").forEach(x => x.classList.toggle("active", x === b));
+  renderHist();
+});
+function openHist() { const h = $("#hist"); h.setAttribute("aria-hidden", "false"); h.classList.add("open"); document.body.classList.add("hist-open"); }
+function closeHist() { const h = $("#hist"); h.style.transform = ""; h.classList.remove("open", "dragging"); h.setAttribute("aria-hidden", "true"); document.body.classList.remove("hist-open"); }
+$("#hist-back").addEventListener("click", closeHist);
+document.querySelector('.topbar .right .icon-btn[aria-label="История"]').addEventListener("click", openHist);
+// свайп от левого края — назад
+(() => {
+  const h = $("#hist"); let x0 = null, y0 = null, dx = 0, drag = false;
+  h.addEventListener("touchstart", e => { const t = e.touches[0]; if (t.clientX > 28) return; x0 = t.clientX; y0 = t.clientY; dx = 0; drag = false; }, { passive: true });
+  h.addEventListener("touchmove", e => {
+    if (x0 == null) return; const t = e.touches[0];
+    if (!drag && Math.abs(t.clientY - y0) > Math.abs(t.clientX - x0)) { x0 = null; return; }
+    drag = true; dx = Math.max(0, t.clientX - x0);
+    h.classList.add("dragging"); h.style.transform = `translateX(${dx}px)`;
+    if (e.cancelable) e.preventDefault();
+  }, { passive: false });
+  const end = () => { if (x0 == null) return; x0 = null; h.classList.remove("dragging"); if (dx > 110) closeHist(); else h.style.transform = ""; };
+  h.addEventListener("touchend", end); h.addEventListener("touchcancel", end);
 })();
+// обновление списка: двигается только список, шапка и фильтры стоят
+makePTR({ scroller: $("#hist-scroll"), content: $("#hist-list"), ptr: $("#hist-ptr") });
 
 // Copy address
 $("#address-row").addEventListener("click", async () => {
@@ -1611,14 +1738,19 @@ function openPageSheet(id) {
   const el = document.getElementById(id);
   if (!el || openLayer) return;
   resetSheetInput(el);
+  const kb = id === "sh-swap" || id === "sh-stake";
+  if (kb) kbProxy.focus({ preventScroll: true });     // клавиатура поднимается сразу, пока идёт касание
   el.setAttribute("aria-hidden", "false");
   void el.offsetHeight;
   el.classList.add("open");
   openLayer = el;
+  if (kb) setTimeout(() => { if (openLayer === el) { const i = el.querySelector(".ov"); if (i) i.focus({ preventScroll: true }); } }, 380);
 }
 function closePageSheet() {
   if (!openLayer) return;
   const el = openLayer; openLayer = null;
+  if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  kbProxy.blur();
   el.classList.remove("open");
   el.setAttribute("aria-hidden", "true");
   el.querySelector(".psheet").style.transform = "";
@@ -1642,38 +1774,108 @@ document.querySelectorAll(".sheet-layer").forEach(layer => {
   head.addEventListener("touchend", end); head.addEventListener("touchcancel", end);
 });
 
-// ввод суммы на цифровой клавиатуре (Обмен / Стейкинг)
+// ===== Обмен / Стейкинг: поднимается настоящая клавиатура iOS =====
+// Невидимое поле ввода лежит поверх суммы; цифры и каретку рисуем сами, как в оригинале.
+const RATE = 1.230534;                        // USD₮ за 1 GRAM
+const TOKN = { gram: "GRAM", usdt: "USD₮" };
+const sheetInit = {};
+const num = v => parseFloat(String(v).replace(",", ".")) || 0;
+const fmtOut = n => n.toLocaleString("ru-RU", { useGrouping: false, maximumFractionDigits: 6 });
+function cleanAmount(raw) {
+  let v = String(raw).replace(/\./g, ",").replace(/[^\d,]/g, "");
+  const i = v.indexOf(",");
+  if (i >= 0) v = v.slice(0, i + 1) + v.slice(i + 1).replace(/,/g, "");
+  if (v.startsWith(",")) v = "0" + v;
+  if (/^0\d/.test(v)) v = v.replace(/^0+(?=\d)/, "");
+  return v.slice(0, 12);
+}
 function currentBalanceStr() { return fmtAmount(state.bal.gram, 6); }
-function resetSheetInput(layer) {
-  const val = layer.querySelector("[data-val]"); if (!val) return;
-  val.dataset.v = ""; renderVal(layer);
+function resetSheetInput(layer) { const f = sheetInit[layer.id]; if (f) f(); }
+
+// Поле-посредник: клавиатура должна подняться прямо в обработчике касания,
+// а настоящее поле на выезжающей шторке получает фокус, когда шторка доехала.
+const kbProxy = document.createElement("input");
+kbProxy.className = "kb-proxy"; kbProxy.setAttribute("inputmode", "decimal"); kbProxy.setAttribute("aria-hidden", "true"); kbProxy.tabIndex = -1;
+document.body.appendChild(kbProxy);
+// Без Capacitor (браузер/PWA) окно не сжимается, поэтому поднимаем шторку на высоту клавиатуры сами.
+if (window.visualViewport) {
+  const upd = () => {
+    const kb = Math.max(0, window.innerHeight - visualViewport.height - visualViewport.offsetTop);
+    document.documentElement.style.setProperty("--kb", kb > 80 ? kb + "px" : "0px");
+  };
+  visualViewport.addEventListener("resize", upd); visualViewport.addEventListener("scroll", upd);
 }
-function renderVal(layer) {
-  const val = layer.querySelector("[data-val]"), v = val.dataset.v || "";
-  const cta = layer.querySelector("[data-cta]");
-  const nonZero = /[1-9]/.test(v);
-  cta.disabled = !nonZero; cta.classList.toggle("on", nonZero);
-  if (layer.id === "sh-swap") {
-    val.innerHTML = v ? `<span>${v}</span><i class="caret"></i>` : '<i class="caret"></i><span class="ph">0</span>';
-  } else {
-    val.innerHTML = `<span class="v${v ? " has" : ""}">${v || '<span class="ph">0</span>'}</span><i class="caret"></i><span class="u">GRAM</span>`;
+
+// --- Обмен ---
+sheetInit["sh-swap"] = (() => {
+  const layer = $("#sh-swap");
+  const cardA = layer.querySelector(".swap-card:not(.b)"), cardB = layer.querySelector(".swap-card.b");
+  const valA = cardA.querySelector(".val"), valB = cardB.querySelector(".val");
+  const r1A = cardA.querySelector(".r1"), r2A = cardA.querySelector(".r2"), r2B = cardB.querySelector(".r2");
+  const inA = cardA.querySelector(".ov"), inB = cardB.querySelector(".ov");
+  const cta = layer.querySelector("[data-cta]"), rateEl = $("#swap-rate"), flipBtn = layer.querySelector(".swap-btn");
+  const pill = { gram: cardA.querySelector(".tokpill").outerHTML, usdt: cardB.querySelector(".tokpill").outerHTML };
+  const S = { from: "gram", to: "usdt", a: "", b: "", focus: null };
+  const bal = () => S.from === "gram" ? state.bal.gram : state.bal.usdt;
+  const rate = () => S.from === "gram" ? RATE : 1 / RATE;
+  const calc = () => { const n = num(S.a); S.b = n > 0 ? fmtOut(n * rate()) : ""; };
+  function render() {
+    const nA = num(S.a), over = nA > bal() + 1e-12, ok = nA > 0 && !over;
+    r1A.innerHTML = `<span>Отправить</span><span class="bal">${over ? '<span class="err">Недостаточно средств</span>' : `Баланс: ${fmtAmount(bal(), 6)} ${TOKN[S.from]}`} <button class="max" data-max>MAX</button></span>`;
+    const caretA = S.focus === "a" ? '<i class="caret"></i>' : "", caretB = S.focus === "b" ? '<i class="caret"></i>' : "";
+    valA.innerHTML = S.a ? `<span>${S.a}</span>${caretA}` : `${caretA}<span class="ph">0</span>`;
+    valB.innerHTML = S.b ? `<span class="ap">≈</span><span>${S.b}</span>${caretB}` : `${caretB}<span class="ph">0</span>`;
+    cardA.classList.toggle("focus", S.focus === "a"); cardB.classList.toggle("focus", S.focus === "b");
+    rateEl.style.visibility = S.from === "gram" ? "visible" : "hidden";
+    cta.disabled = !ok; cta.classList.toggle("on", ok);
   }
-}
-document.querySelectorAll("#sh-swap, #sh-stake").forEach(layer => {
-  layer.querySelector(".kbd").addEventListener("click", e => {
-    const k = e.target.closest(".key"); if (!k) return;
-    const val = layer.querySelector("[data-val]"); let v = val.dataset.v || "";
-    const d = k.dataset.k;
-    if (d === "back") v = v.slice(0, -1);
-    else if (d === ",") { if (!v.includes(",")) v = (v || "0") + ","; }
-    else if (v.length < 12 && !(v === "0" && d === "0")) v = (v === "0" ? "" : v) + d;
-    val.dataset.v = v; renderVal(layer);
+  function setPills() {
+    r2A.querySelector(".tokpill").outerHTML = pill[S.from];
+    r2B.querySelector(".tokpill").outerHTML = pill[S.to];
+  }
+  inA.addEventListener("input", () => { S.a = cleanAmount(inA.value); inA.value = S.a; calc(); S.focus = "a"; render(); });
+  inB.addEventListener("input", () => { S.b = cleanAmount(inB.value); inB.value = S.b; S.a = ""; inA.value = ""; S.focus = "b"; render(); });
+  inA.addEventListener("focus", () => { S.focus = "a"; render(); });
+  inB.addEventListener("focus", () => { S.focus = "b"; render(); });
+  [inA, inB].forEach(i => i.addEventListener("blur", () => setTimeout(() => {
+    if (document.activeElement !== inA && document.activeElement !== inB) { S.focus = null; render(); }
+  }, 60)));
+  cardA.addEventListener("click", e => { if (!e.target.closest("button")) inA.focus({ preventScroll: true }); });
+  cardB.addEventListener("click", e => { if (!e.target.closest("button")) inB.focus({ preventScroll: true }); });
+  r1A.addEventListener("click", e => {
+    if (!e.target.closest(".max")) return;
+    S.a = bal() > 0 ? fmtOut(bal()) : "0"; inA.value = S.a; calc(); S.focus = "a"; inA.focus({ preventScroll: true }); render();
   });
-  layer.querySelector("[data-max]").addEventListener("click", () => {
-    layer.querySelector("[data-val]").dataset.v = currentBalanceStr(); renderVal(layer);
+  flipBtn.addEventListener("click", () => {
+    [S.from, S.to] = [S.to, S.from]; S.a = ""; S.b = ""; inA.value = ""; inB.value = "";
+    flipBtn.classList.toggle("flipped"); setPills(); S.focus = "a"; inA.focus({ preventScroll: true }); render();
   });
-  layer.querySelector("[data-cta]").addEventListener("click", () => toast("Это визуальный прототип"));
-});
+  cta.addEventListener("click", () => toast("Это визуальный прототип"));
+  return function reset() {
+    S.from = "gram"; S.to = "usdt"; S.a = ""; S.b = ""; S.focus = null; inA.value = ""; inB.value = "";
+    flipBtn.classList.remove("flipped"); setPills(); render();
+  };
+})();
+
+// --- Стейкинг ---
+sheetInit["sh-stake"] = (() => {
+  const layer = $("#sh-stake"), val = layer.querySelector("[data-val]"), inp = layer.querySelector(".ov");
+  const cta = layer.querySelector("[data-cta]"), usd = $("#stake-usd");
+  let v = "", focused = false;
+  function render() {
+    const n = num(v), ok = n > 0 && n <= state.bal.gram + 1e-12;
+    val.innerHTML = `<span class="v${v ? " has" : ""}">${v || '<span class="ph">0</span>'}</span>${focused ? '<i class="caret"></i>' : ""}<span class="u">GRAM</span>`;
+    usd.textContent = n > 0 ? fmtOut(Math.round(n * PRICES.gram * 100) / 100) : "0";
+    cta.disabled = !ok; cta.classList.toggle("on", ok);
+  }
+  inp.addEventListener("input", () => { v = cleanAmount(inp.value); inp.value = v; render(); });
+  inp.addEventListener("focus", () => { focused = true; render(); });
+  inp.addEventListener("blur", () => setTimeout(() => { if (document.activeElement !== inp) { focused = false; render(); } }, 60));
+  layer.querySelector(".stake-card").addEventListener("click", () => inp.focus({ preventScroll: true }));
+  layer.querySelector("[data-max]").addEventListener("click", () => { v = fmtOut(state.bal.gram); inp.value = v; focused = true; inp.focus({ preventScroll: true }); render(); });
+  cta.addEventListener("click", () => toast("Это визуальный прототип"));
+  return function reset() { v = ""; inp.value = ""; focused = false; render(); };
+})();
 
 // Короткий тап по шестерёнке — переключает шрифт по кругу (для сравнения с оригиналом).
 // Firs → Onest → SF → SF Rounded; выбор запоминается.
@@ -1778,6 +1980,14 @@ function toast(msg) {
 
 // ESC closes sheet
 document.addEventListener("keydown", e => { if (e.key === "Escape") { closeSheet(); closePageSheet(); } });
+
+// Нативная клавиатура: тёмная, без панели «Готово/стрелки» (плагин @capacitor/keyboard)
+(() => {
+  const K = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Keyboard;
+  if (!K) return;
+  try { K.setAccessoryBarVisible({ isVisible: false }); } catch (_) {}
+  try { K.setStyle({ style: "DARK" }); } catch (_) {}
+})();
 
 // Service worker only for the PWA; the native app already ships its files,
 // so drop any worker/cache left by earlier builds to avoid stale content.

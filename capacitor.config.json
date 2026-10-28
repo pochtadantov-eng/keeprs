@@ -6,5 +6,12 @@
     "backgroundColor": "#000000",
     "contentInset": "never",
     "limitsNavigationsToAppBoundDomains": false
+  },
+  "plugins": {
+    "Keyboard": {
+      "resize": "native",
+      "style": "DARK",
+      "resizeOnFullScreen": true
+    }
   }
 }
