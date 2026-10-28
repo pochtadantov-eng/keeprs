@@ -6,6 +6,8 @@
 <title>Кошелёк</title>
 <meta name="theme-color" content="#000000">
 <meta name="description" content="Крипто-кошелёк на TON">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -25,19 +27,20 @@ img { max-width: 100%; }
 /* Layout: single-column dark crypto wallet. Top row — scan on left, wallet switcher pill in center, clock + gear on right. Centered balance hero with a small bolt bubble. Pill with address + chain badge. Row of four round quick actions. Section headers (Крипто, Коллекции) each with a rounded dark card below. Fixed bottom tab bar on top of a blur. Deliberately dark-only, like Telegram Wallet. */
 
 :root {
-  --bg: #0d1218;
-  --surface: #171c24;
-  --surface-2: #272b35;
-  --surface-3: #313644;
-  --fg: #ffffff;
-  --fg-dim: #8c93a0;
-  --fg-faint: #585e6b;
-  --accent: #2ea6ff;
-  --green: #4ed174;
-  --green-bg: rgba(78, 209, 116, 0.15);
-  --red: #ff5c5c;
-  --divider: rgba(255, 255, 255, 0.06);
-  --tabbar-bg: rgba(13, 18, 24, 0.85);
+  /* Tonkeeper theme (Apache-2.0, github.com/tonkeeper/tonkeeper-web) */
+  --bg: #10161F;             /* backgroundPage */
+  --surface: #1D2633;         /* backgroundContent */
+  --surface-2: #2E3847;       /* backgroundContentTint */
+  --surface-3: #424C5C;       /* backgroundContentAttention */
+  --fg: #EBEBEB;              /* textPrimary */
+  --fg-dim: #8994A3;          /* textSecondary */
+  --fg-faint: #556170;        /* textTertiary */
+  --accent: #45AEF5;          /* accentBlue */
+  --green: #39CC83;           /* accentGreen */
+  --green-bg: rgba(57, 204, 131, 0.15);
+  --red: #FF4766;             /* accentRed */
+  --divider: rgba(79, 90, 112, 0.24);
+  --tabbar-bg: rgba(16, 22, 31, 0.92);
   color-scheme: dark;
 }
 
@@ -45,10 +48,9 @@ html, body { min-height: 100%; }
 body {
   background: var(--bg);
   color: var(--fg);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, system-ui, sans-serif;
+  font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   overscroll-behavior-y: contain;
-  font-feature-settings: "ss01", "cv11";
 }
 body::before {
   content: "";
@@ -213,20 +215,21 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   padding: 4px;
 }
 .action .ring {
-  width: 50px; height: 50px;
+  width: 44px; height: 44px;
   border-radius: 50%;
-  background: var(--surface-2);
+  background: var(--surface);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   transition: transform .1s, background .15s;
 }
-.action:active .ring { transform: scale(.94); background: var(--surface-3); }
-.action .ring svg { width: 20px; height: 20px; color: var(--fg); stroke-width: 1.8; }
+.action:active .ring { transform: scale(.94); background: var(--surface-2); }
+.action .ring svg { width: 18px; height: 18px; color: var(--fg); stroke-width: 1.8; }
 .action .label {
   font-size: 12px;
-  color: var(--fg);
-  font-weight: 400;
+  line-height: 16px;
+  color: var(--fg-dim);
+  font-weight: 600;
 }
 
 /* ===== Section headers ===== */
@@ -243,7 +246,8 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .section-head h2 {
   margin: 0;
   font-size: 20px;
-  font-weight: 600;
+  line-height: 28px;
+  font-weight: 700;
   letter-spacing: -0.01em;
   display: inline-flex;
   align-items: center;
@@ -268,7 +272,7 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 /* ===== Crypto list card ===== */
 .card {
   background: var(--surface);
-  border-radius: 18px;
+  border-radius: 16px;
   overflow: hidden;
 }
 .row {
@@ -321,27 +325,30 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   flex-wrap: wrap;
 }
 .info .line1 .name {
-  font-size: 17px;
+  font-size: 16px;
+  line-height: 24px;
   font-weight: 600;
   letter-spacing: -0.005em;
 }
 .badge-apy {
   background: var(--green-bg);
   color: var(--green);
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 6px;
+  font-size: 10px;
+  line-height: 14px;
+  font-weight: 600;
+  padding: 3px 4px;
+  border-radius: 4px;
   letter-spacing: .02em;
   white-space: nowrap;
 }
 .badge-chain-pill {
   background: var(--surface-3);
   color: var(--fg-dim);
-  font-size: 11px;
+  font-size: 10px;
+  line-height: 14px;
   font-weight: 600;
-  padding: 2px 7px;
-  border-radius: 6px;
+  padding: 3px 4px;
+  border-radius: 4px;
   letter-spacing: .02em;
 }
 .pin {
@@ -358,7 +365,7 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   gap: 6px;
   font-variant-numeric: tabular-nums;
 }
-.info .line2 .delta { color: var(--green); font-weight: 500; }
+.info .line2 .delta { color: var(--green); font-weight: 500; opacity: .64; }
 .info .line2 .delta.neg { color: var(--red); }
 
 .amount {
@@ -391,7 +398,7 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   flex: none;
   width: 182px;
   background: var(--surface);
-  border-radius: 18px;
+  border-radius: 16px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -478,7 +485,7 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   padding: 6px 4px 4px;
 }
 .tab svg { width: 26px; height: 26px; }
-.tab .tab-label { font-size: 10.5px; font-weight: 500; }
+.tab .tab-label { font-size: 10px; line-height: 14px; font-weight: 600; }
 .tab.active { color: var(--accent); }
 .tab.active svg path, .tab.active svg rect, .tab.active svg circle { }
 
