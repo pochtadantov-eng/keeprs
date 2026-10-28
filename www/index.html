@@ -921,6 +921,11 @@ body:not(.t-wallet) .app-header { display: none; }
   *, *::before, *::after { transition-duration: .001ms !important; animation-duration: .001ms !important; }
 }
 
+/* Скрыть начальные (хардкодные) суммы, пока JS не подставит сохранённое состояние,
+   чтобы не было мгновенного мигания "< $ 0,01" перед реальным балансом. */
+.wallet-body { opacity: 0; transition: opacity .14s ease-out; }
+.wallet-body.ready { opacity: 1; }
+
 /* ===== Dev sheet (long-press on gear) ===== */
 .dev-sect { padding: 4px 20px 22px; }
 .dev-sect + .dev-sect { border-top: 1px solid var(--divider); padding-top: 18px; }
@@ -1528,6 +1533,8 @@ function renderBalances() {
   const kb = document.getElementById("stake-bal"); if (kb) kb.textContent = fmtAmount(g, 6);
 }
 renderBalances();
+// После того как настоящие значения подставлены — показываем кошелёк.
+requestAnimationFrame(() => $("#wallet-body").classList.add("ready"));
 
 $("#balance").addEventListener("click", () => { altBalance = !altBalance; renderBalances(); });
 
