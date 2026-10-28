@@ -33,14 +33,11 @@
   --green-bg: #214040;
   --divider: #252F3D;
   --red: #FF4766;
-  --tabbar-bg: rgba(16, 22, 31, 0.98);
   --tabbar-h: calc(60px + max(0px, calc(env(safe-area-inset-bottom, 0px) - 10px)));
   color-scheme: dark;
-  padding-top: env(safe-area-inset-top, 0px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-html, body { margin: 0; min-height: 100%; }
+html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: none; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
 body {
@@ -65,11 +62,7 @@ button { font-family: inherit; font-weight: inherit; -webkit-tap-highlight-color
 button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 svg { display: block; flex: none; }
 
-.screen {
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-  padding-block: 0 calc(var(--tabbar-h) + 24px);
-}
+.screen { display: contents; }
 
 /* ===== Top bar ===== */
 .app-header {
@@ -433,9 +426,7 @@ body:not(.t-wallet) .app-header { display: none; }
   padding-right: max(16px, env(safe-area-inset-right, 0px));
   padding-bottom: max(0px, calc(env(safe-area-inset-bottom, 0px) - 10px));
   padding-top: 3px;
-  background: var(--tabbar-bg);
-  backdrop-filter: saturate(160%) blur(18px);
-  -webkit-backdrop-filter: saturate(160%) blur(18px);
+  background: var(--bg);
   z-index: 15;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -520,6 +511,22 @@ body:not(.t-wallet) .app-header { display: none; }
 /* ===== Panels per tab ===== */
 .panel { display: none; }
 .panel.active { display: block; animation: panel-in .12s ease-out; }
+#panel-wallet.active, #panel-trade.active {
+  position: fixed;
+  left: 0; right: 0;
+  top: env(safe-area-inset-top, 0px);
+  bottom: var(--tabbar-h);
+  box-sizing: border-box;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+#panel-wallet::-webkit-scrollbar, #panel-trade::-webkit-scrollbar { display: none; }
+#panel-wallet { padding-top: 64px; }
 @keyframes panel-in { from { opacity: 0; } to { opacity: 1; } }
 .panel-placeholder {
   text-align: center;
@@ -534,7 +541,7 @@ body:not(.t-wallet) .app-header { display: none; }
 
 
 /* ===== Pull to refresh / updating ===== */
-.wallet-body { will-change: transform; }
+.wallet-body { min-height: calc(100% + 130px); }
 .ptr {
   position: fixed;
   left: 50%;
@@ -598,7 +605,7 @@ body:not(.t-wallet) .app-header { display: none; }
 }
 
 /* ===== Trade ===== */
-#panel-trade { padding-top: 16px; }
+#panel-trade { padding-top: 16px; padding-bottom: 24px; }
 .cats {
   display: flex;
   justify-content: space-between;
@@ -768,8 +775,8 @@ body:not(.t-wallet) .app-header { display: none; }
 
 <div class="screen">
   <!-- WALLET PANEL -->
-  <div class="panel active" id="panel-wallet" style="padding-top:64px">
-   <div class="wallet-body" id="wallet-body" style="padding-bottom:100px">
+  <div class="panel active" id="panel-wallet">
+   <div class="wallet-body" id="wallet-body">
     <section class="hero">
       <div class="balance-row">
         <h1 class="balance" id="balance">&lt;&nbsp;$&thinsp;0<span class="cents">,01</span></h1>
@@ -1003,19 +1010,17 @@ const $ = s => document.querySelector(s);
 let bannersReady = false;
 const scrollMemo = { wallet: 0, trade: 0, browser: 0 };
 let curTab = "wallet";
+const scroller = name => name === "browser" ? document.querySelector(".b-scroll") : $("#panel-" + name);
 function syncHeader() {
-  header.classList.toggle("scrolled", document.body.classList.contains("t-wallet") && window.scrollY > 0);
+  header.classList.toggle("scrolled", curTab === "wallet" && $("#panel-wallet").scrollTop > 0);
 }
 function showTab(name, initial) {
-  scrollMemo[curTab] = window.scrollY;
-  const bs = document.querySelector(".b-scroll");
-  if (curTab === "browser") scrollMemo.browserInner = bs.scrollTop;
+  scrollMemo[curTab] = scroller(curTab).scrollTop;
   curTab = name;
   document.querySelectorAll(".tab").forEach(b => b.classList.toggle("active", b.dataset.tab === name));
   document.querySelectorAll(".panel").forEach(p => p.classList.toggle("active", p.id === "panel-" + name));
   document.body.className = "t-" + name;
-  window.scrollTo({ top: scrollMemo[name] || 0, behavior: "instant" });
-  if (name === "browser") bs.scrollTop = scrollMemo.browserInner || 0;
+  scroller(name).scrollTop = scrollMemo[name] || 0;
   syncHeader();
   if (name === "browser" && !bannersReady) {
     const bn = $("#banners");
@@ -1042,7 +1047,7 @@ function showUpdating(ms) {
 }
 
 // Шапка получает линию, когда под неё уезжает контент
-window.addEventListener("scroll", syncHeader, { passive: true });
+$("#panel-wallet").addEventListener("scroll", syncHeader, { passive: true });
 
 // Витрина / Подключенные
 document.querySelectorAll(".seg").forEach(b => b.addEventListener("click", () => {
@@ -1051,14 +1056,14 @@ document.querySelectorAll(".seg").forEach(b => b.addEventListener("click", () =>
 
 // Pull-to-refresh на главном экране
 (() => {
-  const body = $("#wallet-body"), ptr = $("#ptr"), svg = ptr.querySelector("svg");
+  const wp = $("#panel-wallet"), body = $("#wallet-body"), ptr = $("#ptr"), svg = ptr.querySelector("svg");
   let y0 = null, pull = 0, busy = false;
   const apply = (px, t) => { body.style.transition = t || "none"; body.style.transform = px ? `translateY(${px}px)` : ""; };
-  document.addEventListener("touchstart", e => {
-    if (busy || !document.body.classList.contains("t-wallet") || window.scrollY > 0 || e.touches.length !== 1) return;
+  wp.addEventListener("touchstart", e => {
+    if (busy || wp.scrollTop > 0 || e.touches.length !== 1) return;
     y0 = e.touches[0].clientY; pull = 0;
   }, { passive: true });
-  document.addEventListener("touchmove", e => {
+  wp.addEventListener("touchmove", e => {
     if (y0 == null) return;
     const dy = e.touches[0].clientY - y0;
     if (dy <= 0) { if (pull) { pull = 0; apply(0); ptr.style.opacity = 0; } return; }
@@ -1086,8 +1091,8 @@ document.querySelectorAll(".seg").forEach(b => b.addEventListener("click", () =>
     }
     pull = 0;
   };
-  document.addEventListener("touchend", release);
-  document.addEventListener("touchcancel", release);
+  wp.addEventListener("touchend", release);
+  wp.addEventListener("touchcancel", release);
 })();
 
 // Copy address
