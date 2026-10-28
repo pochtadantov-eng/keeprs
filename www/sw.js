@@ -1,5 +1,5 @@
 // Service worker for the Кошелёк PWA — offline-first.
-const CACHE = "koshelek-v7";
+const CACHE = "koshelek-v8";
 const ASSETS = [
   "./",
   "./index.html",
@@ -19,6 +19,16 @@ const ASSETS = [
   "./img/a-tonvpn.webp",
   "./img/a-upscale.webp",
   "./img/banner.webp",
+  "./img/flag-us.webp",
+  "./img/nft-art.webp",
+  "./img/o-applepay.webp",
+  "./img/o-buy-gram.webp",
+  "./img/o-recv-tokens.webp",
+  "./img/o-sell-card.webp",
+  "./img/o-send-tokens.webp",
+  "./img/o-tonstakers.webp",
+  "./img/o-usdt-swap.webp",
+  "./img/o-usdt-transfer.webp",
   "./img/s-aapl.webp",
   "./img/s-amzn.webp",
   "./img/s-coin.webp",
@@ -35,6 +45,7 @@ const ASSETS = [
   "./img/t-redo.webp",
   "./img/t-sp.webp",
   "./img/t-utya.webp",
+  "./img/verified.webp",
 ];
 
 self.addEventListener("install", (e) => {
