@@ -1,0 +1,10 @@
+{
+  "appId": "com.pochtadantov.koshelek",
+  "appName": "Кошелёк",
+  "webDir": "www",
+  "ios": {
+    "backgroundColor": "#000000",
+    "contentInset": "never",
+    "limitsNavigationsToAppBoundDomains": false
+  }
+}

@@ -1,0 +1,83 @@
+name: Build iOS .ipa
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build unsigned .ipa on macOS
+    runs-on: macos-14
+    timeout-minutes: 40
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install npm dependencies
+        run: npm install
+
+      - name: Add iOS Capacitor platform
+        run: npx cap add ios
+
+      - name: Generate iOS app icon & splash from assets/
+        run: npx capacitor-assets generate --ios
+
+      - name: Capacitor sync (copy web + plugins into ios/)
+        run: npx cap sync ios
+
+      - name: Show Xcode & Pod versions
+        run: |
+          xcodebuild -version
+          pod --version || true
+          sw_vers
+
+      - name: Build .app (unsigned, Release)
+        run: |
+          set -e
+          cd ios/App
+          xcodebuild \
+            -workspace App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            ONLY_ACTIVE_ARCH=NO \
+            IPHONEOS_DEPLOYMENT_TARGET=14.0 \
+            build
+
+      - name: Repackage .app into unsigned .ipa
+        run: |
+          set -e
+          cd ios/App/build/Build/Products/Release-iphoneos
+          ls -la
+          mkdir -p Payload
+          cp -R App.app Payload/App.app
+          zip -qry Koshelek-unsigned.ipa Payload
+          ls -lh Koshelek-unsigned.ipa
+
+      - name: Upload .ipa as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Koshelek-unsigned-ipa
+          path: ios/App/build/Build/Products/Release-iphoneos/Koshelek-unsigned.ipa
+          retention-days: 14
+
+      - name: Also upload .app bundle (for Sideloadly / resign tools)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Koshelek-app-bundle
+          path: ios/App/build/Build/Products/Release-iphoneos/App.app
+          retention-days: 14
