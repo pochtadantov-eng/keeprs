@@ -25,19 +25,19 @@ img { max-width: 100%; }
 /* Layout: single-column dark crypto wallet. Top row — scan on left, wallet switcher pill in center, clock + gear on right. Centered balance hero with a small bolt bubble. Pill with address + chain badge. Row of four round quick actions. Section headers (Крипто, Коллекции) each with a rounded dark card below. Fixed bottom tab bar on top of a blur. Deliberately dark-only, like Telegram Wallet. */
 
 :root {
-  --bg: #000000;
-  --surface: #17181c;
-  --surface-2: #22242a;
-  --surface-3: #2b2d33;
+  --bg: #0d1218;
+  --surface: #171c24;
+  --surface-2: #272b35;
+  --surface-3: #313644;
   --fg: #ffffff;
-  --fg-dim: #8c8f97;
-  --fg-faint: #585a62;
+  --fg-dim: #8c93a0;
+  --fg-faint: #585e6b;
   --accent: #2ea6ff;
   --green: #4ed174;
   --green-bg: rgba(78, 209, 116, 0.15);
   --red: #ff5c5c;
   --divider: rgba(255, 255, 255, 0.06);
-  --tabbar-bg: rgba(10, 10, 12, 0.85);
+  --tabbar-bg: rgba(13, 18, 24, 0.85);
   color-scheme: dark;
 }
 
@@ -131,25 +131,44 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 }
 .balance {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
-  font-weight: 600;
-  font-size: 54px;
-  letter-spacing: -0.02em;
+  font-weight: 700;
+  font-size: 58px;
+  letter-spacing: -0.025em;
   line-height: 1;
   font-variant-numeric: tabular-nums;
   color: var(--fg);
   margin: 0;
 }
+.balance .cents {
+  font-size: 0.5em;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
 .bolt {
-  width: 36px; height: 36px;
-  border-radius: 50%;
+  position: relative;
+  width: 46px;
+  height: 24px;
+  border-radius: 6px;
   background: var(--surface-2);
   border: none;
+  padding: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   color: var(--accent);
 }
-.bolt svg { width: 18px; height: 18px; }
+.bolt::after {
+  content: "";
+  position: absolute;
+  right: -3px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 11px;
+  background: var(--surface-2);
+  border-radius: 0 2px 2px 0;
+}
+.bolt svg { width: 12px; height: 12px; }
 
 .address-row {
   margin-top: 14px;
@@ -194,7 +213,7 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   padding: 4px;
 }
 .action .ring {
-  width: 56px; height: 56px;
+  width: 50px; height: 50px;
   border-radius: 50%;
   background: var(--surface-2);
   display: inline-flex;
@@ -203,11 +222,11 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   transition: transform .1s, background .15s;
 }
 .action:active .ring { transform: scale(.94); background: var(--surface-3); }
-.action .ring svg { width: 22px; height: 22px; color: var(--fg); }
+.action .ring svg { width: 20px; height: 20px; color: var(--fg); stroke-width: 1.8; }
 .action .label {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--fg);
-  font-weight: 500;
+  font-weight: 400;
 }
 
 /* ===== Section headers ===== */
@@ -370,12 +389,16 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .nft-row::-webkit-scrollbar { display: none; }
 .nft {
   flex: none;
-  width: 160px;
+  width: 182px;
   background: var(--surface);
   border-radius: 18px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  border: none;
+  padding: 0;
+  color: inherit;
+  text-align: left;
 }
 .nft:active { background: var(--surface-2); }
 .nft-art {
@@ -575,7 +598,7 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   <div class="panel active" id="panel-wallet">
     <section class="hero">
       <div class="balance-row">
-        <h1 class="balance" id="balance">&lt;&nbsp;$0,01</h1>
+        <h1 class="balance" id="balance">&lt;&nbsp;$0,<span class="cents">01</span></h1>
         <button class="bolt" aria-label="Быстрое действие">
           <svg viewBox="0 0 24 24" fill="currentColor">
             <path d="M13 2 4 14h7l-1 8 9-12h-7z"/>
@@ -583,7 +606,7 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
         </button>
       </div>
       <button class="address-row" id="address-row" aria-label="Скопировать адрес">
-        <span id="address-text">UQBQ…nR4</span>
+        <span id="address-text">UQBQ...<span style="opacity:.6">_</span>nR4</span>
         <span class="badge-chain">W5</span>
       </button>
     </section>
@@ -643,10 +666,10 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
           <div class="info">
             <div class="line1">
               <span class="name">GRAM</span>
-              <span class="badge-apy">12,58% APY</span>
+              <span class="badge-apy">12,58 % APY</span>
               <span class="pin"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2l8 8-5 1-4 4-1 5-8-8 5-1 4-4z"/></svg></span>
             </div>
-            <div class="line2">$1,24 <span class="delta">+1,72%</span></div>
+            <div class="line2">$1,24 <span class="delta">+1,72 %</span></div>
           </div>
           <div class="amount">
             <div class="big">0,000287</div>
@@ -668,7 +691,7 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
               <span class="badge-chain-pill">TON</span>
               <span class="pin"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2l8 8-5 1-4 4-1 5-8-8 5-1 4-4z"/></svg></span>
             </div>
-            <div class="line2">$0,99 <span class="delta">+0,03%</span></div>
+            <div class="line2">$0,99 <span class="delta">+0,03 %</span></div>
           </div>
           <div class="amount">
             <div class="big">0</div>
