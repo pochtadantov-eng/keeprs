@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -79,6 +79,20 @@ jobs:
           cp -R App.app Payload/App.app
           zip -qry Koshelek-unsigned.ipa Payload
           ls -lh Koshelek-unsigned.ipa
+
+      - name: Publish .ipa to GitHub Release (plain file, no zip)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          IPA=ios/App/build/Build/Products/Release-iphoneos/Koshelek-unsigned.ipa
+          TAG=latest-ipa
+          gh release delete "$TAG" --cleanup-tag --yes -R "$GITHUB_REPOSITORY" || true
+          gh release create "$TAG" "$IPA" -R "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" --prerelease \
+            --title "Сборка #${{ github.run_number }} (${GITHUB_SHA::7})" \
+            --notes "Неподписанный .ipa для Sideloadly / AltStore. Коммит: $GITHUB_SHA"
+          echo "Download: https://github.com/$GITHUB_REPOSITORY/releases/download/$TAG/Koshelek-unsigned.ipa"
 
       - name: Upload .ipa as workflow artifact
         uses: actions/upload-artifact@v4
