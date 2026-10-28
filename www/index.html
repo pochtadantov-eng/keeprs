@@ -37,13 +37,16 @@
   color-scheme: dark;
 }
 
+html { --font: "Onest", -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif; }
+html[data-font="sf"] { --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif; }
+html[data-font="sfr"] { --font: ui-rounded, "SF Pro Rounded", -apple-system, system-ui, sans-serif; }
 html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: none; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
 body {
   background: var(--bg);
   color: var(--fg);
-  font-family: "Onest", -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  font-family: var(--font);
   font-weight: 500;
   -webkit-font-smoothing: antialiased;
   overscroll-behavior-y: contain;
@@ -1498,6 +1501,21 @@ document.querySelectorAll("#sh-swap, #sh-stake").forEach(layer => {
     layer.querySelector("[data-val]").dataset.v = BALANCE; renderVal(layer);
   });
   layer.querySelector("[data-cta]").addEventListener("click", () => toast("Это визуальный прототип"));
+});
+
+// Font switcher (temporary, for comparing against the original): gear cycles
+// Onest -> SF Pro (system) -> SF Pro Rounded; the choice is remembered.
+const FONT_CYCLE = [["", "Onest"], ["sf", "SF Pro (системный шрифт Apple)"], ["sfr", "SF Pro Rounded"]];
+function applyFont(key) {
+  if (key) document.documentElement.dataset.font = key; else delete document.documentElement.dataset.font;
+}
+try { applyFont(localStorage.getItem("font") || ""); } catch (e) {}
+document.querySelector('[aria-label="Настройки"]').addEventListener("click", () => {
+  const cur = document.documentElement.dataset.font || "";
+  const i = (FONT_CYCLE.findIndex(f => f[0] === cur) + 1) % FONT_CYCLE.length;
+  applyFont(FONT_CYCLE[i][0]);
+  try { localStorage.setItem("font", FONT_CYCLE[i][0]); } catch (e) {}
+  toast("Шрифт: " + FONT_CYCLE[i][1]);
 });
 
 // Toast
