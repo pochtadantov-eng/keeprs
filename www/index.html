@@ -1513,11 +1513,18 @@ function toast(msg) {
 // ESC closes sheet
 document.addEventListener("keydown", e => { if (e.key === "Escape") { closeSheet(); closePageSheet(); } });
 
-// Register service worker (offline + installable PWA)
+// Service worker only for the PWA; the native app already ships its files,
+// so drop any worker/cache left by earlier builds to avoid stale content.
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("sw.js").catch(() => {});
-  });
+  if (window.Capacitor) {
+    navigator.serviceWorker.getRegistrations()
+      .then(rs => rs.forEach(r => r.unregister())).catch(() => {});
+    if (window.caches) caches.keys().then(ks => ks.forEach(k => caches.delete(k))).catch(() => {});
+  } else {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("sw.js").catch(() => {});
+    });
+  }
 }
 </script>
 </body>
