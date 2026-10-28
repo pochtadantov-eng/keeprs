@@ -6,8 +6,6 @@
 <title>Кошелёк</title>
 <meta name="theme-color" content="#000000">
 <meta name="description" content="Крипто-кошелёк на TON">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -48,7 +46,7 @@ html, body { min-height: 100%; }
 body {
   background: var(--bg);
   color: var(--fg);
-  font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   overscroll-behavior-y: contain;
 }
@@ -229,7 +227,7 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   font-size: 12px;
   line-height: 16px;
   color: var(--fg-dim);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 /* ===== Section headers ===== */
@@ -247,7 +245,7 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   margin: 0;
   font-size: 20px;
   line-height: 28px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.01em;
   display: inline-flex;
   align-items: center;
@@ -891,6 +889,15 @@ function toast(msg) {
 
 // ESC closes sheet
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeSheet(); });
+
+// Telegram Mini App: сливаем шапку с тёмным фоном, чтобы X и ⋯ не выделялись белым
+if (window.Telegram && window.Telegram.WebApp) {
+  const tg = window.Telegram.WebApp;
+  try { tg.ready(); } catch (_) {}
+  try { tg.expand(); } catch (_) {}
+  try { tg.setHeaderColor("#10161F"); } catch (_) {}
+  try { tg.setBackgroundColor("#10161F"); } catch (_) {}
+}
 
 // Register service worker (offline + installable PWA)
 if ("serviceWorker" in navigator) {
