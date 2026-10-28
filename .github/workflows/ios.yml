@@ -11,12 +11,19 @@ permissions:
 jobs:
   build:
     name: Build unsigned .ipa on macOS
-    runs-on: macos-14
+    runs-on: macos-15
     timeout-minutes: 40
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Select newest stable Xcode (new SDK => app uses the full screen)
+        run: |
+          ls -d /Applications/Xcode*.app || true
+          NEWEST=$(ls -d /Applications/Xcode_*.app 2>/dev/null | grep -vi beta | sort -V | tail -1)
+          echo "Using ${NEWEST:-default Xcode}"
+          if [ -n "$NEWEST" ]; then sudo xcode-select -s "$NEWEST/Contents/Developer"; fi
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -34,6 +41,11 @@ jobs:
 
       - name: Capacitor sync (copy web + plugins into ios/)
         run: npx cap sync ios
+
+      - name: Show launch-screen keys in Info.plist (compat-mode diagnostics)
+        run: |
+          plutil -p ios/App/App/Info.plist | grep -iE "Launch|Scene|FullScreen|MinimumOS" || true
+          ls ios/App/App/Base.lproj || true
 
       - name: Show Xcode & Pod versions
         run: |
