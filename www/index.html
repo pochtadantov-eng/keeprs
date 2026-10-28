@@ -1058,6 +1058,45 @@ body.hist-open .app-header, body.hist-open .panel.active, body.hist-open .tabbar
 .hist-empty.big { padding: 0; margin-top: 150px; }
 .hist-empty.big .t { color: #fff; font-size: 20px; line-height: 28px; font-weight: 600; }
 .hist-empty.big .c { margin-top: 4px; color: var(--fg-dim); font-size: 16px; line-height: 24px; font-weight: 450; }
+
+/* ===== Отправить токены (форма) + выбор монеты ===== */
+.psheet.stacked { top: calc(env(safe-area-inset-top, 0px) + 10px); }
+.sf-body { padding-top: 0; }
+.sf-card { display: flex; align-items: center; gap: 8px; box-sizing: border-box; min-height: 64px; padding: 0 13.5px 0 14.3px; margin-bottom: 15.7px; background: var(--surface); border: 2px solid transparent; border-radius: 20px; }
+.sf-card:focus-within { border-color: var(--accent); }
+.sf-card input { flex: 1; min-width: 0; height: 60px; border: 0; outline: none; background: transparent; padding: 0; color: #fff; font-size: 16.3px; font-weight: 450; caret-color: var(--accent); -webkit-appearance: none; appearance: none; font-family: inherit; }
+.sf-card input::placeholder { color: var(--fg-dim); opacity: 1; font-weight: 450; }
+.sf-card.sf-amt input { font-size: 20px; font-weight: 500; }
+.sf-card.sf-amt input::placeholder { font-size: 16.3px; font-weight: 450; }
+.sf-pill { flex: none; height: 31.3px; padding: 0 13.9px; border: 0; border-radius: 16px; background: var(--pill); color: #fff; font-size: 14px; font-weight: 500; }
+.sf-scan { flex: none; width: 20px; padding: 0; margin-left: 13px; border: 0; background: none; color: var(--accent); display: inline-flex; align-items: center; }
+.sf-scan svg { width: 20px; height: auto; }
+.sf-tok { height: 39.7px !important; padding: 0 10px 0 8px !important; gap: 7px !important; font-size: 15px !important; }
+.sf-amt { padding-right: 10.3px; }
+.sf-tok .tk24 { width: 23.3px; height: 23.3px; margin-left: 1px; }
+.sf-tok img { width: 27px; height: 27px; margin: -2px 0 -2px -1px; }
+.sf-sub { display: flex; align-items: center; justify-content: space-between; margin: -4.3px 0 31.3px; color: var(--fg-dim); font-size: 14.2px; line-height: 22px; font-weight: 450; }
+.sf-usd { display: inline-flex; align-items: center; gap: 2px; padding: 0; border: 0; background: none; color: var(--fg-dim); font-size: 14.2px; font-weight: 450; }
+.sf-ud { color: #485564; }
+.sf-avail { display: inline-flex; align-items: center; gap: 8px; position: relative; top: 2.3px; }
+.sf-avail .err { color: var(--red); }
+.sf-avail .max { font-size: 14.2px; font-weight: 500; position: relative; top: -1.3px; }
+#sf-cm { margin-bottom: 16.5px; }
+#sh-sendform .sh-head h3, #sh-picker .sh-head h3 { font-size: 20.5px; font-weight: 600; }
+.sf-body .cta-row { margin-top: 0; padding-bottom: 0; }
+.pk-search { display: flex; align-items: center; gap: 12px; height: 48px; box-sizing: border-box; padding: 0 16px; margin-bottom: 16px; background: var(--surface); border-radius: 16px; color: var(--fg-dim); }
+.pk-search svg { width: 15px; height: 15px; flex: none; }
+.pk-search input { flex: 1; min-width: 0; border: 0; outline: none; background: transparent; color: #fff; font-size: 17px; font-weight: 450; caret-color: var(--accent); font-family: inherit; padding: 0; }
+.pk-search input::placeholder { color: var(--fg-dim); opacity: 1; }
+.pk-list { background: var(--surface); border-radius: 20px; overflow: hidden; }
+.pk-row { position: relative; display: flex; align-items: center; gap: 16px; width: 100%; padding: 16px; border: 0; background: transparent; color: #fff; text-align: left; }
+.pk-row + .pk-row::before { content: ""; position: absolute; left: 16px; right: 0; top: 0; height: .34px; background: rgba(79,90,112,.24); }
+.pk-row:active { background: var(--surface-2); }
+.pk-row img { width: 50px; height: 50px; margin: -3px; flex: none; }
+.pk-row .tx { flex: 1; min-width: 0; }
+.pk-row .n { font-size: 17px; line-height: 24px; font-weight: 500; }
+.pk-row .b { font-size: 15px; line-height: 20px; font-weight: 450; color: var(--fg-dim); }
+.pk-check { color: var(--accent); margin-right: 4px; }
 </style>
 </head>
 <body class="t-wallet">
@@ -1414,6 +1453,30 @@ body.hist-open .app-header, body.hist-open .panel.active, body.hist-open .tabbar
   </div>
   <div class="ptr" id="hist-ptr"><svg viewBox="0 0 36 36" aria-hidden="true" fill="currentColor"><rect x="16.2" y="3" width="3.6" height="10" rx="1.8" transform="rotate(0 18 18)"/><rect x="16.2" y="3" width="3.6" height="10" rx="1.8" transform="rotate(45 18 18)"/><rect x="16.2" y="3" width="3.6" height="10" rx="1.8" transform="rotate(90 18 18)"/><rect x="16.2" y="3" width="3.6" height="10" rx="1.8" transform="rotate(135 18 18)"/><rect x="16.2" y="3" width="3.6" height="10" rx="1.8" transform="rotate(180 18 18)"/><rect x="16.2" y="3" width="3.6" height="10" rx="1.8" transform="rotate(225 18 18)"/><rect x="16.2" y="3" width="3.6" height="10" rx="1.8" transform="rotate(270 18 18)"/><rect x="16.2" y="3" width="3.6" height="10" rx="1.8" transform="rotate(315 18 18)"/></svg></div>
 </div>
+
+<div class="sheet-layer" id="sh-sendform" aria-hidden="true">
+  <div class="sh-scrim" data-close></div>
+  <section class="psheet stacked">
+    <div class="sh-head"><span></span><h3>Отправить</h3><span class="r"><button class="sh-btn" data-close aria-label="Закрыть" data-x></button></span></div>
+    <div class="sh-body sf-body">
+      <label class="sf-card" id="sf-addr"><input id="sf-addr-in" data-autofocus data-kb="text" type="text" placeholder="Адрес или имя" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next" aria-label="Адрес"><button class="sf-pill" id="sf-paste-a" type="button">Вставить</button><button class="sf-scan" id="sf-scan" type="button" aria-label="Сканировать"></button></label>
+      <div class="sf-card sf-amt" id="sf-amount"><input id="sf-amt-in" data-kb="decimal" type="text" inputmode="decimal" placeholder="Сумма" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="Сумма"><button class="tokpill sf-tok" id="sf-tok" type="button"></button></div>
+      <div class="sf-sub"><button class="sf-usd" id="sf-usd" type="button"><span><span id="sf-usdv">0</span> USD</span></button><span class="sf-avail" id="sf-avail"></span></div>
+      <label class="sf-card" id="sf-cm"><input id="sf-cm-in" data-kb="text" type="text" placeholder="Комментарий" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-label="Комментарий"><button class="sf-pill" id="sf-paste-c" type="button">Вставить</button></label>
+      <div class="cta-row"><button class="cta2" id="sf-cta" disabled>Продолжить</button></div>
+    </div>
+  </section>
+</div>
+<div class="sheet-layer" id="sh-picker" aria-hidden="true">
+  <div class="sh-scrim" data-close></div>
+  <section class="psheet">
+    <div class="sh-head"><span></span><h3>Крипто</h3><span class="r"><button class="sh-btn" data-close aria-label="Закрыть" data-x></button></span></div>
+    <div class="sh-body">
+      <label class="pk-search" id="pk-search"><input id="pk-in" data-kb="text" type="search" placeholder="Поиск" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Поиск"></label>
+      <div class="pk-list" id="pk-list"></div>
+    </div>
+  </section>
+</div>
 <div class="scrim" id="scrim"></div>
 <!-- Dev menu: открывается долгим зажатием шестерёнки -->
 <div class="sheet-layer" id="sh-dev" aria-hidden="true">
@@ -1590,8 +1653,9 @@ function histRow(e) {
              r: `<div class="am">−&thinsp;${amt(e.amount, e.token)}</div>` };
   }
   const inn = e.kind === "in";
-  return { icon: inn ? HICON.in : HICON.out, t: inn ? "Получено" : "Отправлено", a: shortAddr(e.address || ""),
-           r: `<div class="am${inn ? " in" : ""}">${inn ? "+" : "−"}&thinsp;${amt(e.amount, e.token)}</div>` };
+  const escH = t => String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  return { icon: inn ? HICON.in : HICON.out, t: inn ? "Получено" : "Отправлено", a: escH(shortAddr(e.address || "")),
+           r: `<div class="am${inn ? " in" : ""}">${inn ? "+" : "−"}&thinsp;${amt(e.amount, e.token)}</div>`, cm: e.comment ? escH(e.comment) : "" };
 }
 function renderHist() {
   const list = $("#hist-list");
@@ -1609,7 +1673,7 @@ function renderHist() {
     if (day !== last) { html += `<div class="hist-date${last === null ? "" : " later"}">${day}</div>`; last = day; }
     const r = histRow(e);
     html += `<div class="htx${r.cls ? " " + r.cls : ""}"><span class="ic">${r.icon}</span><div class="mid"><div class="t">${r.t}</div><div class="a">${r.a}</div></div>` +
-            `<div class="r">${r.r}<div class="tm">${histTime(e.ts)}</div></div></div>`;
+            `<div class="r">${r.r}<div class="tm">${histTime(e.ts)}</div></div>` + (r.cm ? `<div class="cm">${r.cm}</div>` : "") + `</div>`;
   }
   list.innerHTML = html;
 }
@@ -1655,9 +1719,9 @@ $("#address-row").addEventListener("click", async () => {
 });
 
 // ===== State: баланс каждой криптовалюты + история операций =====
-const PRICES = { gram: 1.22, usdt: 0.99 };     // $ за токен (как показано на карточке)
+const PRICES = { gram: 1.24, usdt: 0.99, usdt_trc: 0.99, trx: 0.25 };     // $ за токен (как показано на карточке)
 const RUB_PER_USD = 95;                        // приблизительно, только для ₽-режима
-const DEF_BAL = { gram: 0.000287, usdt: 0 };
+const DEF_BAL = { gram: 0.000287, usdt: 0, usdt_trc: 0, trx: 0.000003 };
 let state = { bal: { ...DEF_BAL }, log: [] };
 try {
   const saved = JSON.parse(localStorage.getItem("keeprs-state") || "null");
@@ -1722,7 +1786,7 @@ function randomTonAddress() {
   for (let i = 0; i < 46; i++) s += B64[Math.floor(Math.random() * B64.length)];
   return s;
 }
-function shortAddr(a) { return a.slice(0, 4) + "…" + a.slice(-4); }
+function shortAddr(a) { return a.length > 12 ? a.slice(0, 4) + "…" + a.slice(-4) : a; }
 
 // Actions open explanatory sheet
 const sheetDefs = {
@@ -1756,28 +1820,40 @@ function closeSheet() {
 }
 
 // ===== Page sheets =====
-let openLayer = null;
+// Стопка шторок: форма «Отправить» ложится поверх выбора способа, выбор монеты — поверх формы.
+const layerStack = [];
 function openPageSheet(id) {
   const el = document.getElementById(id);
-  if (!el || openLayer) return;
+  if (!el || layerStack.includes(el)) return;
   resetSheetInput(el);
-  const kb = id === "sh-swap" || id === "sh-stake";
-  if (kb) kbProxy.focus({ preventScroll: true });     // клавиатура поднимается сразу, пока идёт касание
+  const target = el.querySelector("[data-autofocus]") || el.querySelector(".ov");
+  if (target) {   // клавиатура поднимается сразу, пока идёт касание
+    kbProxy.setAttribute("inputmode", target.dataset.kb || target.getAttribute("inputmode") || "decimal");
+    kbProxy.focus({ preventScroll: true });
+  } else if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  el.style.zIndex = String(52 + layerStack.length * 2);
   el.setAttribute("aria-hidden", "false");
   void el.offsetHeight;
   el.classList.add("open");
-  openLayer = el;
-  if (kb) setTimeout(() => { if (openLayer === el) { const i = el.querySelector(".ov"); if (i) i.focus({ preventScroll: true }); } }, 380);
+  layerStack.push(el);
+  if (target) setTimeout(() => { if (layerStack[layerStack.length - 1] === el) target.focus({ preventScroll: true }); }, 380);
 }
 function closePageSheet() {
-  if (!openLayer) return;
-  const el = openLayer; openLayer = null;
+  const el = layerStack.pop();
+  if (!el) return;
   if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
   kbProxy.blur();
   el.classList.remove("open");
   el.setAttribute("aria-hidden", "true");
   el.querySelector(".psheet").style.transform = "";
+  const below = layerStack[layerStack.length - 1];
+  if (below && below.dataset.refocus) {   // вернулись на форму — снова поднимаем клавиатуру
+    const t = document.getElementById(below.dataset.refocus);
+    kbProxy.setAttribute("inputmode", t.dataset.kb || "decimal"); kbProxy.focus({ preventScroll: true });
+    setTimeout(() => { if (layerStack[layerStack.length - 1] === below) t.focus({ preventScroll: true }); }, 380);
+  }
 }
+function closeAllSheets() { while (layerStack.length) closePageSheet(); }
 document.querySelectorAll(".sheet-layer").forEach(layer => {
   layer.addEventListener("click", e => { if (e.target.closest("[data-close]")) closePageSheet(); });
   // свайп вниз за шапку закрывает шторку
@@ -1800,7 +1876,7 @@ document.querySelectorAll(".sheet-layer").forEach(layer => {
 // ===== Обмен / Стейкинг: поднимается настоящая клавиатура iOS =====
 // Невидимое поле ввода лежит поверх суммы; цифры и каретку рисуем сами, как в оригинале.
 const RATE = 1.230534;                        // USD₮ за 1 GRAM
-const TOKN = { gram: "GRAM", usdt: "USD₮" };
+const TOKN = { gram: "GRAM", usdt: "USD₮", usdt_trc: "USD₮", trx: "TRX" };
 const sheetInit = {};
 const num = v => parseFloat(String(v).replace(",", ".")) || 0;
 const fmtOut = n => n.toLocaleString("ru-RU", { useGrouping: false, maximumFractionDigits: 6 });
@@ -1913,6 +1989,80 @@ sheetInit["sh-stake"] = (() => {
     saveState(); renderBalances(); closePageSheet(); toast("Застейкано"); showUpdating(500);
   });
   return function reset() { v = ""; inp.value = ""; focused = false; render(); };
+})();
+
+// --- Отправить токены (форма) + выбор монеты ---
+(() => {
+  const esc = t => String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  document.querySelectorAll("[data-x]").forEach(b => { b.innerHTML = document.querySelector("#sh-send .sh-btn svg").outerHTML; });
+  $("#sf-scan").innerHTML = document.querySelector(".topbar .left .icon-btn svg").outerHTML;
+  $("#pk-search").insertAdjacentHTML("afterbegin", document.querySelector(".search svg").outerHTML);
+  $("#sf-usd").insertAdjacentHTML("beforeend", `<svg class="sf-ud" viewBox="0 0 50.5 38.5" width="16.83" height="12.83" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M6.8 31.7C2.3 27.1 2.0 26.8 2.0 26.0C2.1 25.0 3.1 24.4 4.1 24.6C4.4 24.7 5.7 25.9 7.1 27.2C9.5 29.6 9.5 29.6 10.1 29.2L10.7 28.7L10.8 16.6L10.9 4.5L11.5 4.0C12.2 3.4 12.8 3.4 13.5 4.0L14.1 4.5L14.2 16.5C14.2 23.1 14.3 28.6 14.4 28.8C14.8 30.0 15.6 29.6 18.4 26.8C20.7 24.5 21.6 24.1 22.5 25.0C23.6 26.1 23.2 26.7 18.1 31.8C12.0 37.9 13.1 37.9 6.8 31.7ZM37.0 34.6C36.5 34.1 36.5 34.1 36.5 22.1C36.5 7.0 36.6 7.2 32.4 11.5C29.9 14.1 28.5 14.6 27.7 13.2C27.2 12.1 27.7 11.4 32.5 6.7C38.5 0.6 37.4 0.6 43.7 6.8C49.0 12.1 49.3 12.7 47.9 13.6C46.9 14.3 46.1 13.9 43.5 11.4C39.5 7.5 39.8 6.9 39.8 21.8L39.8 33.8L39.1 34.4C38.4 35.1 37.8 35.2 37.0 34.6Z"/></svg>`);
+  const swapPill = document.querySelector("#sh-swap .swap-card:not(.b) .tokpill");
+  const gemHTML = swapPill.querySelector(".tk24").outerHTML, udHTML = swapPill.querySelector("svg.ud").outerHTML;
+  const TK = {
+    gram:     { key: "gram",     n: "GRAM", t: "GRAM",        icon: "img/pk-gram.webp",    pill: `${gemHTML}GRAM${udHTML}` },
+    usdt_trc: { key: "usdt_trc", n: "USD₮", t: "USD₮ TRC20",  icon: "img/pk-usdt-trc.webp", pill: `<img src="img/pk-usdt-trc.webp" alt="">USD₮${udHTML}` },
+    trx:      { key: "trx",      n: "TRX",  t: "Tron TRX",    icon: "img/pk-trx.webp",     pill: `<img src="img/pk-trx.webp" alt="">TRX${udHTML}` },
+  };
+  const layer = $("#sh-sendform"); layer.dataset.refocus = "sf-amt-in";
+  const addrIn = $("#sf-addr-in"), amtIn = $("#sf-amt-in"), cmIn = $("#sf-cm-in"), cta = $("#sf-cta");
+  const pasteA = $("#sf-paste-a"), pasteC = $("#sf-paste-c"), tokBtn = $("#sf-tok");
+  let cur = "gram";
+  const bal = () => state.bal[TK[cur].key] || 0;
+  function render() {
+    const tk = TK[cur], n = num(amtIn.value), over = n > bal() + 1e-12;
+    $("#sf-usdv").textContent = n > 0 ? fmtOut(Math.round(n * PRICES[tk.key] * 100) / 100) : "0";
+    $("#sf-avail").innerHTML = (over ? '<span class="err">Недостаточно средств</span>' : `<span>Доступно ${fmtAmount(bal(), 6)} ${tk.n}</span>`) + ' <button class="max" id="sf-max" type="button">MAX</button>';
+    tokBtn.innerHTML = tk.pill;
+    pasteA.textContent = addrIn.value ? "Очистить" : "Вставить";
+    pasteC.textContent = cmIn.value ? "Очистить" : "Вставить";
+    const ok = addrIn.value.trim().length >= 5 && n > 0 && !over;
+    cta.disabled = !ok; cta.classList.toggle("on", ok);
+  }
+  const paste = (input, btn) => {
+    if (input.value) { input.value = ""; render(); input.focus({ preventScroll: true }); return; }
+    const done = t => { input.value = (t || "").trim(); render(); };
+    if (navigator.clipboard && navigator.clipboard.readText) navigator.clipboard.readText().then(done).catch(() => toast("Не удалось вставить"));
+    else toast("Не удалось вставить");
+  };
+  pasteA.addEventListener("click", e => { e.preventDefault(); paste(addrIn); });
+  pasteC.addEventListener("click", e => { e.preventDefault(); paste(cmIn); });
+  $("#sf-scan").addEventListener("click", e => { e.preventDefault(); toast("Сканер QR недоступен в прототипе"); });
+  [addrIn, cmIn].forEach(i => i.addEventListener("input", render));
+  amtIn.addEventListener("input", () => { amtIn.value = cleanAmount(amtIn.value); render(); });
+  $("#sf-avail").addEventListener("click", e => {
+    if (!e.target.closest(".max")) return;
+    amtIn.value = bal() > 0 ? fmtOut(bal()) : "0"; render(); amtIn.focus({ preventScroll: true });
+  });
+  tokBtn.addEventListener("click", () => openPageSheet("sh-picker"));
+  addrIn.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); amtIn.focus({ preventScroll: true }); } });
+  cmIn.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); cmIn.blur(); } });
+  cta.addEventListener("click", () => {
+    const n = num(amtIn.value), addr = addrIn.value.trim(), cm = cmIn.value.trim(), tk = TK[cur];
+    if (!(n > 0) || n > bal() + 1e-12 || addr.length < 5) return;
+    state.bal[tk.key] = Math.max(0, Math.round((bal() - n) * 1e9) / 1e9);
+    state.log.unshift({ kind: "out", token: tk.key, amount: n, address: addr, comment: cm || undefined, ts: Date.now() });
+    if (state.log.length > 100) state.log.length = 100;
+    saveState(); renderBalances(); closeAllSheets(); toast("Отправлено"); showUpdating(500);
+  });
+  sheetInit["sh-sendform"] = () => { cur = "gram"; addrIn.value = ""; amtIn.value = ""; cmIn.value = ""; render(); };
+
+  // выбор монеты
+  const list = $("#pk-list"), q = $("#pk-in");
+  function renderList() {
+    const f = q.value.trim().toLowerCase();
+    list.innerHTML = Object.values(TK).filter(t => !f || t.t.toLowerCase().includes(f)).map(t =>
+      `<button class="pk-row" data-id="${t.key}" type="button"><img src="${t.icon}" alt=""><span class="tx"><div class="n">${t.t}</div><div class="b">${fmtAmount(state.bal[t.key] || 0, 6)} ${t.n}</div></span>${t.key === cur ? `<svg class="pk-check" viewBox="0 0 56.25 42.5" width="18.75" height="14.17" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M17.3 40.2C17.0 40.1 16.0 39.3 15.2 38.4C14.4 37.6 13.6 36.8 13.5 36.6C13.3 36.5 12.4 35.6 11.5 34.6C10.5 33.7 9.6 32.8 9.5 32.7C9.4 32.5 8.5 31.6 7.5 30.7C6.5 29.7 5.6 28.8 5.5 28.6C2.5 25.8 1.9 24.8 2.2 23.4C2.3 22.7 4.2 21.3 5.0 21.3C5.9 21.3 7.9 22.4 8.2 23.1C8.3 23.4 8.8 23.9 9.2 24.1C9.6 24.3 10.0 24.7 10.2 25.1C10.3 25.4 10.8 25.9 11.2 26.1C11.6 26.3 12.0 26.7 12.2 27.1C12.4 27.4 12.8 27.8 13.2 28.1C13.6 28.3 14.0 28.7 14.2 29.1C14.4 29.4 14.8 29.8 15.2 30.0C15.5 30.2 16.0 30.7 16.2 31.0C16.3 31.4 16.8 31.9 17.2 32.1C17.6 32.3 18.0 32.7 18.1 32.9C18.2 33.1 18.4 33.2 18.5 33.2C18.7 33.2 25.9 26.2 34.5 17.6L50.1 2.0L51.6 2.0C53.8 2.0 54.9 3.8 53.9 6.0C53.5 7.0 21.5 39.2 20.2 40.0C19.3 40.5 18.2 40.6 17.3 40.2Z"/></svg>` : ""}</button>`).join("");
+  }
+  q.addEventListener("input", renderList);
+  list.addEventListener("click", e => {
+    const r = e.target.closest(".pk-row"); if (!r) return;
+    cur = r.dataset.id; amtIn.value = ""; render(); closePageSheet();
+  });
+  sheetInit["sh-picker"] = () => { q.value = ""; renderList(); };
+  // «Отправить токены» в окне выбора способа вывода
+  document.querySelector("#sh-send .opt").addEventListener("click", () => openPageSheet("sh-sendform"));
 })();
 
 // Короткий тап по шестерёнке — переключает шрифт по кругу (для сравнения с оригиналом).
