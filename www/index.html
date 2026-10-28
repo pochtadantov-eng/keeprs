@@ -15,9 +15,12 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 <style>
-/* TT Firs Neue (шрифт Keeper) — переменная ось веса, локально для офлайна в .ipa */
+/* Montserrat (SIL OFL) — запасной вариант. Variable 400..700. */
+@font-face{font-family:"Montserrat";font-weight:400 700;font-display:swap;src:url(fonts/montserrat-cyrillic.woff2) format("woff2");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:"Montserrat";font-weight:400 700;font-display:swap;src:url(fonts/montserrat-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+/* TT Firs Neue Trial (переменная ось веса 100–900). Trial — только для прототипа/оценки. */
 @font-face{font-family:"Firs";font-weight:100 900;font-display:swap;src:url(fonts/TT-Firs-Neue-Trial-Var-Roman.ttf) format("truetype")}
-/* Onest (SIL OFL) — запасной шрифт */
+/* Onest (SIL OFL) — локально, чтобы работало офлайн в .ipa */
 @font-face{font-family:"Onest";font-weight:100 900;font-display:swap;src:url(fonts/onest-cyrillic-wght-normal.woff2) format("woff2");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
 @font-face{font-family:"Onest";font-weight:100 900;font-display:swap;src:url(fonts/onest-latin-wght-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 
@@ -39,10 +42,12 @@
   color-scheme: dark;
 }
 
-html { --font: "Firs", "Onest", -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif; }
+html { --font: "Firs", "Montserrat", "Onest", -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif; }
+html[data-font="mont"]  { --font: "Montserrat", "Firs", "Onest", -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif; }
+html[data-font="firs"]  { --font: "Firs", "Montserrat", "Onest", -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif; }
 html[data-font="onest"] { --font: "Onest", -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif; }
-html[data-font="sf"] { --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif; }
-html[data-font="sfr"] { --font: ui-rounded, "SF Pro Rounded", -apple-system, system-ui, sans-serif; }
+html[data-font="sf"]    { --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif; }
+html[data-font="sfr"]   { --font: ui-rounded, "SF Pro Rounded", -apple-system, system-ui, sans-serif; }
 html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: none; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
@@ -127,29 +132,25 @@ body:not(.t-wallet) .app-header { display: none; }
 /* ===== Balance hero ===== */
 .hero {
   text-align: center;
-  padding: 34.5px 0 0;
+  padding: 76px 0 0;
 }
 .balance-row {
-  position: relative;
-  left: 1.3px;
   display: inline-flex;
   align-items: center;
-  gap: 7.7px;
+  gap: 10px;
   justify-content: center;
 }
 .balance {
-  position: relative;
-  top: 2px;
   font-weight: 500;
-  font-size: 43.5px;
+  font-size: 46px;
   letter-spacing: 0.008em;
   line-height: 1;
   color: var(--fg);
   margin: 0;
   white-space: nowrap;
 }
-.balance .cents { font-size: .73em; letter-spacing: 0; }
 .balance .ts { margin-right: -.108em; }
+.balance .cents { font-size: .70em; letter-spacing: 0; color: var(--fg-dim); font-weight: 500; }
 .bolt {
   background: transparent;
   border: none;
@@ -160,7 +161,7 @@ body:not(.t-wallet) .app-header { display: none; }
 }
 
 .address-row {
-  margin-top: 5.5px;
+  margin-top: 5px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -182,7 +183,7 @@ body:not(.t-wallet) .app-header { display: none; }
   color: var(--green);
   font-size: 11px;
   line-height: 15px;
-  font-weight: 600;
+  font-weight: 500;
   padding: 3px 4.5px;
   border-radius: 6px;
   position: relative;
@@ -194,10 +195,10 @@ body:not(.t-wallet) .app-header { display: none; }
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: 1fr;
-  gap: 7.25px;
+  gap: 10px;
   width: max-content;
   margin: 0 auto;
-  padding: 27px 0 8px;
+  padding: 28px 0 8px;
 }
 .action {
   display: flex;
@@ -210,7 +211,7 @@ body:not(.t-wallet) .app-header { display: none; }
   padding: 0;
 }
 .action .ring {
-  width: 44px; height: 44px;
+  width: 50px; height: 50px;
   border-radius: 50%;
   background: var(--surface);
   display: inline-flex;
@@ -219,20 +220,20 @@ body:not(.t-wallet) .app-header { display: none; }
   transition: transform .1s, background .15s;
 }
 .action:active .ring { transform: scale(.94); background: var(--surface-2); }
-.action .ring svg { color: var(--fg); }
+.action .ring svg { color: var(--fg); width: 30px; height: 30px; }
 .action .label {
   position: relative;
   top: 1px;
   letter-spacing: .01em;
-  font-size: 12px;
-  line-height: 16px;
+  font-size: 13px;
+  line-height: 17px;
   color: var(--fg-dim);
   font-weight: 500;
   white-space: nowrap;
 }
 
 /* ===== Section headers ===== */
-.section { margin-top: 26px; }
+.section { margin-top: 28px; }
 .section + .section { margin-top: 28px; }
 .section-head {
   display: flex;
@@ -251,7 +252,7 @@ body:not(.t-wallet) .app-header { display: none; }
 }
 .section-head h2 {
   margin: 0;
-  font-size: 16px;
+  font-size: 17px;
   line-height: 24px;
   font-weight: 500;
   letter-spacing: .01em;
@@ -261,7 +262,7 @@ body:not(.t-wallet) .app-header { display: none; }
   background: transparent;
   border: none;
   color: var(--fg-dim);
-  font-size: 13.5px;
+  font-size: 14.5px;
   line-height: 24px;
   font-weight: 500;
   letter-spacing: .027em;
@@ -275,13 +276,13 @@ body:not(.t-wallet) .app-header { display: none; }
 /* ===== Crypto list card ===== */
 .card {
   background: var(--surface);
-  border-radius: 20px;
+  border-radius: 18px;
   overflow: hidden;
 }
 .row {
   position: relative;
   display: grid;
-  grid-template-columns: 44px 1fr auto;
+  grid-template-columns: 48px 1fr auto;
   align-items: center;
   gap: 16px;
   padding: 16px;
@@ -301,7 +302,7 @@ body:not(.t-wallet) .app-header { display: none; }
 .row:active { background: var(--surface-2); }
 
 .token {
-  width: 44px; height: 44px;
+  width: 48px; height: 48px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
@@ -311,11 +312,11 @@ body:not(.t-wallet) .app-header { display: none; }
 }
 .token.gram { background: #30A1F5; }
 .token.usdt { background: #009393; }
-.token svg.gem { width: 30px; height: 20px; }
+.token svg.gem { width: 32px; height: 22px; }
 .token .chain-sub {
   position: absolute;
   right: -6px; bottom: -6px;
-  width: 25px; height: 25px;
+  width: 26px; height: 26px;
   box-sizing: border-box;
   border-radius: 50%;
   background: #0098EA;
@@ -333,15 +334,15 @@ body:not(.t-wallet) .app-header { display: none; }
   gap: 6px;
 }
 .info .line1 .name {
-  font-size: 16px;
+  font-size: 17px;
   line-height: 24px;
   font-weight: 500;
 }
 .badge-apy, .badge-chain-pill {
-  font-size: 9.5px;
+  font-size: 10.5px;
   line-height: 16px;
-  font-weight: 600;
-  padding: 2px 5px;
+  font-weight: 500;
+  padding: 2px 5.5px;
   border-radius: 8px;
   white-space: nowrap;
 }
@@ -351,7 +352,7 @@ body:not(.t-wallet) .app-header { display: none; }
 .pin svg { width: 14px; height: 14px; transform: rotate(45deg); }
 
 .info .line2 {
-  font-size: 13px;
+  font-size: 13.5px;
   line-height: 20px;
   font-weight: 450;
   color: var(--fg-dim);
@@ -363,14 +364,14 @@ body:not(.t-wallet) .app-header { display: none; }
 
 .amount { text-align: right; }
 .amount .big {
-  font-size: 16px;
+  font-size: 17px;
   line-height: 24px;
   font-weight: 500;
   letter-spacing: -.007em;
   color: var(--fg);
 }
 .amount .small {
-  font-size: 14px;
+  font-size: 14.5px;
   line-height: 20px;
   font-weight: 450;
   color: var(--fg-dim);
@@ -387,7 +388,7 @@ body:not(.t-wallet) .app-header { display: none; }
 .nft-row::-webkit-scrollbar { display: none; }
 .nft {
   flex: none;
-  width: 114px;
+  width: 120px;
   background: var(--surface);
   border-radius: 20px;
   overflow: hidden;
@@ -407,12 +408,12 @@ body:not(.t-wallet) .app-header { display: none; }
 .nft-art .tg {
   position: absolute;
   left: 50%; top: 16px;
-  width: 43px; height: 43px;
-  margin-left: -21.5px;
+  width: 46px; height: 46px;
+  margin-left: -23px;
 }
 .nft-handle {
   position: absolute;
-  left: 0; right: 0; bottom: 3px;
+  left: 0; right: 0; bottom: 4px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -422,21 +423,21 @@ body:not(.t-wallet) .app-header { display: none; }
   background: #C49A3F;
   color: #fff;
   font-weight: 600;
-  font-size: 12.5px;
-  line-height: 16px;
+  font-size: 13px;
+  line-height: 17px;
   padding: 3px 8px;
   border-radius: 7px;
 }
 .nft-handle .url {
-  font-size: 8px;
+  font-size: 8.5px;
   line-height: 12px;
   font-weight: 500;
   color: #83929D;
   transform: scaleX(.72);
 }
-.nft-label { padding: 8px 6px 5px 12px; }
-.nft-label .n1 { font-size: 13.5px; line-height: 20px; font-weight: 500; color: var(--fg); }
-.nft-label .n2 { font-size: 12.5px; line-height: 18px; font-weight: 450; color: var(--fg-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nft-label { padding: 9px 7px 6px 12px; }
+.nft-label .n1 { font-size: 14px; line-height: 20px; font-weight: 500; color: var(--fg); }
+.nft-label .n2 { font-size: 13px; line-height: 18px; font-weight: 450; color: var(--fg-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* ===== Bottom tab bar ===== */
 .tabbar {
@@ -467,7 +468,7 @@ body:not(.t-wallet) .app-header { display: none; }
 .tab .tab-label { position: relative; top: 1.5px; font-size: 12px; line-height: 16px; font-weight: 500; }
 .tab.active { --c1: var(--accent); --c2: #1E3F65; color: var(--accent); }
 
-/* ===== TT Firs Neue baseline: its glyphs sit a little higher in the line box than the reference ===== */
+/* ===== TT Firs Neue baseline: its glyphs sit a little higher in the line box ===== */
 .cat-label { position: relative; top: 1.3px; }
 .tk-name { position: relative; top: 1.7px; }
 .tk-chg { position: relative; top: 1.8px; }
@@ -947,6 +948,42 @@ body:not(.t-wallet) .app-header { display: none; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: .001ms !important; animation-duration: .001ms !important; }
 }
+
+/* Скрыть начальные (хардкодные) суммы, пока JS не подставит сохранённое состояние,
+   чтобы не было мгновенного мигания "< $ 0,01" перед реальным балансом. */
+.wallet-body { opacity: 0; transition: opacity .14s ease-out; }
+.wallet-body.ready { opacity: 1; }
+
+/* ===== Dev sheet (long-press on gear) ===== */
+.dev-sect { padding: 4px 20px 22px; }
+.dev-sect + .dev-sect { border-top: 1px solid var(--divider); padding-top: 18px; }
+.dev-ttl { font-size: 13px; color: var(--fg-dim); letter-spacing: .06em; text-transform: uppercase; margin: 0 2px 10px; font-weight: 500; }
+.dev-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: var(--surface); border-radius: 14px; margin-bottom: 10px; }
+.dev-row .tk24 { width: 28px; height: 28px; }
+.dev-row .tk24 svg { width: 20px; height: 13px; }
+.dev-nm { font-size: 16px; font-weight: 500; flex: 1; }
+.dev-num {
+  flex: 1; min-width: 0;
+  background: transparent; border: 0; outline: none;
+  color: var(--fg); font: inherit; font-size: 16px; font-weight: 500; text-align: right;
+  -webkit-appearance: none; appearance: none;
+}
+.dev-num::placeholder { color: var(--fg-faint); font-weight: 450; }
+.dev-sel {
+  background: transparent; color: var(--fg); border: 0; outline: none;
+  font: inherit; font-size: 16px; font-weight: 500;
+  -webkit-appearance: none; appearance: none; padding-right: 10px;
+}
+.dev-btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.dev-btn-row .btn-big { margin: 0; }
+.dev-log { list-style: none; padding: 0; margin: 0; font-size: 14px; color: var(--fg-dim); }
+.dev-log li { padding: 10px 0; border-top: 1px solid var(--divider); display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; }
+.dev-log li:first-child { border-top: 0; }
+.dev-log .amt { font-weight: 500; }
+.dev-log .amt-in { color: var(--green); }
+.dev-log .amt-out { color: var(--red); }
+.dev-log .addr { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; opacity: .75; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dev-log .dev-empty { color: var(--fg-faint); font-size: 14px; justify-content: center; display: block; text-align: center; padding: 14px 0; }
 </style>
 </head>
 <body class="t-wallet">
@@ -987,7 +1024,7 @@ body:not(.t-wallet) .app-header { display: none; }
       <div class="balance-row">
         <h1 class="balance" id="balance">&lt;&nbsp;$<span class="ts">&thinsp;</span>0<span class="cents">,01</span></h1>
         <button class="bolt" aria-label="Быстрое действие">
-          <svg viewBox="0 0 64 106" width="21.33" height="35.33" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M18.0 103.7C15.1 103.5 11.5 102.8 10.8 102.4C10.5 102.2 10.1 102.0 9.9 102.0C9.4 102.0 6.2 99.4 5.5 98.4C5.2 97.9 4.7 97.2 4.4 97.0C4.2 96.7 4.0 96.3 4.0 96.1C4.0 95.9 3.8 95.5 3.6 95.2C2.2 93.0 2.0 88.2 2.0 57.5C2.0 26.8 2.2 22.0 3.6 19.8C3.8 19.5 4.0 19.1 4.0 18.9C4.0 18.7 4.2 18.3 4.4 18.0C4.7 17.8 5.2 17.1 5.6 16.5C8.0 13.2 11.4 11.8 18.6 11.2C22.0 11.0 22.0 10.9 22.0 10.1C22.0 8.2 24.6 4.7 26.8 3.6C30.9 1.6 33.1 1.6 37.2 3.6C39.4 4.7 42.0 8.2 42.0 10.1C42.0 10.9 42.0 11.0 45.4 11.2C52.6 11.8 56.0 13.2 58.4 16.5C58.8 17.1 59.3 17.8 59.6 18.0C59.8 18.3 60.0 18.7 60.0 18.9C60.0 19.1 60.2 19.5 60.4 19.8C61.8 22.0 62.0 26.8 62.0 57.5C62.0 88.2 61.8 93.0 60.4 95.2C60.2 95.5 60.0 95.9 60.0 96.1C60.0 96.3 59.8 96.7 59.6 97.0C59.3 97.2 58.8 97.9 58.5 98.4C57.8 99.4 54.6 102.0 54.1 102.0C53.9 102.0 53.5 102.2 53.2 102.4C52.4 102.8 49.1 103.5 45.8 103.8C42.7 104.0 21.2 104.0 18.0 103.7ZM47.9 99.3C53.4 98.7 56.6 95.6 57.2 90.1C57.6 86.8 57.6 28.2 57.2 24.9C56.6 19.5 53.4 16.4 48.0 15.7C44.9 15.4 19.1 15.4 16.0 15.7C10.6 16.4 7.4 19.5 6.8 24.9C6.4 28.2 6.4 86.8 6.8 90.1C7.5 95.8 10.6 98.7 16.8 99.3C20.8 99.7 44.2 99.7 47.9 99.3Z" fill="#232F3E"/><path d="M28.0 74.9C28.0 74.2 28.2 72.5 28.5 71.1C29.5 65.7 29.6 64.3 29.1 63.8C28.7 63.2 28.5 63.2 24.4 62.2C18.4 60.9 17.8 59.3 21.5 55.0C24.3 51.7 25.9 49.8 26.6 49.0C33.8 40.3 34.8 39.2 36.0 39.2L37.0 39.2L37.0 40.5C37.0 41.2 36.8 42.6 36.6 43.7C35.9 47.7 35.5 50.8 35.6 51.4C35.8 52.0 37.1 52.6 39.6 53.1C45.3 54.2 47.0 55.8 45.2 58.3C44.5 59.4 42.7 61.6 42.4 61.9C42.2 62.0 41.6 62.8 40.9 63.6C40.2 64.5 39.6 65.2 39.5 65.2C39.4 65.3 37.8 67.2 35.9 69.5C30.7 75.7 30.1 76.2 29.0 76.2L28.0 76.2L28.0 74.9Z" fill="#3C95FA"/></svg>
+          <svg viewBox="0 0 64 106" width="22" height="36.4" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M18.0 103.7C15.1 103.5 11.5 102.8 10.8 102.4C10.5 102.2 10.1 102.0 9.9 102.0C9.4 102.0 6.2 99.4 5.5 98.4C5.2 97.9 4.7 97.2 4.4 97.0C4.2 96.7 4.0 96.3 4.0 96.1C4.0 95.9 3.8 95.5 3.6 95.2C2.2 93.0 2.0 88.2 2.0 57.5C2.0 26.8 2.2 22.0 3.6 19.8C3.8 19.5 4.0 19.1 4.0 18.9C4.0 18.7 4.2 18.3 4.4 18.0C4.7 17.8 5.2 17.1 5.6 16.5C8.0 13.2 11.4 11.8 18.6 11.2C22.0 11.0 22.0 10.9 22.0 10.1C22.0 8.2 24.6 4.7 26.8 3.6C30.9 1.6 33.1 1.6 37.2 3.6C39.4 4.7 42.0 8.2 42.0 10.1C42.0 10.9 42.0 11.0 45.4 11.2C52.6 11.8 56.0 13.2 58.4 16.5C58.8 17.1 59.3 17.8 59.6 18.0C59.8 18.3 60.0 18.7 60.0 18.9C60.0 19.1 60.2 19.5 60.4 19.8C61.8 22.0 62.0 26.8 62.0 57.5C62.0 88.2 61.8 93.0 60.4 95.2C60.2 95.5 60.0 95.9 60.0 96.1C60.0 96.3 59.8 96.7 59.6 97.0C59.3 97.2 58.8 97.9 58.5 98.4C57.8 99.4 54.6 102.0 54.1 102.0C53.9 102.0 53.5 102.2 53.2 102.4C52.4 102.8 49.1 103.5 45.8 103.8C42.7 104.0 21.2 104.0 18.0 103.7ZM47.9 99.3C53.4 98.7 56.6 95.6 57.2 90.1C57.6 86.8 57.6 28.2 57.2 24.9C56.6 19.5 53.4 16.4 48.0 15.7C44.9 15.4 19.1 15.4 16.0 15.7C10.6 16.4 7.4 19.5 6.8 24.9C6.4 28.2 6.4 86.8 6.8 90.1C7.5 95.8 10.6 98.7 16.8 99.3C20.8 99.7 44.2 99.7 47.9 99.3Z" fill="#232F3E"/><path d="M28.0 74.9C28.0 74.2 28.2 72.5 28.5 71.1C29.5 65.7 29.6 64.3 29.1 63.8C28.7 63.2 28.5 63.2 24.4 62.2C18.4 60.9 17.8 59.3 21.5 55.0C24.3 51.7 25.9 49.8 26.6 49.0C33.8 40.3 34.8 39.2 36.0 39.2L37.0 39.2L37.0 40.5C37.0 41.2 36.8 42.6 36.6 43.7C35.9 47.7 35.5 50.8 35.6 51.4C35.8 52.0 37.1 52.6 39.6 53.1C45.3 54.2 47.0 55.8 45.2 58.3C44.5 59.4 42.7 61.6 42.4 61.9C42.2 62.0 41.6 62.8 40.9 63.6C40.2 64.5 39.6 65.2 39.5 65.2C39.4 65.3 37.8 67.2 35.9 69.5C30.7 75.7 30.1 76.2 29.0 76.2L28.0 76.2L28.0 74.9Z" fill="#3C95FA"/></svg>
         </button>
       </div>
       <div>
@@ -1057,8 +1094,8 @@ body:not(.t-wallet) .app-header { display: none; }
             <div class="line2">$&thinsp;1,22 <span class="delta">+0,78&nbsp;%</span></div>
           </div>
           <div class="amount">
-            <div class="big">0,000287</div>
-            <div class="small">&lt;&nbsp;$&thinsp;0,01</div>
+            <div class="big" id="amt-gram">0,000287</div>
+            <div class="small" id="usd-gram">&lt;&nbsp;$&thinsp;0,01</div>
           </div>
         </button>
         <button class="row" data-token="usdt">
@@ -1082,8 +1119,8 @@ body:not(.t-wallet) .app-header { display: none; }
             <div class="line2">$&thinsp;0,99 <span class="delta">+0,02&nbsp;%</span></div>
           </div>
           <div class="amount">
-            <div class="big">0</div>
-            <div class="small">$&thinsp;0,00</div>
+            <div class="big" id="amt-usdt">0</div>
+            <div class="small" id="usd-usdt">$&thinsp;0,00</div>
           </div>
         </button>
       </div>
@@ -1264,7 +1301,7 @@ body:not(.t-wallet) .app-header { display: none; }
     <div class="sh-body">
       <div class="swap-cards">
         <div class="swap-card focus">
-          <div class="r1"><span>Отправить</span><span class="bal">Баланс: 0,000287 GRAM <button class="max" data-max>MAX</button></span></div>
+          <div class="r1"><span>Отправить</span><span class="bal">Баланс: <span id="swap-bal">0,000287</span> GRAM <button class="max" data-max>MAX</button></span></div>
           <div class="r2"><div class="val" data-val><i class="caret"></i><span class="ph">0</span></div><button class="tokpill"><span class="tk24 gram"><svg viewBox="0 0 30 20" aria-hidden="true"><path d="M8 2h14l6.5 5.6L15 18.2 1.5 7.6z" fill="#fff" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/><path d="M15 5.4l1.5 3.3 3.3 1.5-3.3 1.5L15 15l-1.5-3.3-3.3-1.5 3.3-1.5z" fill="#30A1F5"/></svg></span>GRAM<svg class="ud" viewBox="0 0 38 47.5" width="12.67" height="15.83" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M18.4 45.3C17.8 45.1 16.8 44.4 14.5 42.7C13.7 42.2 12.8 41.5 12.5 41.3C12.2 41.1 11.7 40.8 11.6 40.6C11.4 40.5 10.7 39.9 9.9 39.4C9.1 38.8 7.8 37.9 7.0 37.2C6.2 36.6 4.8 35.6 4.0 35.0C2.3 33.7 1.8 32.7 2.3 31.5C2.9 29.9 4.6 29.8 6.5 31.2C7.3 31.8 8.6 32.7 9.4 33.3C10.2 33.9 12.0 35.3 13.4 36.3C19.4 40.7 18.8 40.6 22.4 37.9C33.5 29.6 34.3 29.1 35.5 31.1C36.6 32.8 36.2 33.4 31.9 36.6C29.9 38.0 28.1 39.4 27.8 39.7C22.3 43.9 19.4 45.6 18.4 45.3ZM2.8 16.8C2.1 16.1 1.9 15.1 2.2 14.3C2.5 13.6 4.4 12.1 10.8 7.4C11.5 6.9 13.2 5.6 14.6 4.6C19.4 1.1 18.4 0.9 27.0 7.2C31.5 10.6 33.0 11.7 33.8 12.2C35.6 13.5 36.3 14.7 35.7 16.0C34.9 18.1 33.3 17.7 28.4 14.0C27.8 13.5 26.4 12.5 25.4 11.8C24.4 11.1 22.7 9.8 21.6 9.0C19.0 7.0 18.9 7.0 15.2 9.9C5.5 17.2 4.0 18.0 2.8 16.8Z"/></svg></button></div>
         </div>
         <div class="swap-mid"><button class="swap-btn" aria-label="Поменять местами"><svg class="" viewBox="0 0 53.25 41" width="17.75" height="13.67" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M7.6 34.2C1.6 28.3 1.2 27.6 2.6 26.1C3.9 24.8 5.0 25.2 8.3 28.5C10.3 30.4 10.8 30.8 11.0 30.5C11.1 30.3 11.2 25.1 11.2 17.6C11.2 5.5 11.3 5.0 11.7 4.4C12.8 3.1 15.0 3.4 15.5 4.8C15.7 5.3 15.8 9.7 15.8 17.9L15.8 30.2L16.3 30.2C16.7 30.2 17.5 29.6 18.9 28.2C21.7 25.3 23.1 24.8 24.4 26.1C25.8 27.6 25.4 28.3 19.4 34.2C14.7 38.9 14.5 39.0 13.5 39.0C12.5 39.0 12.4 38.9 7.6 34.2ZM39.1 37.2C37.8 36.7 37.8 36.2 37.8 22.9L37.8 10.5L37.2 10.6C36.9 10.7 35.6 11.8 34.4 13.0C31.7 15.6 30.4 16.1 29.1 14.9C27.7 13.5 28.3 12.6 34.1 6.8C40.5 0.4 39.5 0.4 46.1 7.0C51.1 11.9 51.1 11.9 51.2 13.2C51.3 14.7 50.7 15.5 49.5 15.5C48.4 15.5 48.0 15.2 45.3 12.6C43.2 10.5 42.7 10.1 42.4 10.3C42.4 10.3 42.3 16.2 42.3 23.4L42.1 36.4L41.3 36.9C40.4 37.5 40.0 37.6 39.1 37.2Z"/></svg></button></div>
@@ -1294,7 +1331,7 @@ body:not(.t-wallet) .app-header { display: none; }
         <div class="big" data-val><span class="v"><span class="ph">0</span></span><i class="caret"></i><span class="u">GRAM</span></div>
         <span class="usdpill">0 USD <svg class="ud" viewBox="0 0 38 47.5" width="12.67" height="15.83" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M18.4 45.3C17.8 45.1 16.8 44.4 14.5 42.7C13.7 42.2 12.8 41.5 12.5 41.3C12.2 41.1 11.7 40.8 11.6 40.6C11.4 40.5 10.7 39.9 9.9 39.4C9.1 38.8 7.8 37.9 7.0 37.2C6.2 36.6 4.8 35.6 4.0 35.0C2.3 33.7 1.8 32.7 2.3 31.5C2.9 29.9 4.6 29.8 6.5 31.2C7.3 31.8 8.6 32.7 9.4 33.3C10.2 33.9 12.0 35.3 13.4 36.3C19.4 40.7 18.8 40.6 22.4 37.9C33.5 29.6 34.3 29.1 35.5 31.1C36.6 32.8 36.2 33.4 31.9 36.6C29.9 38.0 28.1 39.4 27.8 39.7C22.3 43.9 19.4 45.6 18.4 45.3ZM2.8 16.8C2.1 16.1 1.9 15.1 2.2 14.3C2.5 13.6 4.4 12.1 10.8 7.4C11.5 6.9 13.2 5.6 14.6 4.6C19.4 1.1 18.4 0.9 27.0 7.2C31.5 10.6 33.0 11.7 33.8 12.2C35.6 13.5 36.3 14.7 35.7 16.0C34.9 18.1 33.3 17.7 28.4 14.0C27.8 13.5 26.4 12.5 25.4 11.8C24.4 11.1 22.7 9.8 21.6 9.0C19.0 7.0 18.9 7.0 15.2 9.9C5.5 17.2 4.0 18.0 2.8 16.8Z"/></svg></span>
       </div>
-      <div class="stake-row"><button class="maxchip" data-max>MAX</button><span>Доступно: 0,000287 GRAM</span></div>
+      <div class="stake-row"><button class="maxchip" data-max>MAX</button><span>Доступно: <span id="stake-bal">0,000287</span> GRAM</span></div>
       <button class="provider"><img src="img/o-tonstakers.webp" alt="" width="44" height="44"><span class="txt"><div class="t">Tonstakers</div><div class="s">APY ≈ 12,58 %</div></span><svg class="" viewBox="0 0 38 47.5" width="12.67" height="15.83" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M18.4 45.3C17.8 45.1 16.8 44.4 14.5 42.7C13.7 42.2 12.8 41.5 12.5 41.3C12.2 41.1 11.7 40.8 11.6 40.6C11.4 40.5 10.7 39.9 9.9 39.4C9.1 38.8 7.8 37.9 7.0 37.2C6.2 36.6 4.8 35.6 4.0 35.0C2.3 33.7 1.8 32.7 2.3 31.5C2.9 29.9 4.6 29.8 6.5 31.2C7.3 31.8 8.6 32.7 9.4 33.3C10.2 33.9 12.0 35.3 13.4 36.3C19.4 40.7 18.8 40.6 22.4 37.9C33.5 29.6 34.3 29.1 35.5 31.1C36.6 32.8 36.2 33.4 31.9 36.6C29.9 38.0 28.1 39.4 27.8 39.7C22.3 43.9 19.4 45.6 18.4 45.3ZM2.8 16.8C2.1 16.1 1.9 15.1 2.2 14.3C2.5 13.6 4.4 12.1 10.8 7.4C11.5 6.9 13.2 5.6 14.6 4.6C19.4 1.1 18.4 0.9 27.0 7.2C31.5 10.6 33.0 11.7 33.8 12.2C35.6 13.5 36.3 14.7 35.7 16.0C34.9 18.1 33.3 17.7 28.4 14.0C27.8 13.5 26.4 12.5 25.4 11.8C24.4 11.1 22.7 9.8 21.6 9.0C19.0 7.0 18.9 7.0 15.2 9.9C5.5 17.2 4.0 18.0 2.8 16.8Z"/></svg></button>
       <div class="cta-row"><button class="cta2" data-cta disabled>Продолжить</button></div>
     </div>
@@ -1303,6 +1340,51 @@ body:not(.t-wallet) .app-header { display: none; }
 </div>
 
 <div class="scrim" id="scrim"></div>
+<!-- Dev menu: открывается долгим зажатием шестерёнки -->
+<div class="sheet-layer" id="sh-dev" aria-hidden="true">
+  <div class="sh-scrim" data-close></div>
+  <section class="psheet">
+    <div class="sh-head left-title">
+      <h3>Отладка</h3>
+      <span class="r"><button class="sh-btn" data-close aria-label="Закрыть"><svg viewBox="0 0 38 38" width="12.67" height="12.67" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M2.6 35.4C1.1 33.9 1.4 33.6 9.0 25.9C12.6 22.3 15.5 19.2 15.5 19.0C15.5 18.8 12.6 15.7 9.0 12.1C1.4 4.4 1.1 4.1 2.6 2.6C4.1 1.1 4.4 1.4 12.1 9.0C15.7 12.6 18.8 15.5 19.0 15.5C19.2 15.5 22.3 12.6 25.9 9.0C33.6 1.4 33.9 1.1 35.4 2.6C36.9 4.1 36.6 4.4 29.0 12.1C25.4 15.7 22.5 18.8 22.5 19.0C22.5 19.2 25.4 22.3 29.0 25.9C36.6 33.6 36.9 33.9 35.4 35.4C33.9 36.9 33.6 36.6 25.9 29.0C22.3 25.4 19.2 22.5 19.0 22.5C18.8 22.5 15.7 25.4 12.1 29.0C4.4 36.6 4.1 36.9 2.6 35.4Z"/></svg></button></span>
+    </div>
+    <div class="sh-body sh-scroll">
+      <div class="dev-sect">
+        <div class="dev-ttl">Балансы</div>
+        <label class="dev-row">
+          <span class="tk24 gram"><svg class="gem" viewBox="0 0 30 20" aria-hidden="true"><path d="M8 2h14l6.5 5.6L15 18.2 1.5 7.6z" fill="#fff" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/><path d="M15 5.4l1.5 3.3 3.3 1.5-3.3 1.5L15 15l-1.5-3.3-3.3-1.5 3.3-1.5z" fill="#30A1F5"/></svg></span>
+          <span class="dev-nm">GRAM</span>
+          <input id="dev-bal-gram" type="text" inputmode="decimal" class="dev-num" />
+        </label>
+        <label class="dev-row">
+          <span class="tk24 usdt"><svg class="gem" viewBox="0 0 30 20" aria-hidden="true"><path d="M8 2h14l6.5 5.6L15 18.2 1.5 7.6z" fill="#fff" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/><rect x="8.5" y="3.6" width="13" height="2.6" rx="1.3" fill="#009393"/><rect x="13.7" y="3.6" width="2.6" height="11.6" rx="1.3" fill="#009393"/></svg></span>
+          <span class="dev-nm">USD₮</span>
+          <input id="dev-bal-usdt" type="text" inputmode="decimal" class="dev-num" />
+        </label>
+        <button class="btn-big primary" id="dev-apply-bal">Применить</button>
+      </div>
+      <div class="dev-sect">
+        <div class="dev-ttl">Операция с рандомного адреса</div>
+        <div class="dev-row">
+          <select id="dev-tx-token" class="dev-sel">
+            <option value="gram">GRAM</option>
+            <option value="usdt">USD₮</option>
+          </select>
+          <input id="dev-tx-amount" type="text" inputmode="decimal" class="dev-num" placeholder="Сумма" />
+        </div>
+        <div class="dev-btn-row">
+          <button class="btn-big primary" id="dev-tx-in">+ Пополнить</button>
+          <button class="btn-big secondary" id="dev-tx-out">− Списать</button>
+        </div>
+      </div>
+      <div class="dev-sect">
+        <div class="dev-ttl">Последние операции</div>
+        <ul class="dev-log" id="dev-log"><li class="dev-empty">Пока нет операций</li></ul>
+      </div>
+    </div>
+  </section>
+</div>
+
 <section class="sheet" id="sheet" aria-hidden="true">
   <div class="sheet-handle"></div>
   <h3 id="sheet-title">—</h3>
@@ -1423,14 +1505,75 @@ $("#address-row").addEventListener("click", async () => {
   }
 });
 
-// Balance toggle (demo: $ ↔ ₽)
+// ===== State: баланс каждой криптовалюты + история операций =====
+const PRICES = { gram: 1.22, usdt: 0.99 };     // $ за токен (как показано на карточке)
+const RUB_PER_USD = 95;                        // приблизительно, только для ₽-режима
+const DEF_BAL = { gram: 0.000287, usdt: 0 };
+let state = { bal: { ...DEF_BAL }, log: [] };
+try {
+  const saved = JSON.parse(localStorage.getItem("keeprs-state") || "null");
+  if (saved && saved.bal) state = { bal: { ...DEF_BAL, ...saved.bal }, log: Array.isArray(saved.log) ? saved.log : [] };
+} catch (_) {}
+function saveState() { try { localStorage.setItem("keeprs-state", JSON.stringify(state)); } catch (_) {} }
+
+// Форматирование по русской локали
+const RU = new Intl.NumberFormat("ru-RU", { useGrouping: true, maximumFractionDigits: 6 });
+function fmtAmount(v, decimals) {
+  const d = decimals != null ? decimals : (v >= 1 ? 2 : 6);
+  return new Intl.NumberFormat("ru-RU", { useGrouping: true, minimumFractionDigits: 0, maximumFractionDigits: d }).format(v);
+}
+function fmtUsd(v) {
+  if (v === 0) return "$&thinsp;0,00";
+  if (v > 0 && v < 0.01) return "&lt;&nbsp;$&thinsp;0,01";
+  return "$&thinsp;" + new Intl.NumberFormat("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v);
+}
+function fmtRub(v) {
+  if (v === 0) return "₽&thinsp;0";
+  if (v > 0 && v < 1) return "&lt;&nbsp;₽<span class=\"ts\">&thinsp;</span>1";
+  return "₽&thinsp;" + new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 0 }).format(v);
+}
+function totalUsd() { return state.bal.gram * PRICES.gram + state.bal.usdt * PRICES.usdt; }
+
 let altBalance = false;
-$("#balance").addEventListener("click", () => {
-  altBalance = !altBalance;
-  $("#balance").innerHTML = altBalance
-    ? "&lt;&nbsp;₽<span class=\"ts\">&thinsp;</span>1"
-    : "&lt;&nbsp;$<span class=\"ts\">&thinsp;</span>0<span class=\"cents\">,01</span>";
-});
+function renderBalances() {
+  const g = state.bal.gram, u = state.bal.usdt;
+  // Токены
+  $("#amt-gram").textContent = fmtAmount(g, 6);
+  $("#usd-gram").innerHTML   = fmtUsd(g * PRICES.gram);
+  $("#amt-usdt").textContent = fmtAmount(u, u >= 1 ? 2 : 6);
+  $("#usd-usdt").innerHTML   = fmtUsd(u * PRICES.usdt);
+  // Hero
+  const tot = totalUsd();
+  const heroEl = $("#balance");
+  if (altBalance) {
+    heroEl.innerHTML = fmtRub(tot * RUB_PER_USD);
+  } else if (tot === 0) {
+    heroEl.innerHTML = "$<span class=\"ts\">&thinsp;</span>0<span class=\"cents\">,00</span>";
+  } else if (tot < 0.01) {
+    heroEl.innerHTML = "&lt;&nbsp;$<span class=\"ts\">&thinsp;</span>0<span class=\"cents\">,01</span>";
+  } else {
+    const intPart = Math.floor(tot);
+    const cents = Math.round((tot - intPart) * 100).toString().padStart(2, "0");
+    heroEl.innerHTML = "$<span class=\"ts\">&thinsp;</span>" + new Intl.NumberFormat("ru-RU").format(intPart) + "<span class=\"cents\">," + cents + "</span>";
+  }
+  // Балансы на листах swap/stake
+  const sb = document.getElementById("swap-bal"); if (sb) sb.textContent = fmtAmount(g, 6);
+  const kb = document.getElementById("stake-bal"); if (kb) kb.textContent = fmtAmount(g, 6);
+}
+renderBalances();
+// После того как настоящие значения подставлены — показываем кошелёк.
+requestAnimationFrame(() => $("#wallet-body").classList.add("ready"));
+
+$("#balance").addEventListener("click", () => { altBalance = !altBalance; renderBalances(); });
+
+// Генератор TON-адреса (UQ...48 base64url-символов)
+const B64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-";
+function randomTonAddress() {
+  let s = "UQ";
+  for (let i = 0; i < 46; i++) s += B64[Math.floor(Math.random() * B64.length)];
+  return s;
+}
+function shortAddr(a) { return a.slice(0, 4) + "…" + a.slice(-4); }
 
 // Actions open explanatory sheet
 const sheetDefs = {
@@ -1501,7 +1644,7 @@ document.querySelectorAll(".sheet-layer").forEach(layer => {
 });
 
 // ввод суммы на цифровой клавиатуре (Обмен / Стейкинг)
-const BALANCE = "0,000287";
+function currentBalanceStr() { return fmtAmount(state.bal.gram, 6); }
 function resetSheetInput(layer) {
   const val = layer.querySelector("[data-val]"); if (!val) return;
   val.dataset.v = ""; renderVal(layer);
@@ -1528,25 +1671,101 @@ document.querySelectorAll("#sh-swap, #sh-stake").forEach(layer => {
     val.dataset.v = v; renderVal(layer);
   });
   layer.querySelector("[data-max]").addEventListener("click", () => {
-    layer.querySelector("[data-val]").dataset.v = BALANCE; renderVal(layer);
+    layer.querySelector("[data-val]").dataset.v = currentBalanceStr(); renderVal(layer);
   });
   layer.querySelector("[data-cta]").addEventListener("click", () => toast("Это визуальный прототип"));
 });
 
-// Font switcher (temporary, for comparing against the original): gear cycles
-// Firs -> Onest -> SF Pro (system) -> SF Pro Rounded; the choice is remembered.
-const FONT_CYCLE = [["", "TT Firs Neue"], ["onest", "Onest"], ["sf", "SF Pro (системный шрифт Apple)"], ["sfr", "SF Pro Rounded"]];
+// Короткий тап по шестерёнке — переключает шрифт по кругу (для сравнения с оригиналом).
+// Firs → Onest → SF → SF Rounded; выбор запоминается.
+const FONT_CYCLE = [["", "TT Firs Neue"], ["mont", "Montserrat"], ["onest", "Onest"], ["sf", "SF Pro (системный шрифт Apple)"], ["sfr", "SF Pro Rounded"]];
 function applyFont(key) {
   if (key) document.documentElement.dataset.font = key; else delete document.documentElement.dataset.font;
 }
 try { applyFont(localStorage.getItem("font") || ""); } catch (e) {}
-document.querySelector('[aria-label="Настройки"]').addEventListener("click", () => {
+function cycleFont() {
   const cur = document.documentElement.dataset.font || "";
   const i = (FONT_CYCLE.findIndex(f => f[0] === cur) + 1) % FONT_CYCLE.length;
   applyFont(FONT_CYCLE[i][0]);
   try { localStorage.setItem("font", FONT_CYCLE[i][0]); } catch (e) {}
   toast("Шрифт: " + FONT_CYCLE[i][1]);
+}
+
+// Долгое удержание (500мс) по шестерёнке — открывает лист «Отладка».
+const gearBtn = document.querySelector('[aria-label="Настройки"]');
+(() => {
+  let lpTimer = null, lpFired = false;
+  const start = () => {
+    lpFired = false;
+    clearTimeout(lpTimer);
+    lpTimer = setTimeout(() => {
+      lpFired = true;
+      if (navigator.vibrate) try { navigator.vibrate(12); } catch (_) {}
+      openDevSheet();
+    }, 500);
+  };
+  const cancel = () => { clearTimeout(lpTimer); };
+  gearBtn.addEventListener("pointerdown", start);
+  ["pointerup", "pointercancel", "pointerleave", "pointerout"].forEach(ev => gearBtn.addEventListener(ev, cancel));
+  gearBtn.addEventListener("click", (e) => {
+    if (lpFired) { e.preventDefault(); e.stopPropagation(); lpFired = false; return; }
+    cycleFont();
+  });
+})();
+
+// ===== Dev sheet =====
+function parseNum(s) {
+  if (s == null) return NaN;
+  const n = parseFloat(String(s).replace(/\s/g, "").replace(",", "."));
+  return isFinite(n) ? n : NaN;
+}
+function fillDevInputs() {
+  $("#dev-bal-gram").value = fmtAmount(state.bal.gram, 6);
+  $("#dev-bal-usdt").value = fmtAmount(state.bal.usdt, state.bal.usdt >= 1 ? 2 : 6);
+  $("#dev-tx-amount").value = "";
+  renderDevLog();
+}
+function renderDevLog() {
+  const ul = $("#dev-log");
+  if (!state.log.length) { ul.innerHTML = '<li class="dev-empty">Пока нет операций</li>'; return; }
+  ul.innerHTML = state.log.slice(0, 8).map(e => {
+    const sign = e.kind === "in" ? "+" : "−";
+    const cls = e.kind === "in" ? "amt-in" : "amt-out";
+    const tok = e.token === "usdt" ? "USD₮" : "GRAM";
+    const amt = fmtAmount(e.amount, e.amount >= 1 ? 2 : 6);
+    return `<li><span class="amt ${cls}">${sign}${amt} ${tok}</span><span class="addr">${e.kind === "in" ? "от " : "на "}${shortAddr(e.address)}</span></li>`;
+  }).join("");
+}
+function openDevSheet() { fillDevInputs(); openPageSheet("sh-dev"); }
+
+$("#dev-apply-bal").addEventListener("click", () => {
+  const g = parseNum($("#dev-bal-gram").value);
+  const u = parseNum($("#dev-bal-usdt").value);
+  if (!isFinite(g) || !isFinite(u) || g < 0 || u < 0) { toast("Нужны неотрицательные числа"); return; }
+  state.bal.gram = g; state.bal.usdt = u;
+  saveState(); renderBalances();
+  toast("Балансы обновлены"); showUpdating(400);
 });
+
+function doTx(kind) {
+  const token = $("#dev-tx-token").value;
+  const amt = parseNum($("#dev-tx-amount").value);
+  if (!isFinite(amt) || amt <= 0) { toast("Введите сумму"); return; }
+  if (kind === "out" && state.bal[token] < amt) { toast("Недостаточно " + (token === "usdt" ? "USD₮" : "GRAM")); return; }
+  state.bal[token] = kind === "in" ? state.bal[token] + amt : state.bal[token] - amt;
+  const address = randomTonAddress();
+  state.log.unshift({ kind, token, amount: amt, address, ts: Date.now() });
+  if (state.log.length > 30) state.log.length = 30;
+  saveState(); renderBalances(); renderDevLog();
+  // освежить поля балансов, чтобы они соответствовали новой правде
+  $("#dev-bal-gram").value = fmtAmount(state.bal.gram, 6);
+  $("#dev-bal-usdt").value = fmtAmount(state.bal.usdt, state.bal.usdt >= 1 ? 2 : 6);
+  $("#dev-tx-amount").value = "";
+  toast((kind === "in" ? "Получено " : "Отправлено ") + fmtAmount(amt, amt >= 1 ? 2 : 6) + " " + (token === "usdt" ? "USD₮" : "GRAM"));
+  showUpdating(500);
+}
+$("#dev-tx-in").addEventListener("click", () => doTx("in"));
+$("#dev-tx-out").addEventListener("click", () => doTx("out"));
 
 // Toast
 let toastT = null;
