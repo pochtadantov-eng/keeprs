@@ -1,5 +1,5 @@
 // Service worker for the Кошелёк PWA — offline-first.
-const CACHE = "koshelek-v22";
+const CACHE = "koshelek-v23";
 const ASSETS = [
   "./",
   "./index.html",
@@ -8,7 +8,7 @@ const ASSETS = [
   "./icon-192.png",
   "./icon-512.png",
   "./icon-maskable-512.png",
-  "./fonts/TT-Firs-Neue-Trial-Var-Roman.ttf",
+  "./fonts/Firs-Keeper-Var.ttf",
   "./fonts/montserrat-cyrillic.woff2",
   "./fonts/montserrat-latin.woff2",
   "./fonts/onest-cyrillic-wght-normal.woff2",
