@@ -1128,7 +1128,7 @@ body.hist-open .app-header, body.hist-open .panel.active, body.hist-open .tabbar
 .tok.open { transform: none; visibility: visible; transition: transform .36s cubic-bezier(.22,.9,.28,1); }
 .tok.dragging { transition: none; }
 .tok-head { position: absolute; left: 0; right: 0; top: 0; z-index: 6; background: var(--bg); }
-.tok-head h1 { display: inline-flex; align-items: center; gap: 6.3px; font-size: 20px; }
+.tok-head h1 { display: inline-flex; align-items: center; gap: 6.3px; font-size: 19.65px; font-weight: 590; }
 .tok-head h1 img { width: 14.7px; height: 14.7px; position: relative; top: -.4px; }
 .tok-more { position: absolute; right: 16px; top: 16px; width: 32px; height: 32px; border: none; border-radius: 50%;
   background: var(--surface); color: #fff; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
@@ -1142,10 +1142,10 @@ body.hist-open .app-header, body.hist-open .panel.active, body.hist-open .tabbar
 .tok-ic { position: absolute; left: 24px; top: 8px; width: 56px; height: 56px; }
 .tok-ic .token { position: absolute; left: 0; top: 0; transform: scale(1.2727); transform-origin: 0 0; }
 .tok-chip { position: absolute; right: 20px; top: 8px; height: 32px; box-sizing: border-box; display: inline-flex; align-items: center; gap: 5px;
-  padding: 0 13px 0 11px; border-radius: 16px; background: rgba(57,204,131,.12); color: var(--green);
+  padding: 0 13px 0 11px; border-radius: 16px; background: rgba(57,204,131,.16); color: var(--green);
   font-size: 14px; font-weight: 500; white-space: nowrap; }
 .tok-chip svg { width: 17px; height: 17px; flex: none; }
-.tok-price { position: absolute; left: 24px; top: 78px; font-size: 23px; line-height: 32px; font-weight: 700; letter-spacing: -.01em; white-space: nowrap; }
+.tok-price { position: absolute; left: 24px; top: 79px; font-size: 23.4px; line-height: 32px; font-weight: 600; letter-spacing: -.01em; white-space: nowrap; }
 .tok-chg { position: absolute; left: 24px; right: 16px; top: 112px; display: flex; align-items: baseline; gap: 10px; font-size: 14px; line-height: 24px; font-weight: 450; white-space: nowrap; }
 .tok-chg .pc.neg { color: var(--red); } .tok-chg .pc.pos { color: var(--green); }
 .tok-chg .ab { opacity: .5; } .tok-chg .ab.neg { color: var(--red); } .tok-chg .ab.pos { color: var(--green); }
@@ -1166,7 +1166,7 @@ body.hist-open .app-header, body.hist-open .panel.active, body.hist-open .tabbar
 .tok-sec { margin-top: 29px; padding: 0 16px; }
 .tok-sec:first-of-type { margin-top: 14px; }
 .tok-sec .section-head { margin-bottom: 12px; }
-.tok-sec .section-head h2 { margin: 0; }
+.tok-sec .section-head h2 { margin: 0; font-size: 15.7px; }
 .tok-link { background: none; border: none; padding: 0; color: #3388F9; font-size: 14px; line-height: 24px; font-weight: 450; }
 .tok-card { background: var(--surface); border-radius: 20px; overflow: hidden; }
 .tok-bal { display: flex; align-items: center; gap: 16px; padding: 16px; position: relative; }
@@ -1215,6 +1215,21 @@ body.hist-open .app-header, body.hist-open .panel.active, body.hist-open .tabbar
   transition: opacity .22s ease, transform .22s cubic-bezier(.2,.8,.2,1); }
 .loadpill.show { opacity: 1; transform: translate(-50%, 0); }
 .loadpill svg { width: 20px; height: 20px; animation: spin .8s linear infinite; }
+/* ===== Углы «как у iOS»: непрерывная кривизна (squircle), радиус 16 — измерено по скриншотам оригинала ===== */
+:root { --sq16: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22 viewBox=%220 0 64 64%22%3E%3Cpath d=%22M24.459 0L39.541 0C46.584 0 50.105 0 53.896 1.199C58.035 2.705 61.295 5.965 62.801 10.104C64 13.895 64 17.416 64 24.459L64 39.541C64 46.584 64 50.105 62.801 53.896C61.295 58.035 58.035 61.295 53.896 62.801C50.105 64 46.584 64 39.541 64L24.459 64C17.416 64 13.895 64 10.104 62.801C5.965 61.295 2.705 58.035 1.199 53.896C0 50.105 0 46.584 0 39.541L0 24.459C0 17.416 0 13.895 1.199 10.104C2.705 5.965 5.965 2.705 10.104 1.199C13.895 0 17.416 0 24.459 0Z%22 fill=%22%23000%22/%3E%3C/svg%3E"); }
+.card, .nft, .htx, .tok-card, .tok-acts button, .tok-cta button {
+  border-radius: 0;
+  -webkit-mask-box-image: var(--sq16) 25 fill / 25px / 0 stretch;
+}
+.tok-hist .htx { -webkit-mask-box-image: none; }
+.tok-acts button { height: 59px; }
+.tok-cta { bottom: calc(env(safe-area-inset-bottom, 0px) + 3px); }
+.tok-cta button { height: 56px; background: #3C95FA; }
+.tok-act { height: 106px; }
+.tok-bal .bt { color: #7F858F; }
+.tok-bal .bs { color: #4D5765; }
+.tok-line { background: #3C95FA; }
+.tok-dot { background: #3C95FA; box-shadow: 0 0 0 12.2px rgba(60,149,250,.22); }
 </style>
 </head>
 <body class="t-wallet">
@@ -2009,9 +2024,21 @@ const TOKP = {
     vol24: "$41,2M", vch: "−3,12", buy: 19.8, sell: 21.4, buyS: "$19,8M", sellS: "$21,4M",
     links: ["website", "coinmarketcap", "coingecko", "x", "telegram", "docs"] },
 };
-const TPER = { h: { n: 60, span: 36e5, lab: "Последний час", v: .0018 }, d: { n: 144, span: 864e5, lab: "Последний день", v: .006 },
-  w: { n: 168, span: 6048e5, lab: "Последняя неделя", v: .011 }, m: { n: 120, span: 2592e6, lab: "Последний месяц", v: .02 },
-  "6m": { n: 180, span: 15768e6, lab: "Последние 6 месяцев", v: .03 }, y: { n: 180, span: 3153e7, lab: "Последний год", v: .04 } };
+const TPER = { h: { n: 60, span: 36e5, lab: "Последний час", v: .0018 }, d: { n: 96, span: 864e5, lab: "Последний день", v: .006 },
+  w: { n: 96, span: 6048e5, lab: "Последняя неделя", v: .011 }, m: { n: 96, span: 2592e6, lab: "Последний месяц", v: .02 },
+  "6m": { n: 96, span: 15768e6, lab: "Последние 6 месяцев", v: .03 }, y: { n: 96, span: 3153e7, lab: "Последний год", v: .04 } };
+// равномерная сетка по времени (в оригинале день — ровно 96 точек)
+function tResample(t, p, n) {
+  if (t.length < 2) return { t, p };
+  const t0 = t[0], t1 = t[t.length - 1], T = [], Pp = []; let j = 0;
+  for (let i = 0; i < n; i++) {
+    const x = t0 + (t1 - t0) * i / (n - 1);
+    while (j < t.length - 2 && t[j + 1] < x) j++;
+    const a = t[j], b = t[j + 1], u = b > a ? Math.max(0, Math.min(1, (x - a) / (b - a))) : 0;
+    T.push(x); Pp.push(p[j] + (p[j + 1] - p[j]) * u);
+  }
+  return { t: T, p: Pp };
+}
 const TMON = ["янв.", "февр.", "мар.", "апр.", "мая", "июн.", "июл.", "авг.", "сент.", "окт.", "нояб.", "дек."];
 const TWD = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
 const tp2 = n => String(n).padStart(2, "0");
@@ -2031,8 +2058,9 @@ let tk = null, tper = "d", tser = [], ttimes = [], tAt = 0, tgeo = null, tokTime
 function tokSeries(per) {
   const c = LIVE.chart[tk.key + ":" + per];
   if (c) { ttimes = c.t; tAt = c.at; return c.p; }
-  const s = tSeries(tk, per), P = TPER[per], now = Date.now();
-  ttimes = s.map((_, i) => now - P.span * (1 - i / (s.length - 1))); tAt = 0; return s;
+  const raw = tSeries(tk, per), P = TPER[per], now = Date.now();
+  const rs = tResample(raw.map((_, i) => now - P.span * (1 - i / (raw.length - 1))), raw, P.n);
+  ttimes = rs.t; tAt = 0; return rs.p;
 }
 const tokEl = $("#tok"), tokChart = $("#tok-chart");
 const TCH = { top: 24, h: 170, H: 260 };
@@ -2050,21 +2078,34 @@ function tokAxisLabel(t, per) {
 }
 function tokHead(p, p0, lab, hint) {
   const ch = p0 ? (p - p0) / p0 * 100 : 0, d = p - p0, cl = d < 0 ? "neg" : "pos";
-  $("#tok-price").textContent = tPrice(p);
+  $("#tok-price").textContent = tPrice(p).replace("$", "$\u2009");
   $("#tok-chg").innerHTML = `<span class="pc ${cl}">${tPct(ch)}</span><span class="ab ${cl}">${tAbs(d)}</span><span class="wh">${lab}</span>`;
 }
+function tokPath(X, Y, s) {
+  const n = s.length, k = .125, P = s.map((v, i) => [X(i), Y(v)]);
+  let d = "M" + P[0][0].toFixed(1) + " " + P[0][1].toFixed(1);
+  for (let i = 0; i < n - 1; i++) {
+    const p0 = P[Math.max(i - 1, 0)], p1 = P[i], p2 = P[i + 1], p3 = P[Math.min(i + 2, n - 1)];
+    d += "C" + (p1[0] + (p2[0] - p0[0]) * k).toFixed(1) + " " + (p1[1] + (p2[1] - p0[1]) * k).toFixed(1) + " " +
+      (p2[0] - (p3[0] - p1[0]) * k).toFixed(1) + " " + (p2[1] - (p3[1] - p1[1]) * k).toFixed(1) + " " + p2[0].toFixed(1) + " " + p2[1].toFixed(1);
+  }
+  return d;
+}
+// заливка: прозрачность акцентного цвета по высоте, как в оригинале (измерено по скриншоту)
+const TOK_FILL = [[0, .251], [28.7, .246], [42, .237], [62, .219], [75.3, .196], [88.7, .173], [108.7, .128], [128.7, .082], [142, .055], [162, .027], [175.3, .014], [188.7, .006], [193, 0]];
 function tokDraw() {
   const W = tokChart.clientWidth || 402, s = tser, n = s.length;
   let mn = Math.min(...s), mx = Math.max(...s); if (mx - mn < 1e-9) { mx += .001; mn -= .001; }
   const X = i => i / (n - 1) * W, Y = v => TCH.top + (mx - v) / (mx - mn) * TCH.h;
   tgeo = { W, X, Y, n };
-  let d = ""; for (let i = 0; i < n; i++) d += (i ? "L" : "M") + X(i).toFixed(1) + " " + Y(s[i]).toFixed(1);
-  const bot = TCH.top + TCH.h + 50;
+  const d = tokPath(X, Y, s), bot = TCH.H;
+  const fine = mx - mn < .02;
   tokChart.innerHTML =
-    `<svg viewBox="0 0 ${W} ${TCH.H}" aria-hidden="true"><defs><linearGradient id="tkg" gradientUnits="userSpaceOnUse" x1="0" y1="${TCH.top}" x2="0" y2="${bot}"><stop offset="0" stop-color="#3388F9" stop-opacity=".36"/><stop offset="1" stop-color="#3388F9" stop-opacity="0"/></linearGradient></defs>` +
-    `<path d="${d}L${W} ${bot}L0 ${bot}Z" fill="url(#tkg)"/><path d="${d}" fill="none" stroke="#3388F9" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>` +
+    `<svg viewBox="0 0 ${W} ${TCH.H}" aria-hidden="true"><defs><linearGradient id="tkg" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="${TCH.H}">` +
+    TOK_FILL.map(a => `<stop offset="${(a[0] / TCH.H).toFixed(3)}" stop-color="#3C95FA" stop-opacity="${a[1]}"/>`).join("") + `</linearGradient></defs>` +
+    `<path d="${d}L${W} ${bot}L0 ${bot}Z" fill="url(#tkg)"/><path d="${d}" fill="none" stroke="#3C95FA" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>` +
     [.1, .3, .5, .7, .9].map(f => `<i class="gl" style="left:${(f * W).toFixed(1)}px"></i>`).join("") +
-    `<span class="tok-lb tok-ymax">${tPrice(mx, mx - mn < .08)}</span><span class="tok-lb tok-ymin">${tPrice(mn, mx - mn < .08)}</span>` +
+    `<span class="tok-lb tok-ymax">${tPrice(mx, fine)}</span><span class="tok-lb tok-ymin">${tPrice(mn, fine)}</span>` +
     [.1, .5].map(f => `<span class="tok-lb tok-xl" style="left:${(f * W + 6).toFixed(1)}px">${tokAxisLabel(ttimes[Math.round(f * (n - 1))], tper)}</span>`).join("") +
     `<i class="tok-line"></i><i class="tok-dot"></i>`;
 }
@@ -2287,8 +2328,8 @@ async function liveChart(key, per) {
     } catch (e) {}
   }
   if (!pts || pts.length < 6) return c || null;
-  const step = Math.max(1, Math.ceil(pts.length / 220)); if (step > 1) pts = pts.filter((_, i) => i % step === 0 || i === pts.length - 1);
-  const o = { at: now, t: pts.map(x => x[0]), p: pts.map(x => x[1]), src };
+  const rs = tResample(pts.map(x => x[0]), pts.map(x => x[1]), P.n);
+  const o = { at: now, t: rs.t, p: rs.p, src };
   LIVE.chart[ck] = o; return o;
 }
 async function liveOverview(key) {
