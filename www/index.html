@@ -1231,6 +1231,14 @@ body.hist-open .app-header, body.hist-open .panel.active, body.hist-open .tabbar
 .tok.sync .tok-bal .bt, .tok.sync .tok-bal .bs { opacity: .44; }
 .tok-line { background: #3C95FA; }
 .tok-dot { background: #3C95FA; box-shadow: 0 0 0 12.2px rgba(60,149,250,.22); }
+/* ===== Браузер: живая витрина (api.tonkeeper.com/apps/popular) ===== */
+.banner.pst { background-color: var(--surface); background-size: cover; background-position: center; display: flex; align-items: flex-end; }
+.banner .pf { display: flex; align-items: center; gap: 10px; margin: 0 16px 14px; min-width: 0; }
+.banner .pf img { width: 36px; height: 36px; border-radius: 9px; flex: none; }
+.banner .pf b { display: block; font-size: 16px; line-height: 20px; font-weight: 600; color: #fff; }
+.banner .pf span { display: block; font-size: 13px; line-height: 18px; font-weight: 450; color: rgba(255,255,255,.82); }
+.b-app, .banners .banner { -webkit-mask-box-image: none; }
+.b-app { border-radius: 0; -webkit-mask-box-image: var(--sq16) 25 fill / 25px / 0 stretch; }
 </style>
 </head>
 <body class="t-wallet">
@@ -1718,6 +1726,7 @@ function showTab(name, initial) {
     bn.scrollLeft = bn.children[0].offsetWidth + 8;
     bannersReady = true;
   }
+  if (name === "browser") browserLoad();
   if (name === "wallet" && !initial) showUpdating(450);
 }
 document.querySelectorAll(".tab").forEach(btn => {
@@ -1726,6 +1735,69 @@ document.querySelectorAll(".tab").forEach(btn => {
     showTab(btn.dataset.tab);
   });
 });
+
+
+// ===== Браузер: витрина берётся с api.tonkeeper.com (то же, что показывает Tonkeeper) =====
+// Баннеры (apps с poster), затем категории; у приложения с button — строка «Открыть», иначе плитка 64×64.
+// Пока ответа нет (или нет сети) остаётся вёрстка из записи; ответ кэшируется.
+const BROWSER_API = "https://api.tonkeeper.com/apps/popular?lang=ru&build=5.0.0&chainName=mainnet&platform=ios";
+const BR = { data: null, at: 0, err: "" };
+try { const c = JSON.parse(localStorage.getItem("keeprs-browser") || "null"); if (c && c.data) { BR.data = c.data; BR.at = c.at || 0; } } catch (_) {}
+const brCountry = (() => { try { return ((navigator.language || "ru-RU").split("-")[1] || "").toUpperCase(); } catch (_) { return ""; } })();
+const brOk = a => !!a && typeof a.url === "string" && typeof a.icon === "string" &&
+  !(a.excludeCountries && a.excludeCountries.includes(brCountry)) &&
+  !(a.includeCountries && a.includeCountries.length && !a.includeCountries.includes(brCountry));
+const brEsc = x => String(x == null ? "" : x).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const brCss = u => "url('" + encodeURI(String(u)).replace(/'/g, "%27") + "')";
+// fetch, а если сеть/CORS не пускает — нативный HTTP Capacitor (без CORS)
+async function nget(url, ms) {
+  try { return await jget(url, ms); }
+  catch (e) {
+    const H = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.CapacitorHttp;
+    if (!H) throw e;
+    const r = await Promise.race([H.get({ url, headers: { accept: "application/json" } }), new Promise((_, rej) => setTimeout(() => rej(new Error("таймаут")), ms || 8000))]);
+    if (!r || r.status >= 400) throw new Error("HTTP " + (r && r.status));
+    return typeof r.data === "string" ? JSON.parse(r.data) : r.data;
+  }
+}
+function brRender() {
+  const d = BR.data, sc = document.querySelector(".b-scroll");
+  if (!d || !sc || !(d.apps.length || d.categories.length)) return;
+  let h = "";
+  if (d.apps.length) h += '<div class="banners" id="banners">' + d.apps.map(a =>
+    `<div class="banner pst" data-url="${brEsc(a.url)}" style="background-image:${brEsc(brCss(a.poster))}"><div class="pf"><img src="${brEsc(a.icon)}" alt=""><div><b${a.textColor ? ` style="color:${brEsc(a.textColor)}"` : ""}>${brEsc(a.name)}</b><span${a.textColor ? ` style="color:${brEsc(a.textColor)};opacity:.82"` : ""}>${brEsc(a.description)}</span></div></div></div>`).join("") + "</div>";
+  for (const c of d.categories) {
+    const rows = c.apps.filter(a => a.button), tiles = c.apps.filter(a => !a.button).slice(0, 8);
+    const bare = c.id === "featured" || c.id === "ads";
+    if (!bare && c.title) h += `<div class="b-head"><h2>${brEsc(c.title)}</h2>${d.moreEnabled && c.apps.length > 8 ? '<button class="link">Смотреть все</button>' : ""}</div>`;
+    h += rows.map(a => `<div class="b-app" data-url="${brEsc(a.url)}"><img src="${brEsc(a.icon)}" alt="" width="44" height="44"><div class="txt"><div class="t">${brEsc(a.name)}</div><div class="s">${brEsc(a.description)}</div></div><button class="open-btn">${brEsc(a.button.title || "Открыть")}</button></div>`).join("");
+    for (let i = 0; i < tiles.length; i += 4) h += '<div class="apps">' + tiles.slice(i, i + 4).map(a =>
+      `<button class="app" data-url="${brEsc(a.url)}"><img src="${brEsc(a.icon)}" alt="" width="64" height="64"><span>${brEsc(a.name)}</span></button>`).join("") + "</div>";
+  }
+  const keep = sc.querySelector(".segs");
+  sc.innerHTML = ""; sc.appendChild(keep); sc.insertAdjacentHTML("beforeend", h + '<div style="height:24px"></div>');
+  bannersReady = true; const bn = $("#banners"); if (bn) bn.scrollLeft = 0;
+}
+async function browserLoad(force) {
+  if (!force && BR.data && BR.at && Date.now() - BR.at < 30 * 60e3) return BR.data;
+  BR.err = "";
+  try {
+    const j = await nget(BROWSER_API, 8000), d = j && (j.data || j);
+    if (!d || !Array.isArray(d.categories)) throw new Error("неожиданный ответ");
+    BR.data = { moreEnabled: !!d.moreEnabled,
+      apps: (d.apps || []).filter(a => brOk(a) && typeof a.poster === "string"),
+      categories: d.categories.map(c => ({ id: c.id, title: c.title, apps: (c.apps || []).filter(brOk) })).filter(c => c.apps.length) };
+    BR.at = Date.now(); try { localStorage.setItem("keeprs-browser", JSON.stringify({ data: BR.data, at: BR.at })); } catch (_) {}
+    brRender();
+  } catch (e) { BR.err = e.message; }
+  if (typeof renderLiveStatus === "function") renderLiveStatus();
+  return BR.data;
+}
+document.querySelector(".b-scroll").addEventListener("click", e => {
+  const el = e.target.closest("[data-url]"); if (!el) return;
+  try { window.open(el.dataset.url, "_blank"); } catch (_) {}
+});
+if (BR.data) brRender();
 
 // «Обновление» вместо адреса
 const header = $("#app-header");
@@ -2416,7 +2488,7 @@ function renderBalances() {
   if (typeof tokRefresh === "function") tokRefresh();
 }
 renderBalances();
-liveTick(true); liveSchedule();
+liveTick(true); liveSchedule(); browserLoad();
 // После того как настоящие значения подставлены — показываем кошелёк.
 requestAnimationFrame(() => $("#wallet-body").classList.add("ready"));
 
@@ -2753,6 +2825,7 @@ function renderLiveStatus() {
   const t = LIVE.at ? new Date(LIVE.at) : null, hm = t ? tp2(t.getHours()) + ":" + tp2(t.getMinutes()) + ":" + tp2(t.getSeconds()) : "";
   const g = LIVE.rate.gram, u = LIVE.rate.usdt;
   el.textContent = (t ? `${LIVE.src} · ${hm} · GRAM $${g ? g.p.toFixed(4) : "—"} · USD₮ $${u ? u.p.toFixed(4) : "—"}` : "Живых данных пока нет (используются сохранённые)") + (LIVE.err ? `\nОшибки: ${LIVE.err}` : "");
+  const bd = BR.data; el.textContent += "\nВитрина: " + (bd ? `${bd.categories.length} категорий, ${bd.apps.length} баннеров, ${tp2(new Date(BR.at).getHours())}:${tp2(new Date(BR.at).getMinutes())}` : "ещё не загружена") + (BR.err ? ` (ошибка: ${BR.err})` : "");
   el.style.whiteSpace = "pre-line";
 }
 function fillDevInputs() {
