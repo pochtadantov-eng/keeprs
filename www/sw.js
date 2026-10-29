@@ -1,5 +1,5 @@
 // Service worker for the Кошелёк PWA — offline-first.
-const CACHE = "koshelek-v18";
+const CACHE = "koshelek-v19";
 const ASSETS = [
   "./",
   "./index.html",
