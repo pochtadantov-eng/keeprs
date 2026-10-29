@@ -736,7 +736,7 @@ body:not(.t-wallet) .app-header { display: none; }
 
 
 /* ===== Pull to refresh / updating ===== */
-.wallet-body { min-height: calc(100% + 130px); }
+.wallet-body { min-height: calc(100% + 1px); }   /* прокрутка = ровно высота контента (+1px, чтобы работала упругость); растёт с числом NFT и юзернеймов */
 .ptr {
   position: fixed;
   left: 50%;
