@@ -1121,6 +1121,99 @@ body.hist-open .app-header, body.hist-open .panel.active, body.hist-open .tabbar
 .app-header { transition: transform .36s cubic-bezier(.22,.9,.28,1), box-shadow .25s ease; }
 .app-header, .tabbar { will-change: transform; }
 #panel-wallet, #panel-trade, .b-scroll, .hist-scroll, .sh-scroll { -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; }
+/* ===== Страница токена (по записи оригинала) ===== */
+.tok { position: fixed; inset: 0; z-index: 45; background: var(--bg); transform: translateX(100%); visibility: hidden;
+  transition: transform .36s cubic-bezier(.22,.9,.28,1), visibility 0s .36s; will-change: transform; }
+.tok.open { transform: none; visibility: visible; transition: transform .36s cubic-bezier(.22,.9,.28,1); }
+.tok.dragging { transition: none; }
+.tok-head { position: absolute; left: 0; right: 0; top: 0; z-index: 6; background: var(--bg); }
+.tok-head h1 { display: inline-flex; align-items: center; gap: 6.3px; font-size: 20px; }
+.tok-head h1 img { width: 14.7px; height: 14.7px; position: relative; top: -.4px; }
+.tok-more { position: absolute; right: 16px; top: 16px; width: 32px; height: 32px; border: none; border-radius: 50%;
+  background: var(--surface); color: #fff; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+.tok-more:active { background: var(--surface-2); }
+.tok-scroll { position: absolute; left: 0; right: 0; top: 0; bottom: calc(env(safe-area-inset-bottom, 0px) + 4px);
+  overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  padding-top: calc(env(safe-area-inset-top, 0px) + 64px); }
+.tok-scroll::-webkit-scrollbar { display: none; }
+.tok-body { padding-bottom: 96px; }
+.tok-top { position: relative; height: 132px; }
+.tok-ic { position: absolute; left: 24px; top: 8px; width: 56px; height: 56px; }
+.tok-ic .token { position: absolute; left: 0; top: 0; transform: scale(1.2727); transform-origin: 0 0; }
+.tok-chip { position: absolute; right: 20px; top: 8px; height: 32px; box-sizing: border-box; display: inline-flex; align-items: center; gap: 5px;
+  padding: 0 13px 0 11px; border-radius: 16px; background: rgba(57,204,131,.12); color: var(--green);
+  font-size: 14px; font-weight: 500; white-space: nowrap; }
+.tok-chip svg { width: 17px; height: 17px; flex: none; }
+.tok-price { position: absolute; left: 24px; top: 78px; font-size: 23px; line-height: 32px; font-weight: 700; letter-spacing: -.01em; white-space: nowrap; }
+.tok-chg { position: absolute; left: 24px; right: 16px; top: 112px; display: flex; align-items: baseline; gap: 10px; font-size: 14px; line-height: 24px; font-weight: 450; white-space: nowrap; }
+.tok-chg .pc.neg { color: var(--red); } .tok-chg .pc.pos { color: var(--green); }
+.tok-chg .ab { opacity: .5; } .tok-chg .ab.neg { color: var(--red); } .tok-chg .ab.pos { color: var(--green); }
+.tok-chg .wh { color: var(--fg-dim); }
+.tok-chart { position: relative; height: 260px; touch-action: pan-y; }
+.tok-chart svg { position: absolute; left: 0; top: 0; width: 100%; height: 260px; overflow: visible; }
+.tok-chart .gl { position: absolute; width: 1px; background: linear-gradient(180deg, rgba(137,148,163,0), rgba(137,148,163,.05) 40%); top: 78px; height: 168px; }
+.tok-lb { position: absolute; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; line-height: 16px; font-weight: 500; color: #6E7887; white-space: nowrap; }
+.tok-ymax { right: 16px; top: 3.5px; } .tok-ymin { right: 16px; top: 203.5px; } .tok-xl { top: 226px; }
+.tok-line { position: absolute; top: 24px; height: 218px; width: 1px; margin-left: -.5px; background: #3388F9; display: none; }
+.tok-dot { position: absolute; width: 14.5px; height: 14.5px; margin: -7.25px 0 0 -7.25px; border-radius: 50%; background: #3388F9;
+  box-shadow: 0 0 0 12.2px rgba(51,136,249,.22); display: none; }
+.tok-chart.scrub .tok-line, .tok-chart.scrub .tok-dot { display: block; }
+.tok-per { display: flex; padding: 0 16px; height: 36px; }
+.tok-per button { flex: 1; height: 36px; border: none; border-radius: 18px; background: transparent; color: #fff; font-size: 14px; font-weight: 500; padding: 0; }
+.tok-per button.on { background: var(--surface); }
+.tok-hr { height: 0; border-top: .34px solid #1B222C; margin-top: 15.7px; }
+.tok-sec { margin-top: 29px; padding: 0 16px; }
+.tok-sec:first-of-type { margin-top: 14px; }
+.tok-sec .section-head { margin-bottom: 12px; }
+.tok-sec .section-head h2 { margin: 0; }
+.tok-link { background: none; border: none; padding: 0; color: #3388F9; font-size: 14px; line-height: 24px; font-weight: 450; }
+.tok-card { background: var(--surface); border-radius: 20px; overflow: hidden; }
+.tok-bal { display: flex; align-items: center; gap: 16px; padding: 16px; position: relative; }
+.tok-bal .bt { font-size: 16px; line-height: 24px; font-weight: 500; }
+.tok-bal .bs { font-size: 14px; line-height: 20px; color: var(--fg-dim); }
+.tok-acts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 9.7px; }
+.tok-acts button { height: 57px; border: none; border-radius: 20px; background: var(--surface); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 12.5px; line-height: 20px; font-weight: 500; padding: 0; }
+.tok-acts button:active { background: var(--surface-2); }
+.tok-acts svg { width: 19px; height: 19px; }
+.tok-cta { position: absolute; left: 16px; right: 16px; bottom: calc(env(safe-area-inset-bottom, 0px) + 4px); z-index: 5; display: flex; gap: 12.6px; }
+.tok-cta button { flex: 1; height: 55px; border: none; border-radius: 22px; background: #3388F9; color: #fff; font-size: 16px; font-weight: 500; padding: 0; }
+.tok-cta button:active { filter: brightness(1.12); }
+.tok-hist .htx { background: transparent; margin: 0; border-radius: 0; position: relative; padding: 17.1px 16px; }
+.tok-hist .htx + .htx::before { content: ""; position: absolute; left: 16px; right: 0; top: 0; height: 0; border-top: .34px solid var(--divider); }
+.tok-hist .htx .ic { background: #28303E; }
+.tok-about { padding: 16px; font-size: 13.6px; line-height: 20px; font-weight: 400; color: #fff; }
+.tok-ov .ovr { position: relative; display: flex; align-items: center; justify-content: space-between; padding: 16px; height: 56px; box-sizing: border-box; }
+.tok-ov .ovr + .ovr::before { content: ""; position: absolute; left: 16px; right: 0; top: 0; height: 0; border-top: .34px solid var(--divider); }
+.tok-ov .lb { color: var(--fg-dim); font-size: 16px; line-height: 24px; font-weight: 400; display: inline-flex; align-items: center; gap: 6px; }
+.tok-ov .lb svg { width: 16px; height: 16px; color: #667282; flex: none; }
+.tok-ov .vl { font-size: 16px; line-height: 24px; font-weight: 500; }
+.tok-ov .vl .g { color: var(--green); font-weight: 400; margin-left: 4px; } .tok-ov .vl .r { color: var(--red); font-weight: 400; margin-left: 4px; }
+.tok-act { padding: 16px 16px 19px; height: 105px; box-sizing: border-box; }
+.tok-act .r1 { display: flex; align-items: center; justify-content: space-between; height: 24px; }
+.tok-bar { display: flex; gap: 4px; height: 6px; margin-top: 12px; }
+.tok-bar i { display: block; height: 6px; border-radius: 3px; }
+.tok-bar .b { background: #2FC57A; } .tok-bar .s { background: #FF4766; }
+.tok-act .r3 { display: flex; justify-content: space-between; margin-top: 8px; font-size: 14px; line-height: 20px; font-weight: 450; }
+.tok-act .r3 .b { color: var(--green); } .tok-act .r3 .s { color: var(--red); }
+.tok-foot { margin: 13.4px 16px 0; font-size: 12.2px; line-height: 16px; color: var(--fg-faint); }
+.tok-foot a { color: #3388F9; text-decoration: none; }
+.tok-foot + .tok-sec { margin-top: 28px; }
+.tok-links { display: flex; flex-wrap: wrap; gap: 8px; }
+.tok-links span { display: inline-flex; align-items: center; gap: 9px; height: 36px; padding: 0 16px; border-radius: 18px; background: var(--surface); font-size: 14.4px; font-weight: 450; }
+.tok-links svg { width: 16px; height: 16px; flex: none; }
+/* загрузка: серые заглушки, график притушен */
+.tok .sk { display: none; position: absolute; left: 24px; border-radius: 8px; background: rgba(255,255,255,.07); }
+.tok .sk.p { top: 78px; width: 58px; height: 24px; } .tok .sk.c { top: 118px; width: 190px; height: 14px; }
+.tok.loading .sk { display: block; }
+.tok.loading .tok-price, .tok.loading .tok-chg { visibility: hidden; }
+.tok-chart svg, .tok-chart .gl, .tok-chart .tok-lb { transition: opacity .3s ease; }
+.tok.loading .tok-chart svg { opacity: .22; } .tok.loading .tok-chart .tok-lb, .tok.loading .tok-chart .gl { opacity: .5; }
+.tok.loading .tok-per button { color: transparent; background: rgba(255,255,255,.06); margin: 3px 4px; height: 30px; border-radius: 15px; }
+.loadpill { position: fixed; left: 50%; top: calc(env(safe-area-inset-top, 0px) - 9px); z-index: 90; transform: translate(-50%, -14px); opacity: 0; pointer-events: none;
+  display: inline-flex; align-items: center; gap: 9px; height: 48px; padding: 0 22px 0 18px; border-radius: 24px; background: #2A3240; color: #E6E9EE; font-size: 16px; font-weight: 450;
+  transition: opacity .22s ease, transform .22s cubic-bezier(.2,.8,.2,1); }
+.loadpill.show { opacity: 1; transform: translate(-50%, 0); }
+.loadpill svg { width: 20px; height: 20px; animation: spin .8s linear infinite; }
 </style>
 </head>
 <body class="t-wallet">
@@ -1219,10 +1312,10 @@ body.hist-open .app-header, body.hist-open .panel.active, body.hist-open .tabbar
           <div class="info">
             <div class="line1">
               <span class="name">GRAM</span>
-              <span class="badge-apy"><span class="bt"><span class="num">12,65</span>&thinsp;<span class="pc">%</span> APY</span></span>
+              <span class="badge-apy"><span class="bt"><span class="num">12,6</span>&thinsp;<span class="pc">%</span> APY</span></span>
               <span class="pin"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z"/></svg></span>
             </div>
-            <div class="line2"><span class="pr"><span class="cur">$</span>&thinsp;1,24</span> <span class="delta"><span class="pl">+</span>&thinsp;1,14&thinsp;%</span></div>
+            <div class="line2"><span class="pr"><span class="cur">$</span>&thinsp;1,18</span> <span class="delta neg"><span class="pl">−</span>&thinsp;4,63&thinsp;%</span></div>
           </div>
           <div class="amount">
             <div class="big" id="amt-gram">0,000287</div>
@@ -1242,7 +1335,7 @@ body.hist-open .app-header, body.hist-open .panel.active, body.hist-open .tabbar
               <span class="badge-chain-pill"><span class="bt">TON</span></span>
               <span class="pin"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z"/></svg></span>
             </div>
-            <div class="line2"><span class="pr"><span class="cur">$</span>&thinsp;0,99</span> <span class="delta"><span class="pl">+</span>&thinsp;0,02&thinsp;%</span></div>
+            <div class="line2"><span class="pr"><span class="cur">$</span>&thinsp;0,99</span> <span class="delta neg"><span class="pl">−</span>&thinsp;0,06&thinsp;%</span></div>
           </div>
           <div class="amount">
             <div class="big" id="amt-usdt">0</div>
@@ -1350,6 +1443,34 @@ body.hist-open .app-header, body.hist-open .panel.active, body.hist-open .tabbar
     <span class="tab-label">Браузер</span>
   </button>
 </nav>
+
+<div class="tok" id="tok" aria-hidden="true">
+  <div class="tok-head">
+    <div class="hist-safe"></div>
+    <div class="hist-head">
+      <button class="hist-back" id="tok-back" aria-label="Назад"><svg class="hb" viewBox="0 0 22.0 38.5" width="7.33" height="12.83" fill-rule="evenodd" aria-hidden="true"><path d="M16.7 36.1C16.4 35.9 14.6 34.2 12.8 32.2C11.1 30.2 9.2 28.2 8.7 27.6C0.9 19.0 1.0 19.3 4.3 15.7C5.0 15.0 7.5 12.2 9.9 9.6C15.6 3.2 16.0 2.8 16.8 2.3C18.5 1.5 20.4 3.3 19.7 5.1C19.5 5.6 16.7 8.8 13.5 12.3C10.0 16.2 7.8 18.9 7.8 19.2C7.8 19.7 10.6 23.0 16.8 29.8C20.2 33.5 20.6 34.5 19.0 35.9C18.1 36.6 17.7 36.6 16.7 36.1Z" fill="currentColor"/></svg></button>
+      <h1><span id="tok-title">Gram</span><img src="img/verified.webp" alt=""></h1>
+      <button class="tok-more" aria-label="Ещё"><svg viewBox="0 0 24 24" width="22" height="22" fill="#fff" aria-hidden="true"><circle cx="5.6" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="18.4" cy="12" r="1.9"/></svg></button>
+    </div>
+  </div>
+  <div class="tok-scroll" id="tok-scroll">
+    <div class="tok-body">
+      <div class="tok-top">
+        <div class="tok-ic" id="tok-ic"></div>
+        <div class="tok-chip" id="tok-chip"></div>
+        <i class="sk p"></i><i class="sk c"></i>
+        <div class="tok-price" id="tok-price"></div>
+        <div class="tok-chg" id="tok-chg"></div>
+      </div>
+      <div class="tok-chart" id="tok-chart"></div>
+      <div class="tok-per" id="tok-per"><button data-p="h">Ч</button><button data-p="d" class="on">Д</button><button data-p="w">Н</button><button data-p="m">М</button><button data-p="6m">6М</button><button data-p="y">Г</button></div>
+      <div class="tok-hr"></div>
+      <div id="tok-secs"></div>
+    </div>
+  </div>
+  <div class="tok-cta"><button id="tok-buy">Купить</button><button id="tok-sell">Продать</button></div>
+</div>
+<div class="loadpill" id="loadpill" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#C9CED6" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 3a9 9 0 1 1-8.4 5.8" /></svg><span>Загрузка</span></div>
 
 <div class="sheet-layer" id="sh-send" aria-hidden="true">
   <div class="sh-scrim" data-close></div>
@@ -1864,6 +1985,162 @@ document.querySelector('.topbar .right .icon-btn[aria-label="История"]').
 // обновление списка: двигается только список, шапка и фильтры стоят
 makePTR({ scroller: $("#hist-scroll"), content: $("#hist-list"), ptr: $("#hist-ptr") });
 
+// ===== Страница токена (открывается тапом по строке в «Крипто») =====
+const TOKP = {
+  gram: { key: "gram", title: "Gram", sym: "GRAM", apy: "12,6", pr: 1.18, seed: 7, vol: 1,
+    day: [1.2373, 1.2363, 1.2352, 1.2342, 1.2336, 1.2334, 1.2335, 1.2339, 1.2332, 1.2323, 1.232, 1.2317, 1.2316, 1.2326, 1.2323, 1.2314, 1.2312, 1.2309, 1.2303, 1.2295, 1.2286, 1.2264, 1.2214, 1.2162, 1.2121, 1.2096, 1.2076, 1.2052, 1.2011, 1.1999, 1.2018, 1.204, 1.2048, 1.2042, 1.2045, 1.2059, 1.2078, 1.207, 1.2074, 1.2096, 1.2094, 1.2094, 1.2102, 1.2114, 1.2135, 1.2161, 1.2166, 1.2166, 1.2166, 1.2148, 1.2123, 1.2098, 1.2101, 1.2104, 1.2091, 1.2087, 1.2075, 1.2049, 1.2048, 1.205, 1.2039, 1.2021, 1.2012, 1.2024, 1.2022, 1.2015, 1.2015, 1.2039, 1.2062, 1.2055, 1.204, 1.2028, 1.2034, 1.2037, 1.2036, 1.2024, 1.2038, 1.2061, 1.2073, 1.208, 1.2083, 1.2078, 1.2078, 1.2083, 1.2093, 1.2088, 1.2078, 1.2086, 1.2094, 1.2101, 1.2101, 1.2101, 1.2102, 1.2111, 1.2102, 1.2083, 1.2098, 1.211, 1.2114, 1.2108, 1.2132, 1.2189, 1.2141, 1.2108, 1.214, 1.2166, 1.2193, 1.2219, 1.223, 1.2248, 1.227, 1.2234, 1.2208, 1.2196, 1.2181, 1.2173, 1.2174, 1.2159, 1.215, 1.2153, 1.2103, 1.2073, 1.2064, 1.2054, 1.2035, 1.2008, 1.2011, 1.2019, 1.2014, 1.2016, 1.2023, 1.2033, 1.2031, 1.2003, 1.1948, 1.1959, 1.1983, 1.1939, 1.176, 1.1675, 1.1785, 1.1804, 1.1804, 1.18],
+    about: "Gram — это нативная криптовалюта блокчейна TON, интегрированная в экосистему Telegram.",
+    ov: [["Рыночная капитализация", "$3,47B"], ["Общее предложение", "5,12B"], ["Объем в обращении", "2,83B"]],
+    vol24: "$3,39M", vch: "+84,04", buy: 1.64, sell: 1.74, buyS: "$1,64M", sellS: "$1,74M",
+    links: ["github", "coinmarketcap", "telegram", "whitepaper", "x", "telegram_news", "coingecko", "docs", "source_code"] },
+  usdt: { key: "usdt", title: "USD₮", sym: "USD₮", apy: null, pr: 0.99, seed: 19, vol: .03,
+    about: "USD₮ — стейблкоин Tether, привязанный к доллару США и выпущенный в сети TON.",
+    ov: [["Рыночная капитализация", "$187B"], ["Общее предложение", "187B"], ["Объем в обращении", "187B"]],
+    vol24: "$41,2M", vch: "−3,12", buy: 19.8, sell: 21.4, buyS: "$19,8M", sellS: "$21,4M",
+    links: ["website", "coinmarketcap", "coingecko", "x", "telegram", "docs"] },
+};
+const TPER = { h: { n: 60, span: 36e5, lab: "Последний час", v: .0018 }, d: { n: 144, span: 864e5, lab: "Последний день", v: .006 },
+  w: { n: 168, span: 6048e5, lab: "Последняя неделя", v: .011 }, m: { n: 120, span: 2592e6, lab: "Последний месяц", v: .02 },
+  "6m": { n: 180, span: 15768e6, lab: "Последние 6 месяцев", v: .03 }, y: { n: 180, span: 3153e7, lab: "Последний год", v: .04 } };
+const TMON = ["янв.", "февр.", "мар.", "апр.", "мая", "июн.", "июл.", "авг.", "сент.", "окт.", "нояб.", "дек."];
+const TWD = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
+const tp2 = n => String(n).padStart(2, "0");
+const tRu = (x, d) => x.toLocaleString("ru-RU", { maximumFractionDigits: d, useGrouping: false });
+const tPrice = (p, fine) => "$" + (fine ? tRu(Math.round(p * 1e4) / 1e4, 4) : tRu(Math.round(p * 100) / 100, 2));
+const tPct = x => (x < 0 ? "−" : "+") + tRu(Math.round(Math.abs(x) * 100) / 100, 2) + " %";
+const tAbs = x => "$" + tRu(Number(Math.abs(x).toPrecision(3)), 8);
+function tRng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function tSeries(tk, per) {
+  if (per === "d" && tk.day) return tk.day;
+  const P = TPER[per], r = tRng(tk.seed * 131 + P.n); let v = 0; const a = [];
+  for (let i = 0; i < P.n; i++) { v += (r() - .5) * 2 * P.v * tk.vol - v * .02; a.push(v); }
+  const last = a[a.length - 1];
+  return a.map(x => tk.pr * Math.exp(x - last));
+}
+let tk = null, tper = "d", tser = [], tgeo = null, tokTimer = 0;
+const tokEl = $("#tok"), tokChart = $("#tok-chart");
+const TCH = { top: 24, h: 170, H: 260 };
+const TOK_INFO = '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="8" fill="currentColor"/><path d="M8 7.1v4.1M8 4.5v.1" stroke="#1D2633" stroke-width="1.9" stroke-linecap="round"/></svg>';
+const TOK_GLOBE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><circle cx="12" cy="12" r="9.2"/><path d="M2.8 12h18.4M12 2.8c3.2 3 3.2 15.4 0 18.4M12 2.8c-3.2 3-3.2 15.4 0 18.4"/></svg>';
+function tokDateLabel(d, per) {
+  const base = TWD[d.getDay()] + ", " + d.getDate() + " " + TMON[d.getMonth()];
+  return per === "h" || per === "d" || per === "w" ? base + " " + tp2(d.getHours()) + ":" + tp2(d.getMinutes()) : base + " " + d.getFullYear();
+}
+function tokAxisLabel(t, per) {
+  const d = new Date(t);
+  if (per === "h") return tp2(d.getHours()) + ":" + tp2(Math.round(d.getMinutes() / 5) * 5 % 60);
+  if (per === "d") { const m = Math.round(d.getMinutes() / 10) * 10; return tp2((d.getHours() + (m === 60 ? 1 : 0)) % 24) + ":" + tp2(m % 60); }
+  return d.getDate() + " " + TMON[d.getMonth()];
+}
+function tokHead(p, p0, lab, hint) {
+  const ch = p0 ? (p - p0) / p0 * 100 : 0, d = p - p0, cl = d < 0 ? "neg" : "pos";
+  $("#tok-price").textContent = tPrice(p);
+  $("#tok-chg").innerHTML = `<span class="pc ${cl}">${tPct(ch)}</span><span class="ab ${cl}">${tAbs(d)}</span><span class="wh">${lab}</span>`;
+}
+function tokDraw() {
+  const W = tokChart.clientWidth || 402, s = tser, n = s.length;
+  let mn = Math.min(...s), mx = Math.max(...s); if (mx - mn < 1e-9) { mx += .001; mn -= .001; }
+  const X = i => i / (n - 1) * W, Y = v => TCH.top + (mx - v) / (mx - mn) * TCH.h;
+  tgeo = { W, X, Y, n };
+  let d = ""; for (let i = 0; i < n; i++) d += (i ? "L" : "M") + X(i).toFixed(1) + " " + Y(s[i]).toFixed(1);
+  const bot = TCH.top + TCH.h + 50;
+  tokChart.innerHTML =
+    `<svg viewBox="0 0 ${W} ${TCH.H}" aria-hidden="true"><defs><linearGradient id="tkg" gradientUnits="userSpaceOnUse" x1="0" y1="${TCH.top}" x2="0" y2="${bot}"><stop offset="0" stop-color="#3388F9" stop-opacity=".36"/><stop offset="1" stop-color="#3388F9" stop-opacity="0"/></linearGradient></defs>` +
+    `<path d="${d}L${W} ${bot}L0 ${bot}Z" fill="url(#tkg)"/><path d="${d}" fill="none" stroke="#3388F9" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>` +
+    [.1, .3, .5, .7, .9].map(f => `<i class="gl" style="left:${(f * W).toFixed(1)}px"></i>`).join("") +
+    `<span class="tok-lb tok-ymax">${tPrice(mx, mx - mn < .08)}</span><span class="tok-lb tok-ymin">${tPrice(mn, mx - mn < .08)}</span>` +
+    [.1, .5].map(f => `<span class="tok-lb tok-xl" style="left:${(f * W + 6).toFixed(1)}px">${tokAxisLabel(Date.now() - TPER[tper].span * (1 - f), tper)}</span>`).join("") +
+    `<i class="tok-line"></i><i class="tok-dot"></i>`;
+}
+function tokReset() { tokChart.classList.remove("scrub"); tokHead(tk.pr, tser[0], TPER[tper].lab); }
+function tokScrub(i) {
+  const g = tgeo, s = tser, x = g.X(i), y = g.Y(s[i]);
+  tokChart.classList.add("scrub");
+  const L = tokChart.querySelector(".tok-line"), D = tokChart.querySelector(".tok-dot");
+  L.style.left = x + "px"; D.style.left = x + "px"; D.style.top = y + "px";
+  const t = new Date(Date.now() - TPER[tper].span * (1 - i / (s.length - 1)));
+  tokHead(s[i], s[0], tokDateLabel(t, tper));
+}
+(() => {
+  const idx = e => { const r = tokChart.getBoundingClientRect(); return Math.max(0, Math.min(tser.length - 1, Math.round((e.clientX - r.left) / r.width * (tser.length - 1)))); };
+  let on = false;
+  tokChart.addEventListener("pointerdown", e => { if (!tgeo) return; on = true; tokScrub(idx(e)); });
+  tokChart.addEventListener("pointermove", e => { if (on) tokScrub(idx(e)); });
+  const off = () => { if (!on) return; on = false; tokReset(); };
+  ["pointerup", "pointercancel", "pointerleave"].forEach(t => tokChart.addEventListener(t, off));
+})();
+function tokSetPer(p) {
+  tper = p; tser = tSeries(tk, p);
+  document.querySelectorAll("#tok-per button").forEach(b => b.classList.toggle("on", b.dataset.p === p));
+  tokDraw(); tokReset();
+}
+$("#tok-per").addEventListener("click", e => { const b = e.target.closest("button"); if (b && b.dataset.p !== tper) tokSetPer(b.dataset.p); });
+function tokSecs() {
+  const bal = state.bal[tk.key], usd = bal * tk.pr, tokenHtml = document.querySelector('.row[data-token="' + tk.key + '"] .token').outerHTML;
+  const hist = state.log.filter(e => e.token === tk.key || e.from === tk.key || e.to === tk.key).slice(0, 3);
+  let h = `<section class="tok-sec"><div class="section-head"><h2>Ваш баланс</h2></div>
+    <div class="tok-card tok-bal">${tokenHtml}<div><div class="bt">${fmtAmount(bal, bal >= 1 ? 2 : 6)} ${tk.sym}</div><div class="bs">${fmtUsd(usd)}</div></div></div>
+    <div class="tok-acts"><button data-a="send"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 16.5l9-9M9.5 7.5h7v7"/></svg>Отправить</button>
+      <button data-a="recv"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.8"/><path d="M14.4 14.4h.1M19.9 14.4h.1M14.4 19.9h.1M19.9 19.9h.1" stroke-width="2.6" stroke-linecap="round"/></svg>Получить</button></div></section>`;
+  if (hist.length) {
+    h += `<section class="tok-sec"><div class="section-head"><h2>История транзакций</h2><button class="tok-link" data-a="hist">Смотреть все</button></div><div class="tok-card tok-hist">` +
+      hist.map(e => { const r = histRow(e), rr = r.r.replace(/([+−])&thinsp;/g, "$1"); return `<div class="htx${r.cls ? " " + r.cls : ""}"><span class="ic">${r.icon}</span><div class="mid"><div class="t">${r.t}</div><div class="a">${r.a}</div></div><div class="r">${rr}<div class="tm">${histTime(e.ts)}</div></div></div>`; }).join("") + `</div></section>`;
+  }
+  h += `<section class="tok-sec"><div class="section-head"><h2>Об активе</h2></div><div class="tok-card tok-about">${tk.about}</div></section>
+    <section class="tok-sec"><div class="section-head"><h2>Обзор</h2></div><div class="tok-card tok-ov">${tk.ov.map(r => `<div class="ovr"><span class="lb">${r[0]}${TOK_INFO}</span><span class="vl">${r[1]}</span></div>`).join("")}</div></section>
+    <section class="tok-sec"><div class="section-head"><h2>Торговая активность за 24 ч</h2></div><div class="tok-card tok-act"><div class="r1"><span class="tok-ov"><span class="lb">Объем${TOK_INFO}</span></span><span class="tok-ov"><span class="vl">${tk.vol24}<span class="${tk.vch[0] === "−" ? "r" : "g"}">${tk.vch} %</span></span></span></div>
+      <div class="tok-bar"><i class="b" style="flex:${tk.buy}"></i><i class="s" style="flex:${tk.sell}"></i></div>
+      <div class="r3"><span class="b">Купить · ${tk.buyS}</span><span class="s">Продать · ${tk.sellS}</span></div></div></section>
+    <div class="tok-foot">График цены, обзор и торговая активность предоставлены <a>dyor.io</a>.</div>
+    <section class="tok-sec"><div class="section-head"><h2>Ссылки</h2></div><div class="tok-links">${tk.links.map(l => `<span>${TOK_GLOBE}${l}</span>`).join("")}</div></section>`;
+  $("#tok-secs").innerHTML = h;
+}
+function tokOpenSwap(kind) {
+  const pill = $("#loadpill"); pill.classList.add("show");
+  setTimeout(() => {
+    pill.classList.remove("show"); openPageSheet("sh-swap");
+    const from = kind === "sell" ? tk.key : (tk.key === "gram" ? "usdt" : "gram");
+    if (from === "usdt") $("#sh-swap .swap-btn").click();
+  }, 560);
+}
+tokEl.addEventListener("click", e => {
+  const b = e.target.closest("[data-a]"); if (!b) return;
+  const a = b.dataset.a;
+  if (a === "send") openPageSheet("sh-send"); else if (a === "recv") openPageSheet("sh-recv");
+  else if (a === "hist") { closeTok(); openHist(); }
+});
+$("#tok-buy").addEventListener("click", () => tokOpenSwap("buy"));
+$("#tok-sell").addEventListener("click", () => tokOpenSwap("sell"));
+function openTok(key) {
+  tk = TOKP[key];
+  $("#tok-title").textContent = tk.title;
+  $("#tok-ic").innerHTML = document.querySelector('.row[data-token="' + key + '"] .token').outerHTML;
+  const chip = $("#tok-chip"); chip.hidden = !tk.apy;
+  if (tk.apy) chip.innerHTML = document.querySelector('.action[data-action="stake"] svg').outerHTML + "<span>Доход до " + tk.apy + " % годовых</span>";
+  tokEl.classList.add("loading"); tokEl.setAttribute("aria-hidden", "false");
+  $("#tok-scroll").scrollTop = 0;
+  tokSecs(); tokSetPer("d");
+  tokEl.classList.add("open"); document.body.classList.add("hist-open");
+  clearTimeout(tokTimer); tokTimer = setTimeout(() => tokEl.classList.remove("loading"), 520);
+}
+function closeTok() { tokEl.style.transform = ""; tokEl.classList.remove("open", "dragging"); tokEl.setAttribute("aria-hidden", "true"); document.body.classList.remove("hist-open"); }
+function tokRefresh() { if (tk && tokEl.classList.contains("open")) { const sc = $("#tok-scroll"), y = sc.scrollTop; tokSecs(); sc.scrollTop = y; } }
+$("#tok-back").addEventListener("click", closeTok);
+document.querySelectorAll(".row[data-token]").forEach(r => r.addEventListener("click", () => openTok(r.dataset.token)));
+(() => { // свайп от левого края — назад
+  let x0 = null, y0 = null, dx = 0, drag = false;
+  tokEl.addEventListener("touchstart", e => { const t = e.touches[0]; if (t.clientX > 28) return; x0 = t.clientX; y0 = t.clientY; dx = 0; drag = false; }, { passive: true });
+  tokEl.addEventListener("touchmove", e => {
+    if (x0 == null) return; const t = e.touches[0];
+    if (!drag && Math.abs(t.clientY - y0) > Math.abs(t.clientX - x0)) { x0 = null; return; }
+    drag = true; dx = Math.max(0, t.clientX - x0);
+    tokEl.classList.add("dragging"); tokEl.style.transform = `translateX(${dx}px)`;
+    if (e.cancelable) e.preventDefault();
+  }, { passive: false });
+  const end = () => { if (x0 == null) return; x0 = null; tokEl.classList.remove("dragging"); if (dx > 110) closeTok(); else tokEl.style.transform = ""; };
+  tokEl.addEventListener("touchend", end); tokEl.addEventListener("touchcancel", end);
+})();
+
 // Copy address
 $("#address-row").addEventListener("click", async () => {
   const full = "UQBQ4bN3kR8vP2tL9mXjH7cDqY1aZ6fS0wE3nR4";
@@ -1879,7 +2156,7 @@ $("#address-row").addEventListener("click", async () => {
 });
 
 // ===== State: баланс каждой криптовалюты + история операций =====
-const PRICES = { gram: 1.24, usdt: 0.99, usdt_trc: 0.99, trx: 0.25 };     // $ за токен (как показано на карточке)
+const PRICES = { gram: 1.18, usdt: 0.99, usdt_trc: 0.99, trx: 0.25 };     // $ за токен (как показано на карточке)
 const RUB_PER_USD = 95;                        // приблизительно, только для ₽-режима
 const DEF_BAL = { gram: 0.000287, usdt: 0, usdt_trc: 0, trx: 0.000003 };
 let state = { bal: { ...DEF_BAL }, log: [] };
@@ -1932,6 +2209,7 @@ function renderBalances() {
   // Балансы на листах swap/stake
   const sb = document.getElementById("swap-bal"); if (sb) sb.textContent = fmtAmount(g, 6);
   const kb = document.getElementById("stake-bal"); if (kb) kb.textContent = fmtAmount(g, 6);
+  if (typeof tokRefresh === "function") tokRefresh();
 }
 renderBalances();
 // После того как настоящие значения подставлены — показываем кошелёк.
