@@ -1128,8 +1128,8 @@ body.hist-open .app-header, body.hist-open .panel.active, body.hist-open .tabbar
 .tok.open { transform: none; visibility: visible; transition: transform .36s cubic-bezier(.22,.9,.28,1); }
 .tok.dragging { transition: none; }
 .tok-head { position: absolute; left: 0; right: 0; top: 0; z-index: 6; background: var(--bg); }
-.tok-head h1 { display: inline-flex; align-items: center; gap: 6.3px; font-size: 19.65px; font-weight: 590; }
-.tok-head h1 img { width: 14.7px; height: 14.7px; position: relative; top: -.4px; }
+.tok-head h1 { display: inline-flex; align-items: center; gap: 4px; font-size: 19.65px; font-weight: 590; }
+.tok-head h1 img { width: 16.6px; height: 16.6px; position: relative; top: -2.1px; }
 .tok-more { position: absolute; right: 16px; top: 16px; width: 32px; height: 32px; border: none; border-radius: 50%;
   background: var(--surface); color: #fff; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
 .tok-more:active { background: var(--surface-2); }
@@ -1141,11 +1141,11 @@ body.hist-open .app-header, body.hist-open .panel.active, body.hist-open .tabbar
 .tok-top { position: relative; height: 132px; }
 .tok-ic { position: absolute; left: 24px; top: 8px; width: 56px; height: 56px; }
 .tok-ic .token { position: absolute; left: 0; top: 0; transform: scale(1.2727); transform-origin: 0 0; }
-.tok-chip { position: absolute; right: 20px; top: 8px; height: 32px; box-sizing: border-box; display: inline-flex; align-items: center; gap: 5px;
-  padding: 0 13px 0 11px; border-radius: 16px; background: rgba(57,204,131,.16); color: var(--green);
+.tok-chip { position: absolute; right: 20px; top: 8px; height: 32px; box-sizing: border-box; display: inline-flex; align-items: center; gap: 4.2px;
+  padding: 0 13px 0 9.7px; border-radius: 16px; background: rgba(57,204,131,.16); color: var(--green);
   font-size: 14px; font-weight: 500; white-space: nowrap; }
-.tok-chip svg { width: 17px; height: 17px; flex: none; }
-.tok-price { position: absolute; left: 24px; top: 79px; font-size: 23.4px; line-height: 32px; font-weight: 600; letter-spacing: -.01em; white-space: nowrap; }
+.tok-chip svg { width: 19.7px; height: 19.7px; flex: none; }
+.tok-price { position: absolute; left: 24px; top: 78px; font-size: 24px; line-height: 32px; font-weight: 600; letter-spacing: -.01em; white-space: nowrap; }
 .tok-chg { position: absolute; left: 24px; right: 16px; top: 112px; display: flex; align-items: baseline; gap: 10px; font-size: 14px; line-height: 24px; font-weight: 450; white-space: nowrap; }
 .tok-chg .pc.neg { color: var(--red); } .tok-chg .pc.pos { color: var(--green); }
 .tok-chg .ab { opacity: .5; } .tok-chg .ab.neg { color: var(--red); } .tok-chg .ab.pos { color: var(--green); }
@@ -1164,15 +1164,16 @@ body.hist-open .app-header, body.hist-open .panel.active, body.hist-open .tabbar
 .tok-per button.on { background: var(--surface); }
 .tok-hr { height: 0; border-top: .34px solid #1B222C; margin-top: 15.7px; }
 .tok-sec { margin-top: 29px; padding: 0 16px; }
-.tok-sec:first-of-type { margin-top: 14px; }
+.tok-sec:first-of-type { margin-top: 15.7px; }
+.tok-sec:first-of-type .section-head { margin-bottom: 11.3px; }
 .tok-sec .section-head { margin-bottom: 12px; }
 .tok-sec .section-head h2 { margin: 0; font-size: 15.7px; }
 .tok-link { background: none; border: none; padding: 0; color: #3388F9; font-size: 14px; line-height: 24px; font-weight: 450; }
 .tok-card { background: var(--surface); border-radius: 20px; overflow: hidden; }
-.tok-bal { display: flex; align-items: center; gap: 16px; padding: 16px; position: relative; }
+.tok-bal { display: flex; align-items: center; gap: 16px; padding: 16.15px 16px; position: relative; }
 .tok-bal .bt { font-size: 16px; line-height: 24px; font-weight: 500; }
 .tok-bal .bs { font-size: 14px; line-height: 20px; color: var(--fg-dim); }
-.tok-acts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 9.7px; }
+.tok-acts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8.4px; }
 .tok-acts button { height: 57px; border: none; border-radius: 20px; background: var(--surface); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 12.5px; line-height: 20px; font-weight: 500; padding: 0; }
 .tok-acts button:active { background: var(--surface-2); }
 .tok-acts svg { width: 19px; height: 19px; }
@@ -1226,8 +1227,8 @@ body.hist-open .app-header, body.hist-open .panel.active, body.hist-open .tabbar
 .tok-cta { bottom: calc(env(safe-area-inset-bottom, 0px) + 3px); }
 .tok-cta button { height: 56px; background: #3C95FA; }
 .tok-act { height: 106px; }
-.tok-bal .bt { color: #7F858F; }
-.tok-bal .bs { color: #4D5765; }
+.tok-bal .bt, .tok-bal .bs { transition: opacity .35s ease; }
+.tok.sync .tok-bal .bt, .tok.sync .tok-bal .bs { opacity: .44; }
 .tok-line { background: #3C95FA; }
 .tok-dot { background: #3C95FA; box-shadow: 0 0 0 12.2px rgba(60,149,250,.22); }
 </style>
@@ -2192,10 +2193,21 @@ function openTok(key) {
   tokSecs(); tokSetPer("d");
   tokEl.classList.add("open"); document.body.classList.add("hist-open");
   clearTimeout(tokTimer); tokTimer = setTimeout(() => tokEl.classList.remove("loading"), tAt ? 520 : 3500);
-  liveTick(); liveOverview(key).then(o => { if (o && tk && tk.key === key) tokRefresh(); });
-  clearInterval(tokPoll); tokPoll = setInterval(() => { if (!document.hidden && tokEl.classList.contains("open")) { tokSetPer(tper, true); liveTick(); } }, 60e3);
+  tokSync(key);
+  liveOverview(key).then(o => { if (o && tk && tk.key === key) tokRefresh(); });
+  clearInterval(tokPoll); tokPoll = setInterval(() => { if (!document.hidden && tokEl.classList.contains("open")) { tokSetPer(tper, true); liveTick(); } }, 300e3);
 }
-function closeTok() { clearInterval(tokPoll); tokEl.style.transform = ""; tokEl.classList.remove("open", "dragging"); tokEl.setAttribute("aria-hidden", "true"); document.body.classList.remove("hist-open"); }
+// пока данные обновляются (кэш устарел), баланс на странице токена притушен — как в оригинале
+function tokSync(key) {
+  const now = Date.now(), stale = !(LIVE.at && now - LIVE.at < LIVE_TTL.rate) || !(LIVE.chart[key + ":d"] && now - LIVE.chart[key + ":d"].at < LIVE_TTL.chart);
+  if (!stale) { tokEl.classList.remove("sync"); return; }
+  tokEl.classList.add("sync");
+  const t0 = now;
+  Promise.all([liveTick(), liveChart(key, "d")]).catch(() => {}).then(() => setTimeout(() => {
+    if (tk && tk.key === key) tokEl.classList.remove("sync");
+  }, Math.max(0, 450 - (Date.now() - t0))));
+}
+function closeTok() { clearInterval(tokPoll); tokEl.classList.remove("sync"); tokEl.style.transform = ""; tokEl.classList.remove("open", "dragging"); tokEl.setAttribute("aria-hidden", "true"); document.body.classList.remove("hist-open"); }
 function tokRefresh() { if (tk && tokEl.classList.contains("open")) { const sc = $("#tok-scroll"), y = sc.scrollTop; tokSecs(); sc.scrollTop = y; } }
 $("#tok-back").addEventListener("click", closeTok);
 document.querySelectorAll(".row[data-token]").forEach(r => r.addEventListener("click", () => openTok(r.dataset.token)));
@@ -2267,12 +2279,14 @@ try {
   if (c) {
     if (c.rate) LIVE.rate = { gram: c.rate.gram || null, usdt: c.rate.usdt || null };
     if (c.ov) LIVE.ov = c.ov;
+    if (c.chart) LIVE.chart = c.chart;
     LIVE.src = c.src || ""; LIVE.at = c.at || 0;
     if (LIVE.rate.gram && LIVE.rate.gram.p > 0) PRICES.gram = LIVE.rate.gram.p;
     if (LIVE.rate.usdt && LIVE.rate.usdt.p > 0) { PRICES.usdt = LIVE.rate.usdt.p; PRICES.usdt_trc = LIVE.rate.usdt.p; }
   }
 } catch (_) {}
-const liveSave = () => { try { localStorage.setItem("keeprs-live", JSON.stringify({ rate: LIVE.rate, ov: LIVE.ov, src: LIVE.src, at: LIVE.at })); } catch (_) {} };
+const LIVE_TTL = { rate: 60e3, chart: 5 * 60e3, ov: 30 * 60e3 };
+const liveSave = () => { try { localStorage.setItem("keeprs-live", JSON.stringify({ rate: LIVE.rate, ov: LIVE.ov, chart: LIVE.chart, src: LIVE.src, at: LIVE.at })); } catch (_) {} };
 const liveKey = () => { try { return (localStorage.getItem("tonapi-key") || "").trim(); } catch (_) { return ""; } };
 async function jget(url, ms, auth) {
   const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), ms || 7000);
@@ -2311,9 +2325,14 @@ async function liveRates() {
   return true;
 }
 const LIVE_CG = { h: 1, d: 1, w: 7, m: 30, "6m": 180, y: 365 };
-async function liveChart(key, per) {
+const liveFly = {};
+function liveChart(key, per) {
+  const ck = key + ":" + per;
+  return liveFly[ck] || (liveFly[ck] = liveChartFetch(key, per).finally(() => { delete liveFly[ck]; }));
+}
+async function liveChartFetch(key, per) {
   const P = TPER[per], now = Date.now(), ck = key + ":" + per, c = LIVE.chart[ck];
-  if (c && now - c.at < 45e3) return c;
+  if (c && now - c.at < LIVE_TTL.chart) return c;
   let pts = null, src = "";
   try {
     const j = await jget("https://tonapi.io/v2/rates/chart?token=" + (key === "gram" ? "ton" : LIVE_USDT) + "&currency=usd&start_date=" + Math.floor((now - P.span) / 1000) +
@@ -2330,11 +2349,11 @@ async function liveChart(key, per) {
   if (!pts || pts.length < 6) return c || null;
   const rs = tResample(pts.map(x => x[0]), pts.map(x => x[1]), P.n);
   const o = { at: now, t: rs.t, p: rs.p, src };
-  LIVE.chart[ck] = o; return o;
+  LIVE.chart[ck] = o; liveSave(); return o;
 }
 async function liveOverview(key) {
   const c = LIVE.ov[key];
-  if (c && Date.now() - c.at < 6e5) return c;
+  if (c && Date.now() - c.at < LIVE_TTL.ov) return c;
   try {
     const j = await jget("https://api.coingecko.com/api/v3/coins/" + (key === "gram" ? "the-open-network" : "tether") + "?localization=false&tickers=false&community_data=false&developer_data=false&sparkline=false", 8000);
     const m = j && j.market_data; if (!m) return c || null;
@@ -2343,16 +2362,20 @@ async function liveOverview(key) {
   } catch (e) { return c || null; }
 }
 const liveRetry = { fail: 0, timer: 0, busy: false };
-async function liveTick(force) {
-  if (liveRetry.busy || (!force && LIVE.at && Date.now() - LIVE.at < 25e3)) return;
+function liveTick(force) {
+  if (liveRetry.busy) return liveRetry.p;
+  if (!force && LIVE.at && Date.now() - LIVE.at < LIVE_TTL.rate) return Promise.resolve();
   liveRetry.busy = true;
-  try { const ok = await liveRates(); liveRetry.fail = ok ? 0 : Math.min(liveRetry.fail + 1, 3); if (ok) renderBalances(); }
-  catch (e) { liveRetry.fail = Math.min(liveRetry.fail + 1, 3); }
-  finally { liveRetry.busy = false; if (typeof renderLiveStatus === "function") renderLiveStatus(); }
+  liveRetry.p = (async () => {
+    try { const ok = await liveRates(); liveRetry.fail = ok ? 0 : Math.min(liveRetry.fail + 1, 3); if (ok) { renderBalances(); liveChart("gram", "d").catch(() => {}); } }
+    catch (e) { liveRetry.fail = Math.min(liveRetry.fail + 1, 3); }
+    finally { liveRetry.busy = false; if (typeof renderLiveStatus === "function") renderLiveStatus(); }
+  })();
+  return liveRetry.p;
 }
 function liveSchedule() {
   clearTimeout(liveRetry.timer);
-  liveRetry.timer = setTimeout(() => { if (!document.hidden) liveTick(); liveSchedule(); }, Math.min(300e3, 45e3 * Math.pow(2, liveRetry.fail)));
+  liveRetry.timer = setTimeout(() => { if (!document.hidden) liveTick(); liveSchedule(); }, Math.min(900e3, 300e3 * Math.pow(2, liveRetry.fail)));
 }
 document.addEventListener("visibilitychange", () => { if (!document.hidden) liveTick(); });
 // строка «$ 1,18 −4,63 %» под названием токена
@@ -2360,6 +2383,7 @@ function l2HTML(k) {
   const p = PRICES[k], r = LIVE.rate[k], ch = r && r.d24 != null && isFinite(r.d24) ? r.d24 : L2_DEF[k], neg = ch < 0;
   const ps = (p >= .1 ? p.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : p.toLocaleString("ru-RU", { maximumSignificantDigits: 3 }));
   const cs = Math.abs(ch).toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if (Math.abs(ch) < .005) return `<span class="pr"><span class="cur">$</span>&thinsp;${ps}</span>`;
   return `<span class="pr"><span class="cur">$</span>&thinsp;${ps}</span> <span class="delta${neg ? " neg" : ""}"><span class="pl">${neg ? "−" : "+"}</span>&thinsp;${cs}&thinsp;%</span>`;
 }
 
