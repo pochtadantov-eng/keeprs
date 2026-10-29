@@ -1108,7 +1108,6 @@ body.hist-open .app-header, body.hist-open .panel.active, body.hist-open .tabbar
 .app-header { transition: transform .36s cubic-bezier(.22,.9,.28,1), box-shadow .25s ease; }
 .app-header, .tabbar { will-change: transform; }
 #panel-wallet, #panel-trade, .b-scroll, .hist-scroll, .sh-scroll { -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; }
-.wallet-body, .hist-list { backface-visibility: hidden; }
 </style>
 </head>
 <body class="t-wallet">
@@ -1249,7 +1248,7 @@ body.hist-open .app-header, body.hist-open .panel.active, body.hist-open .tabbar
       </div>
       <div class="nft-row">
         <button class="nft">
-          <div class="nft-art"><img src="img/nft-art.webp" alt="" width="114" height="114"></div>
+          <div class="nft-art"><img src="img/nft-card.webp" alt="" width="114" height="114"></div>
           <div class="nft-label">
             <div class="n1">@jowuz</div>
             <div class="n2">Telegram Use…</div>
@@ -1638,7 +1637,8 @@ function makePTR({ scroller, content, ptr, onStart, onEnd }) {
     phase = 2; popped = true;
     apply(Math.max(0, raw - PTR_JUMP));
     if (onStart) onStart();
-    endT = setTimeout(finish, 100 + Math.random() * 40);
+    // реальный запрос в оригинале занимает по-разному: чаще ~0.1 с, иногда до ~0.45 с
+    endT = setTimeout(finish, Math.random() < .55 ? 100 + Math.random() * 40 : 180 + Math.random() * 270);
   };
   scroller.addEventListener("touchstart", e => {
     if (e.touches.length !== 1 || phase === 2 || phase === 3 || scroller.scrollTop > 0) return;

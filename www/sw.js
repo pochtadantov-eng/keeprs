@@ -1,5 +1,5 @@
 // Service worker for the Кошелёк PWA — offline-first.
-const CACHE = "koshelek-v17";
+const CACHE = "koshelek-v18";
 const ASSETS = [
   "./",
   "./index.html",
@@ -24,6 +24,7 @@ const ASSETS = [
   "./img/banner.webp",
   "./img/flag-us.webp",
   "./img/nft-art.webp",
+  "./img/nft-card.webp",
   "./img/o-applepay.webp",
   "./img/o-buy-gram.webp",
   "./img/o-recv-tokens.webp",
