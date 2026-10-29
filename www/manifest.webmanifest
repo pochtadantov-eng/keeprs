@@ -1,6 +1,6 @@
 {
-  "name": "Кошелёк",
-  "short_name": "Кошелёк",
+  "name": "Keeper",
+  "short_name": "Keeper",
   "description": "Крипто-кошелёк на TON",
   "start_url": "./",
   "scope": "./",

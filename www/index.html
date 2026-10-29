@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<title>Кошелёк</title>
+<title>Keeper</title>
 <meta name="theme-color" content="#10161F">
 <meta name="description" content="Крипто-кошелёк на TON">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Кошелёк">
+<meta name="apple-mobile-web-app-title" content="Keeper">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
@@ -65,6 +65,15 @@ body::before {
   pointer-events: none;
 }
 
+/* Как нативное приложение: ничего не выделяется и не копируется при долгом нажатии */
+html, body, * {
+  -webkit-user-select: none; user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+html, body { touch-action: manipulation; }
+input, textarea { -webkit-user-select: text; user-select: text; }
+img, svg { -webkit-user-drag: none; user-drag: none; }
 button { font-family: inherit; font-weight: inherit; -webkit-tap-highlight-color: transparent; cursor: pointer; }
 button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 svg { display: block; flex: none; }
@@ -2116,6 +2125,15 @@ sheetInit["sh-stake"] = (() => {
   // «Отправить токены» в окне выбора способа вывода
   document.querySelector("#sh-send .opt").addEventListener("click", () => openPageSheet("sh-sendform"));
 })();
+
+// Нигде ничего не выделяется и не копируется (кроме полей ввода)
+{
+  const inField = n => { const el = n && (n.nodeType === 1 ? n : n.parentElement); return !!(el && el.closest && el.closest("input, textarea")); };
+  document.addEventListener("contextmenu", e => { if (!inField(e.target)) e.preventDefault(); });
+  document.addEventListener("selectstart", e => { if (!inField(e.target)) e.preventDefault(); });
+  document.addEventListener("dragstart", e => e.preventDefault());
+  ["gesturestart", "gesturechange"].forEach(t => document.addEventListener(t, e => e.preventDefault()));
+}
 
 // Шрифт один — TT Firs Neue; прежний выбор из localStorage сбрасываем.
 try { localStorage.removeItem("font"); } catch (e) {}
