@@ -965,6 +965,7 @@ body:not(.t-wallet) .app-header { display: none; }
   font: inherit; font-size: 16px; font-weight: 600;
   -webkit-appearance: none; appearance: none; padding-right: 10px;
 }
+.dev-live { font-size: 13px; line-height: 18px; color: var(--fg-dim); margin: 0 2px 12px; overflow-wrap: anywhere; }
 .dev-btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .dev-btn-row .btn-big { margin: 0; }
 .dev-log { list-style: none; padding: 0; margin: 0; font-size: 14px; color: var(--fg-dim); }
@@ -1315,7 +1316,7 @@ body.hist-open .app-header, body.hist-open .panel.active, body.hist-open .tabbar
               <span class="badge-apy"><span class="bt"><span class="num">12,6</span>&thinsp;<span class="pc">%</span> APY</span></span>
               <span class="pin"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z"/></svg></span>
             </div>
-            <div class="line2"><span class="pr"><span class="cur">$</span>&thinsp;1,18</span> <span class="delta neg"><span class="pl">−</span>&thinsp;4,63&thinsp;%</span></div>
+            <div class="line2" id="l2-gram"><span class="pr"><span class="cur">$</span>&thinsp;1,18</span> <span class="delta neg"><span class="pl">−</span>&thinsp;4,63&thinsp;%</span></div>
           </div>
           <div class="amount">
             <div class="big" id="amt-gram">0,000287</div>
@@ -1335,7 +1336,7 @@ body.hist-open .app-header, body.hist-open .panel.active, body.hist-open .tabbar
               <span class="badge-chain-pill"><span class="bt">TON</span></span>
               <span class="pin"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z"/></svg></span>
             </div>
-            <div class="line2"><span class="pr"><span class="cur">$</span>&thinsp;0,99</span> <span class="delta neg"><span class="pl">−</span>&thinsp;0,06&thinsp;%</span></div>
+            <div class="line2" id="l2-usdt"><span class="pr"><span class="cur">$</span>&thinsp;0,99</span> <span class="delta neg"><span class="pl">−</span>&thinsp;0,06&thinsp;%</span></div>
           </div>
           <div class="amount">
             <div class="big" id="amt-usdt">0</div>
@@ -1637,6 +1638,15 @@ body.hist-open .app-header, body.hist-open .panel.active, body.hist-open .tabbar
         <button class="btn-big primary" id="dev-apply-bal">Применить</button>
       </div>
       <div class="dev-sect">
+        <div class="dev-ttl">Курсы</div>
+        <div class="dev-live" id="dev-live">—</div>
+        <label class="dev-row">
+          <span class="dev-nm" style="font-size:14px">Ключ TonAPI</span>
+          <input id="dev-key" type="text" class="dev-num" style="width:160px;font-size:14px" placeholder="необязательно" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" />
+        </label>
+        <button class="btn-big primary" id="dev-live-btn">Обновить курсы</button>
+      </div>
+      <div class="dev-sect">
         <div class="dev-ttl">Операция с рандомного адреса</div>
         <div class="dev-row">
           <select id="dev-tx-token" class="dev-sel">
@@ -1911,7 +1921,7 @@ const setUpdating = on => {
   $("#address-row").hidden = on;
   $("#updating").hidden = !on;
 };
-makePTR({ scroller: $("#panel-wallet"), content: $("#wallet-body"), ptr: $("#ptr"), onStart: () => setUpdating(true), onEnd: () => setUpdating(false) });
+makePTR({ scroller: $("#panel-wallet"), content: $("#wallet-body"), ptr: $("#ptr"), onStart: () => { setUpdating(true); liveTick(true); }, onEnd: () => setUpdating(false) });
 
 // ===== История =====
 const HICON = { in: `<svg class="hi" viewBox="0 0 73.5 70.5" width="24.50" height="23.50" fill-rule="evenodd" aria-hidden="true"><path d="M4.7 68.0C3.4 67.0 1.9 64.8 2.1 64.2C2.3 63.5 19.9 45.8 20.6 45.6C21.4 45.4 21.0 44.7 18.7 42.3C15.4 38.9 15.2 38.7 15.2 36.5C15.2 33.3 17.1 31.4 20.1 31.4C22.3 31.4 22.6 31.6 27.7 36.7C30.6 39.7 31.5 40.4 31.5 39.8C31.5 39.7 31.5 32.2 31.6 23.1C31.6 5.5 31.6 6.1 32.9 4.2C34.8 1.4 39.2 1.4 41.1 4.2C42.5 6.3 42.5 6.1 42.5 23.8C42.5 35.7 42.6 40.0 42.8 40.0C42.9 40.0 44.5 38.5 46.3 36.7C51.4 31.6 51.7 31.4 53.9 31.4C57.0 31.4 58.7 33.3 58.7 36.5C58.7 38.7 58.6 38.9 55.3 42.3C53.0 44.7 52.6 45.4 53.4 45.6C54.2 45.8 71.5 63.3 71.5 63.9C71.5 64.4 69.0 67.5 68.2 68.1C67.2 68.8 5.5 68.7 4.7 68.0ZM39.7 57.0C40.3 56.6 49.3 47.6 54.6 42.0C56.0 40.6 57.4 39.0 57.7 38.5C59.8 35.0 55.6 30.8 52.0 32.6C51.5 32.9 49.2 35.0 46.9 37.3C42.7 41.5 41.8 42.1 41.4 41.1C41.3 40.9 41.2 33.0 41.2 23.6C41.2 9.6 41.2 6.3 40.9 5.7C39.5 2.3 34.5 2.4 33.1 5.7C32.8 6.3 32.8 9.6 32.8 23.6C32.8 33.0 32.7 40.9 32.6 41.1C32.2 42.1 31.3 41.5 27.3 37.5C23.0 33.1 21.8 32.2 20.1 32.2C17.1 32.2 14.7 35.8 16.2 38.3C17.5 40.4 34.3 57.4 35.2 57.6C36.6 57.9 38.9 57.6 39.7 57.0Z" fill="#424A56"/><path d="M35.2 57.6C34.3 57.4 17.5 40.4 16.2 38.3C14.7 35.8 17.1 32.2 20.1 32.2C21.8 32.2 23.0 33.1 27.3 37.5C31.3 41.5 32.2 42.1 32.6 41.1C32.7 40.9 32.8 33.0 32.8 23.6C32.8 9.6 32.8 6.3 33.1 5.7C34.5 2.4 39.5 2.3 40.9 5.7C41.2 6.3 41.2 9.6 41.2 23.6C41.2 33.0 41.3 40.9 41.4 41.1C41.8 42.1 42.7 41.5 46.9 37.3C49.2 35.0 51.5 32.9 52.0 32.6C55.6 30.8 59.8 35.0 57.7 38.5C57.4 39.0 56.0 40.6 54.6 42.0C49.3 47.6 40.3 56.6 39.7 57.0C38.9 57.6 36.6 57.9 35.2 57.6Z" fill="#7D8797"/></svg>`, out: `<svg class="hi" viewBox="0 0 73.5 70.5" width="24.50" height="23.50" fill-rule="evenodd" aria-hidden="true"><path d="M4.7 68.0C4.4 67.7 3.6 66.9 3.0 66.1L1.9 64.7L2.3 63.9C3.1 62.5 20.2 45.6 21.6 44.9C22.8 44.3 23.0 44.2 26.9 44.2C30.2 44.2 31.0 44.2 31.3 43.9C31.5 43.6 31.7 27.0 31.5 20.7C31.5 20.2 30.9 20.8 26.9 24.7C23.5 28.1 22.7 28.8 21.7 29.0C18.2 30.0 15.3 27.7 15.2 24.2C15.2 21.9 15.1 22.1 20.3 16.9C35.6 1.3 34.7 2.1 37.0 2.1C39.0 2.2 39.7 2.6 44.6 7.6C60.4 23.7 58.8 21.7 58.8 24.2C58.8 27.0 56.7 29.3 54.1 29.2C51.9 29.2 51.4 28.9 47.1 24.7C42.9 20.5 42.5 20.2 42.5 20.8C42.4 26.8 42.6 43.7 42.8 43.9C43.0 44.2 44.1 44.3 47.1 44.2C50.9 44.2 51.2 44.3 52.4 44.9C53.9 45.6 71.5 63.1 71.5 63.9C71.5 64.4 69.0 67.5 68.2 68.1C67.2 68.8 5.5 68.7 4.7 68.0ZM39.7 57.0C40.1 56.7 40.7 55.9 41.0 55.3C41.7 54.0 41.7 55.3 41.4 32.4C41.2 18.7 41.2 18.6 42.5 19.2C42.9 19.4 45.0 21.4 47.4 23.7C50.5 26.8 51.9 28.0 52.6 28.2C56.3 29.4 59.6 25.4 57.7 22.1C57.2 21.2 53.9 17.9 43.7 7.9C37.0 1.2 37.0 1.2 29.3 8.9C16.3 21.6 15.7 22.2 15.8 24.1C15.8 27.1 19.2 29.4 21.8 28.1C22.3 27.9 24.5 25.8 26.9 23.5C31.1 19.3 32.1 18.6 32.6 19.3C32.7 19.5 32.7 26.2 32.7 37.0C32.5 55.2 32.5 55.1 33.7 56.3C35.2 57.9 38.1 58.2 39.7 57.0Z" fill="#424A56"/><path d="M35.1 57.4C34.2 57.0 33.1 55.8 32.8 55.0C32.6 54.5 32.6 48.4 32.7 37.0C32.7 26.2 32.7 19.5 32.6 19.3C32.1 18.6 31.1 19.3 26.9 23.5C24.5 25.8 22.3 27.9 21.8 28.1C19.2 29.4 15.8 27.1 15.8 24.1C15.7 22.2 16.3 21.6 29.3 8.9C37.0 1.2 37.0 1.2 43.7 7.9C53.9 17.9 57.2 21.2 57.7 22.1C59.6 25.4 56.3 29.4 52.6 28.2C51.9 28.0 50.5 26.8 47.4 23.7C45.0 21.4 42.9 19.4 42.5 19.2C41.2 18.6 41.2 18.7 41.4 32.4C41.7 55.3 41.7 54.0 41.0 55.3C40.0 57.4 37.2 58.4 35.1 57.4Z" fill="#7D8797"/></svg>` };
@@ -2015,9 +2025,15 @@ function tSeries(tk, per) {
   const P = TPER[per], r = tRng(tk.seed * 131 + P.n); let v = 0; const a = [];
   for (let i = 0; i < P.n; i++) { v += (r() - .5) * 2 * P.v * tk.vol - v * .02; a.push(v); }
   const last = a[a.length - 1];
-  return a.map(x => tk.pr * Math.exp(x - last));
+  return a.map(x => PRICES[tk.key] * Math.exp(x - last));
 }
-let tk = null, tper = "d", tser = [], tgeo = null, tokTimer = 0;
+let tk = null, tper = "d", tser = [], ttimes = [], tAt = 0, tgeo = null, tokTimer = 0, tokPoll = 0;
+function tokSeries(per) {
+  const c = LIVE.chart[tk.key + ":" + per];
+  if (c) { ttimes = c.t; tAt = c.at; return c.p; }
+  const s = tSeries(tk, per), P = TPER[per], now = Date.now();
+  ttimes = s.map((_, i) => now - P.span * (1 - i / (s.length - 1))); tAt = 0; return s;
+}
 const tokEl = $("#tok"), tokChart = $("#tok-chart");
 const TCH = { top: 24, h: 170, H: 260 };
 const TOK_INFO = '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="8" fill="currentColor"/><path d="M8 7.1v4.1M8 4.5v.1" stroke="#1D2633" stroke-width="1.9" stroke-linecap="round"/></svg>';
@@ -2049,17 +2065,16 @@ function tokDraw() {
     `<path d="${d}L${W} ${bot}L0 ${bot}Z" fill="url(#tkg)"/><path d="${d}" fill="none" stroke="#3388F9" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>` +
     [.1, .3, .5, .7, .9].map(f => `<i class="gl" style="left:${(f * W).toFixed(1)}px"></i>`).join("") +
     `<span class="tok-lb tok-ymax">${tPrice(mx, mx - mn < .08)}</span><span class="tok-lb tok-ymin">${tPrice(mn, mx - mn < .08)}</span>` +
-    [.1, .5].map(f => `<span class="tok-lb tok-xl" style="left:${(f * W + 6).toFixed(1)}px">${tokAxisLabel(Date.now() - TPER[tper].span * (1 - f), tper)}</span>`).join("") +
+    [.1, .5].map(f => `<span class="tok-lb tok-xl" style="left:${(f * W + 6).toFixed(1)}px">${tokAxisLabel(ttimes[Math.round(f * (n - 1))], tper)}</span>`).join("") +
     `<i class="tok-line"></i><i class="tok-dot"></i>`;
 }
-function tokReset() { tokChart.classList.remove("scrub"); tokHead(tk.pr, tser[0], TPER[tper].lab); }
+function tokReset() { tokChart.classList.remove("scrub"); tokHead(PRICES[tk.key], tser[0], TPER[tper].lab); }
 function tokScrub(i) {
   const g = tgeo, s = tser, x = g.X(i), y = g.Y(s[i]);
   tokChart.classList.add("scrub");
   const L = tokChart.querySelector(".tok-line"), D = tokChart.querySelector(".tok-dot");
   L.style.left = x + "px"; D.style.left = x + "px"; D.style.top = y + "px";
-  const t = new Date(Date.now() - TPER[tper].span * (1 - i / (s.length - 1)));
-  tokHead(s[i], s[0], tokDateLabel(t, tper));
+  tokHead(s[i], s[0], tokDateLabel(new Date(ttimes[i]), tper));
 }
 (() => {
   const idx = e => { const r = tokChart.getBoundingClientRect(); return Math.max(0, Math.min(tser.length - 1, Math.round((e.clientX - r.left) / r.width * (tser.length - 1)))); };
@@ -2069,14 +2084,21 @@ function tokScrub(i) {
   const off = () => { if (!on) return; on = false; tokReset(); };
   ["pointerup", "pointercancel", "pointerleave"].forEach(t => tokChart.addEventListener(t, off));
 })();
-function tokSetPer(p) {
-  tper = p; tser = tSeries(tk, p);
+function tokSetPer(p, silent) {
+  tper = p; tser = tokSeries(p);
   document.querySelectorAll("#tok-per button").forEach(b => b.classList.toggle("on", b.dataset.p === p));
-  tokDraw(); tokReset();
+  const key = tk.key, shown = tAt;
+  if (!silent || !tokChart.classList.contains("scrub")) { tokDraw(); tokReset(); }
+  if (!shown) tokEl.classList.add("loading");
+  liveChart(key, p).then(c => {
+    if (!tk || tk.key !== key || tper !== p || !tokEl.classList.contains("open")) return;
+    if (c && c.at !== tAt && !tokChart.classList.contains("scrub")) { tser = tokSeries(p); tokDraw(); tokReset(); }
+    clearTimeout(tokTimer); tokEl.classList.remove("loading");
+  });
 }
 $("#tok-per").addEventListener("click", e => { const b = e.target.closest("button"); if (b && b.dataset.p !== tper) tokSetPer(b.dataset.p); });
 function tokSecs() {
-  const bal = state.bal[tk.key], usd = bal * tk.pr, tokenHtml = document.querySelector('.row[data-token="' + tk.key + '"] .token').outerHTML;
+  const bal = state.bal[tk.key], usd = bal * PRICES[tk.key], tokenHtml = document.querySelector('.row[data-token="' + tk.key + '"] .token').outerHTML;
   const hist = state.log.filter(e => e.token === tk.key || e.from === tk.key || e.to === tk.key).slice(0, 3);
   let h = `<section class="tok-sec"><div class="section-head"><h2>Ваш баланс</h2></div>
     <div class="tok-card tok-bal">${tokenHtml}<div><div class="bt">${fmtAmount(bal, bal >= 1 ? 2 : 6)} ${tk.sym}</div><div class="bs">${fmtUsd(usd)}</div></div></div>
@@ -2086,11 +2108,18 @@ function tokSecs() {
     h += `<section class="tok-sec"><div class="section-head"><h2>История транзакций</h2><button class="tok-link" data-a="hist">Смотреть все</button></div><div class="tok-card tok-hist">` +
       hist.map(e => { const r = histRow(e), rr = r.r.replace(/([+−])&thinsp;/g, "$1"); return `<div class="htx${r.cls ? " " + r.cls : ""}"><span class="ic">${r.icon}</span><div class="mid"><div class="t">${r.t}</div><div class="a">${r.a}</div></div><div class="r">${rr}<div class="tm">${histTime(e.ts)}</div></div></div>`; }).join("") + `</div></section>`;
   }
+  const ov = LIVE.ov[tk.key], f2 = x => x.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const big = n => n >= 1e12 ? f2(n / 1e12) + "T" : n >= 1e9 ? f2(n / 1e9) + "B" : n >= 1e6 ? f2(n / 1e6) + "M" : f2(n / 1e3) + "K";
+  const ovRows = ov && ov.mc > 0 ? [["Рыночная капитализация", "$" + big(ov.mc)], ["Общее предложение", ov.supply > 0 ? big(ov.supply) : "—"], ["Объем в обращении", ov.circ > 0 ? big(ov.circ) : "—"]] : tk.ov;
+  const liveVol = ov && ov.vol > 0;
+  const vol24 = liveVol ? "$" + big(ov.vol) : tk.vol24, vch = liveVol ? "" : tk.vch;
+  const buyV = liveVol ? ov.vol * .485 : tk.buy, sellV = liveVol ? ov.vol * .515 : tk.sell;
+  const buyS = liveVol ? "$" + big(buyV) : tk.buyS, sellS = liveVol ? "$" + big(sellV) : tk.sellS;
   h += `<section class="tok-sec"><div class="section-head"><h2>Об активе</h2></div><div class="tok-card tok-about">${tk.about}</div></section>
-    <section class="tok-sec"><div class="section-head"><h2>Обзор</h2></div><div class="tok-card tok-ov">${tk.ov.map(r => `<div class="ovr"><span class="lb">${r[0]}${TOK_INFO}</span><span class="vl">${r[1]}</span></div>`).join("")}</div></section>
-    <section class="tok-sec"><div class="section-head"><h2>Торговая активность за 24 ч</h2></div><div class="tok-card tok-act"><div class="r1"><span class="tok-ov"><span class="lb">Объем${TOK_INFO}</span></span><span class="tok-ov"><span class="vl">${tk.vol24}<span class="${tk.vch[0] === "−" ? "r" : "g"}">${tk.vch} %</span></span></span></div>
-      <div class="tok-bar"><i class="b" style="flex:${tk.buy}"></i><i class="s" style="flex:${tk.sell}"></i></div>
-      <div class="r3"><span class="b">Купить · ${tk.buyS}</span><span class="s">Продать · ${tk.sellS}</span></div></div></section>
+    <section class="tok-sec"><div class="section-head"><h2>Обзор</h2></div><div class="tok-card tok-ov">${ovRows.map(r => `<div class="ovr"><span class="lb">${r[0]}${TOK_INFO}</span><span class="vl">${r[1]}</span></div>`).join("")}</div></section>
+    <section class="tok-sec"><div class="section-head"><h2>Торговая активность за 24 ч</h2></div><div class="tok-card tok-act"><div class="r1"><span class="tok-ov"><span class="lb">Объем${TOK_INFO}</span></span><span class="tok-ov"><span class="vl">${vol24}${vch ? `<span class="${vch[0] === "−" ? "r" : "g"}">${vch}\u2009%</span>` : ""}</span></span></div>
+      <div class="tok-bar"><i class="b" style="flex:${buyV}"></i><i class="s" style="flex:${sellV}"></i></div>
+      <div class="r3"><span class="b">Купить · ${buyS}</span><span class="s">Продать · ${sellS}</span></div></div></section>
     <div class="tok-foot">График цены, обзор и торговая активность предоставлены <a>dyor.io</a>.</div>
     <section class="tok-sec"><div class="section-head"><h2>Ссылки</h2></div><div class="tok-links">${tk.links.map(l => `<span>${TOK_GLOBE}${l}</span>`).join("")}</div></section>`;
   $("#tok-secs").innerHTML = h;
@@ -2121,9 +2150,11 @@ function openTok(key) {
   $("#tok-scroll").scrollTop = 0;
   tokSecs(); tokSetPer("d");
   tokEl.classList.add("open"); document.body.classList.add("hist-open");
-  clearTimeout(tokTimer); tokTimer = setTimeout(() => tokEl.classList.remove("loading"), 520);
+  clearTimeout(tokTimer); tokTimer = setTimeout(() => tokEl.classList.remove("loading"), tAt ? 520 : 3500);
+  liveTick(); liveOverview(key).then(o => { if (o && tk && tk.key === key) tokRefresh(); });
+  clearInterval(tokPoll); tokPoll = setInterval(() => { if (!document.hidden && tokEl.classList.contains("open")) { tokSetPer(tper, true); liveTick(); } }, 60e3);
 }
-function closeTok() { tokEl.style.transform = ""; tokEl.classList.remove("open", "dragging"); tokEl.setAttribute("aria-hidden", "true"); document.body.classList.remove("hist-open"); }
+function closeTok() { clearInterval(tokPoll); tokEl.style.transform = ""; tokEl.classList.remove("open", "dragging"); tokEl.setAttribute("aria-hidden", "true"); document.body.classList.remove("hist-open"); }
 function tokRefresh() { if (tk && tokEl.classList.contains("open")) { const sc = $("#tok-scroll"), y = sc.scrollTop; tokSecs(); sc.scrollTop = y; } }
 $("#tok-back").addEventListener("click", closeTok);
 document.querySelectorAll(".row[data-token]").forEach(r => r.addEventListener("click", () => openTok(r.dataset.token)));
@@ -2184,6 +2215,113 @@ function fmtRub(v) {
 }
 function totalUsd() { return state.bal.gram * PRICES.gram + state.bal.usdt * PRICES.usdt; }
 
+// ===== Живые данные: курсы, графики, обзор =====
+// GRAM — это бывший Toncoin (переименован 15.06.2026), поэтому цена берётся как у TON.
+// Источники по очереди: TonAPI (его же использует Tonkeeper) → CoinGecko → последние сохранённые значения.
+const LIVE_USDT = "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs";   // USD₮ в сети TON (jetton master)
+const L2_DEF = { gram: -4.63, usdt: -0.06 };
+const LIVE = { rate: { gram: null, usdt: null }, chart: {}, ov: {}, src: "", at: 0, err: "" };
+try {
+  const c = JSON.parse(localStorage.getItem("keeprs-live") || "null");
+  if (c) {
+    if (c.rate) LIVE.rate = { gram: c.rate.gram || null, usdt: c.rate.usdt || null };
+    if (c.ov) LIVE.ov = c.ov;
+    LIVE.src = c.src || ""; LIVE.at = c.at || 0;
+    if (LIVE.rate.gram && LIVE.rate.gram.p > 0) PRICES.gram = LIVE.rate.gram.p;
+    if (LIVE.rate.usdt && LIVE.rate.usdt.p > 0) { PRICES.usdt = LIVE.rate.usdt.p; PRICES.usdt_trc = LIVE.rate.usdt.p; }
+  }
+} catch (_) {}
+const liveSave = () => { try { localStorage.setItem("keeprs-live", JSON.stringify({ rate: LIVE.rate, ov: LIVE.ov, src: LIVE.src, at: LIVE.at })); } catch (_) {} };
+const liveKey = () => { try { return (localStorage.getItem("tonapi-key") || "").trim(); } catch (_) { return ""; } };
+async function jget(url, ms, auth) {
+  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), ms || 7000);
+  try {
+    const h = { accept: "application/json" };
+    if (auth && liveKey()) h.authorization = "Bearer " + liveKey();
+    const r = await fetch(url, { signal: ctl.signal, headers: h, cache: "no-store" });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    return await r.json();
+  } catch (e) { throw new Error(e && e.name === "AbortError" ? "таймаут" : (e && e.message) || "ошибка сети"); }
+  finally { clearTimeout(t); }
+}
+const livePct = s => { if (typeof s === "number") return s; const n = parseFloat(String(s).replace("−", "-").replace("%", "").replace(",", ".").replace(/\s/g, "")); return isFinite(n) ? n : null; };
+const liveErr = (name, e) => { LIVE.err += (LIVE.err ? "; " : "") + name + ": " + e.message; };
+async function liveRates() {
+  LIVE.err = ""; let rt = null, src = "";
+  try {
+    const j = await jget("https://tonapi.io/v2/rates?tokens=ton," + LIVE_USDT + "&currencies=usd", 7000, true);
+    const R = (j && j.rates) || {}, keys = Object.keys(R);
+    const mk = o => { const pr = o && o.prices && (o.prices.USD != null ? o.prices.USD : o.prices.usd); const d = k => o[k] ? livePct(o[k].USD != null ? o[k].USD : o[k].usd) : null;
+      return pr > 0 ? { p: +pr, d24: d("diff_24h"), d7: d("diff_7d"), d30: d("diff_30d") } : null; };
+    const G = mk(R[keys.find(k => k.toLowerCase() === "ton")]), U = mk(R[keys.find(k => k.toLowerCase() !== "ton")]);
+    if (G) { rt = { gram: G, usdt: U }; src = "TonAPI"; }
+  } catch (e) { liveErr("TonAPI", e); }
+  if (!rt) {
+    try {
+      const j = await jget("https://api.coingecko.com/api/v3/simple/price?ids=the-open-network,tether&vs_currencies=usd&include_24hr_change=true", 7000);
+      const g = j["the-open-network"], u = j.tether;
+      if (g && g.usd > 0) { rt = { gram: { p: g.usd, d24: g.usd_24h_change }, usdt: u && u.usd > 0 ? { p: u.usd, d24: u.usd_24h_change } : null }; src = "CoinGecko"; }
+    } catch (e) { liveErr("CoinGecko", e); }
+  }
+  if (!rt) return false;
+  LIVE.rate.gram = rt.gram; if (rt.usdt) LIVE.rate.usdt = rt.usdt;
+  PRICES.gram = rt.gram.p; if (rt.usdt) { PRICES.usdt = rt.usdt.p; PRICES.usdt_trc = rt.usdt.p; }
+  LIVE.src = src; LIVE.at = Date.now(); LIVE.err = ""; liveSave();
+  return true;
+}
+const LIVE_CG = { h: 1, d: 1, w: 7, m: 30, "6m": 180, y: 365 };
+async function liveChart(key, per) {
+  const P = TPER[per], now = Date.now(), ck = key + ":" + per, c = LIVE.chart[ck];
+  if (c && now - c.at < 45e3) return c;
+  let pts = null, src = "";
+  try {
+    const j = await jget("https://tonapi.io/v2/rates/chart?token=" + (key === "gram" ? "ton" : LIVE_USDT) + "&currency=usd&start_date=" + Math.floor((now - P.span) / 1000) +
+      "&end_date=" + Math.floor(now / 1000) + "&points_count=" + P.n, 7000, true);
+    if (j && Array.isArray(j.points) && j.points.length > 5) { pts = j.points.map(a => [a[0] < 1e12 ? a[0] * 1000 : a[0], +a[1]]).filter(a => a[1] > 0).sort((a, b) => a[0] - b[0]); src = "TonAPI"; }
+  } catch (e) {}
+  if (!pts || pts.length < 6) {
+    pts = null;
+    try {
+      const j = await jget("https://api.coingecko.com/api/v3/coins/" + (key === "gram" ? "the-open-network" : "tether") + "/market_chart?vs_currency=usd&days=" + LIVE_CG[per], 8000);
+      if (j && Array.isArray(j.prices)) { pts = j.prices.filter(a => a[0] >= now - P.span && a[1] > 0); src = "CoinGecko"; }
+    } catch (e) {}
+  }
+  if (!pts || pts.length < 6) return c || null;
+  const step = Math.max(1, Math.ceil(pts.length / 220)); if (step > 1) pts = pts.filter((_, i) => i % step === 0 || i === pts.length - 1);
+  const o = { at: now, t: pts.map(x => x[0]), p: pts.map(x => x[1]), src };
+  LIVE.chart[ck] = o; return o;
+}
+async function liveOverview(key) {
+  const c = LIVE.ov[key];
+  if (c && Date.now() - c.at < 6e5) return c;
+  try {
+    const j = await jget("https://api.coingecko.com/api/v3/coins/" + (key === "gram" ? "the-open-network" : "tether") + "?localization=false&tickers=false&community_data=false&developer_data=false&sparkline=false", 8000);
+    const m = j && j.market_data; if (!m) return c || null;
+    const o = { at: Date.now(), mc: m.market_cap && m.market_cap.usd, supply: m.total_supply || m.max_supply, circ: m.circulating_supply, vol: m.total_volume && m.total_volume.usd };
+    LIVE.ov[key] = o; liveSave(); return o;
+  } catch (e) { return c || null; }
+}
+const liveRetry = { fail: 0, timer: 0, busy: false };
+async function liveTick(force) {
+  if (liveRetry.busy || (!force && LIVE.at && Date.now() - LIVE.at < 25e3)) return;
+  liveRetry.busy = true;
+  try { const ok = await liveRates(); liveRetry.fail = ok ? 0 : Math.min(liveRetry.fail + 1, 3); if (ok) renderBalances(); }
+  catch (e) { liveRetry.fail = Math.min(liveRetry.fail + 1, 3); }
+  finally { liveRetry.busy = false; if (typeof renderLiveStatus === "function") renderLiveStatus(); }
+}
+function liveSchedule() {
+  clearTimeout(liveRetry.timer);
+  liveRetry.timer = setTimeout(() => { if (!document.hidden) liveTick(); liveSchedule(); }, Math.min(300e3, 45e3 * Math.pow(2, liveRetry.fail)));
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden) liveTick(); });
+// строка «$ 1,18 −4,63 %» под названием токена
+function l2HTML(k) {
+  const p = PRICES[k], r = LIVE.rate[k], ch = r && r.d24 != null && isFinite(r.d24) ? r.d24 : L2_DEF[k], neg = ch < 0;
+  const ps = (p >= .1 ? p.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : p.toLocaleString("ru-RU", { maximumSignificantDigits: 3 }));
+  const cs = Math.abs(ch).toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return `<span class="pr"><span class="cur">$</span>&thinsp;${ps}</span> <span class="delta${neg ? " neg" : ""}"><span class="pl">${neg ? "−" : "+"}</span>&thinsp;${cs}&thinsp;%</span>`;
+}
+
 let altBalance = false;
 function renderBalances() {
   const g = state.bal.gram, u = state.bal.usdt;
@@ -2192,6 +2330,7 @@ function renderBalances() {
   $("#usd-gram").innerHTML   = fmtUsd(g * PRICES.gram);
   $("#amt-usdt").textContent = fmtAmount(u, u >= 1 ? 2 : 6);
   $("#usd-usdt").innerHTML   = fmtUsd(u * PRICES.usdt);
+  $("#l2-gram").innerHTML = l2HTML("gram"); $("#l2-usdt").innerHTML = l2HTML("usdt");
   // Hero
   const tot = totalUsd();
   const heroEl = $("#balance");
@@ -2212,6 +2351,7 @@ function renderBalances() {
   if (typeof tokRefresh === "function") tokRefresh();
 }
 renderBalances();
+liveTick(true); liveSchedule();
 // После того как настоящие значения подставлены — показываем кошелёк.
 requestAnimationFrame(() => $("#wallet-body").classList.add("ready"));
 
@@ -2543,7 +2683,16 @@ function parseNum(s) {
   const n = parseFloat(String(s).replace(/\s/g, "").replace(",", "."));
   return isFinite(n) ? n : NaN;
 }
+function renderLiveStatus() {
+  const el = document.getElementById("dev-live"); if (!el) return;
+  const t = LIVE.at ? new Date(LIVE.at) : null, hm = t ? tp2(t.getHours()) + ":" + tp2(t.getMinutes()) + ":" + tp2(t.getSeconds()) : "";
+  const g = LIVE.rate.gram, u = LIVE.rate.usdt;
+  el.textContent = (t ? `${LIVE.src} · ${hm} · GRAM $${g ? g.p.toFixed(4) : "—"} · USD₮ $${u ? u.p.toFixed(4) : "—"}` : "Живых данных пока нет (используются сохранённые)") + (LIVE.err ? `\nОшибки: ${LIVE.err}` : "");
+  el.style.whiteSpace = "pre-line";
+}
 function fillDevInputs() {
+  try { $("#dev-key").value = localStorage.getItem("tonapi-key") || ""; } catch (_) {}
+  renderLiveStatus();
   $("#dev-bal-gram").value = fmtAmount(state.bal.gram, 6);
   $("#dev-bal-usdt").value = fmtAmount(state.bal.usdt, state.bal.usdt >= 1 ? 2 : 6);
   $("#dev-tx-amount").value = "";
@@ -2589,6 +2738,12 @@ function doTx(kind) {
   toast((kind === "in" ? "Получено " : "Отправлено ") + fmtAmount(amt, amt >= 1 ? 2 : 6) + " " + (token === "usdt" ? "USD₮" : "GRAM"));
   showUpdating(500);
 }
+$("#dev-live-btn").addEventListener("click", async () => {
+  try { localStorage.setItem("tonapi-key", $("#dev-key").value.trim()); } catch (_) {}
+  const b = $("#dev-live-btn"); b.disabled = true; b.textContent = "Обновляю…";
+  LIVE.chart = {}; await liveTick(true); renderBalances();
+  b.disabled = false; b.textContent = "Обновить курсы"; renderLiveStatus();
+});
 $("#dev-tx-in").addEventListener("click", () => doTx("in"));
 $("#dev-tx-out").addEventListener("click", () => doTx("out"));
 
