@@ -1024,7 +1024,7 @@ body:not(.t-wallet) .app-header { display: none; }
   background: var(--surface); color: #fff; font-size: 13.8px; font-weight: 450; padding-top: 1.5px;
 }
 .hchip.active { background: #3388F9; }
-.hist-list { padding: 0 16px 120px; will-change: transform; }
+.hist-list { padding: 0 16px 120px; min-height: calc(100% + 1px); }
 .hist-date { position: relative; top: -1.3px; margin: 22px 0 10px; font-size: 16px; line-height: 24px; font-weight: 500; }
 .hist-date.later { margin: 29px 0 11px; }
 .htx {
@@ -1612,7 +1612,8 @@ const PTR_SETTLE = 130;     // «опорный» сдвиг после окон
 const PTR_OMEGA = 15;       // жёсткость возвратной пружины (критическое демпфирование)
 const ptrMap = dy => dy <= 110 ? dy * .95 : 104.5 + (dy - 110) * .4;
 const ptrInv = s => s <= 104.5 ? s / .95 : 110 + (s - 104.5) / .4;
-function makePTR({ scroller, content, ptr, onStart, onEnd }) {
+// Запасной вариант: контент двигает JS (на устройстве, где нативный оверскролл не отдаёт отрицательный scrollTop)
+function makePTRJS({ scroller, content, ptr, onStart, onEnd }) {
   const spokes = [...ptr.querySelectorAll("rect")];
   // phase: 0 — покой, 1 — тянем, 2 — идёт загрузка, 3 — загрузка кончилась, палец ещё держит
   let phase = 0, y0 = null, raw = 0, cur = 0, popped = false, down = false, raf = 0, endT = 0;
@@ -1685,6 +1686,104 @@ function makePTR({ scroller, content, ptr, onStart, onEnd }) {
   };
   scroller.addEventListener("touchend", release);
   scroller.addEventListener("touchcancel", release);
+}
+// Индикатор: лучи появляются по порогам сдвига
+function ptrRing(ptr) {
+  const spokes = [...ptr.querySelectorAll("rect")];
+  let popped = false;
+  return {
+    paint(s) {
+      const a = Math.max(0, Math.min(1, .28 + (s - 64) * .0065));
+      const tail = Math.max(0, Math.min(1, (190 - s) / 50));
+      spokes.forEach((sp, k) => { sp.style.opacity = s >= PTR_TH[k] ? a * (1 - .048 * k * tail) : 0; });
+      ptr.style.opacity = s >= PTR_TH[0] - 10 ? 1 : 0;
+      if (s >= PTR_TH[7] && !popped) { popped = true; ptr.classList.remove("pop"); void ptr.offsetWidth; ptr.classList.add("pop"); }
+      if (s < 110) popped = false;
+    },
+    hide() { ptr.style.opacity = 0; spokes.forEach(sp => { sp.style.opacity = 0; }); popped = false; },
+    freeze() { popped = true; },
+  };
+}
+
+// Основной вариант: контент тянет сам iOS (нативный «резиновый» оверскролл — 60 fps даже в режиме
+// энергосбережения, когда WebKit отдаёт странице только 30 кадров/с). Страница лишь читает отрицательный
+// scrollTop, рисует лучи и «подпрыгивание» на старте обновления, но не двигает контент по кадрам.
+function makePTRNative({ scroller, content, ptr, onStart, onEnd }, fallback) {
+  const ring = ptrRing(ptr);
+  // phase: 0 покой, 1 тянем / возвращается, 2 идёт загрузка, 3 загрузка кончилась (палец ещё держит), 4 мгновенный возврат
+  let phase = 0, touching = false, T = 0, k = 0, endT = 0, dead = false;
+  let y0 = 0, maxDy = 0, atTop = false, sawNeg = false;
+  const ovr = () => Math.max(0, -scroller.scrollTop);
+  const setT = px => {
+    if (Math.abs(px - T) < .01) return;
+    T = px; content.style.transform = px ? `translate3d(0,${-px}px,0)` : "";
+  };
+  const done = () => {
+    endT = 0; ring.hide(); if (onEnd) onEnd();
+    const n = ovr();
+    if (touching) { phase = 3; setT(Math.min(PTR_SETTLE, n)); }
+    else { phase = 4; scroller.scrollTop = 0; setT(n); sync(); }      // палец уже отпущен: контент сразу на место
+  };
+  const begin = n => {
+    phase = 2; ring.freeze();
+    setT(Math.min(PTR_JUMP, n));
+    if (onStart) onStart();
+    // реальный запрос в оригинале занимает по-разному: чаще ~0.1 с, иногда до ~0.45 с
+    endT = setTimeout(done, Math.random() < .55 ? 100 + Math.random() * 40 : 180 + Math.random() * 270);
+  };
+  function sync() {
+    if (dead) return;
+    const n = ovr();
+    if (phase === 0) {
+      if (n > 0 && touching) phase = 1; else { setT(0); return; }
+    }
+    if (phase === 1) {
+      ring.paint(n);
+      if (touching && n >= PTR_TRIG) { begin(n); return; }
+      if (!touching && n < .3) { phase = 0; ring.hide(); }
+      setT(0);
+    } else if (phase === 2) {
+      setT(Math.min(PTR_JUMP, n));
+    } else if (phase === 3) {
+      if (touching) setT(Math.min(PTR_SETTLE, n));
+      else { setT(n * k); if (n < .3) { phase = 0; setT(0); } }
+    } else if (phase === 4) {
+      setT(n); if (n < .3) { phase = 0; setT(0); }
+    }
+  }
+  scroller.addEventListener("touchstart", e => {
+    if (dead || e.touches.length !== 1) return;
+    touching = true; y0 = e.touches[0].clientY; maxDy = 0; sawNeg = false; atTop = scroller.scrollTop <= 0;
+  }, { passive: true });
+  scroller.addEventListener("touchmove", e => {
+    if (dead || !touching) return;
+    maxDy = Math.max(maxDy, e.touches[0].clientY - y0);
+    sync();
+  }, { passive: true });
+  const end = () => {
+    if (dead || !touching) return;
+    touching = false;
+    if (phase === 3) { const n = ovr(); k = n > 0 ? Math.min(1, PTR_SETTLE / n) : 0; }
+    if (atTop && !sawNeg && maxDy > 60 && phase === 0) {
+      // потянули вниз на верху, а отрицательного scrollTop не было — нативный оверскролл тут не виден, переходим на JS
+      dead = true; clearTimeout(endT); setT(0); ring.hide(); if (fallback) fallback();
+      return;
+    }
+    sync();
+  };
+  scroller.addEventListener("touchend", end);
+  scroller.addEventListener("touchcancel", end);
+  scroller.addEventListener("scroll", () => { if (scroller.scrollTop < -1) sawNeg = true; sync(); }, { passive: true });
+}
+
+function makePTR(opts) {
+  let mode = null;
+  try { mode = localStorage.getItem("ptr-mode"); } catch (e) {}
+  if (mode === "js") return makePTRJS(opts);
+  makePTRNative(opts, () => {
+    try { localStorage.setItem("ptr-mode", "js"); } catch (e) {}
+    makePTRJS(opts);
+  });
 }
 const setUpdating = on => {
   clearTimeout(updT);
