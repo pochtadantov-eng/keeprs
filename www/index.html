@@ -1049,9 +1049,13 @@ body:not(.t-wallet) .app-header { display: none; }
 }
 .hist-empty { padding: 60px 0; text-align: center; color: var(--fg-dim); font-size: 15px; }
 body.hist-open .app-header, body.hist-open .panel.active, body.hist-open .tabbar {
-  transform: translateX(-28%); transition: transform .36s cubic-bezier(.22,.9,.28,1);
+  transform: translateX(-30%); transition: transform .36s cubic-bezier(.22,.9,.28,1);
 }
 .app-header, .panel, .tabbar { transition: transform .36s cubic-bezier(.22,.9,.28,1); }
+/* жест «назад»: подложку двигает и затемняет скрипт (--ux, --ub), CSS-переходы выключены */
+body.swiping .app-header, body.swiping .panel.active, body.swiping .tabbar {
+  transform: translate3d(var(--ux, 0px), 0, 0) !important; transition: none !important; filter: brightness(var(--ub, 1));
+}
 
 /* real keyboard: invisible inputs sit over the amount, we draw digits and the caret ourselves */
 .ov { position: absolute; left: 0; top: 0; width: calc(100% - 150px); height: 100%; opacity: 0; border: 0; padding: 0; margin: 0; background: transparent; font-size: 16px; color: transparent; caret-color: transparent; z-index: 3; -webkit-appearance: none; appearance: none; outline: none; }
@@ -2021,6 +2025,98 @@ const setUpdating = on => {
 };
 makePTR({ scroller: $("#panel-wallet"), content: $("#wallet-body"), ptr: $("#ptr"), onStart: () => { setUpdating(true); liveTick(true); }, onEnd: () => setUpdating(false) });
 
+// ===== «Назад»: свайп вправо и возврат пружиной, как в оригинале =====
+// По записи 60 fps: страница едет за пальцем; подложка уходит влево на 30 % ширины и темнеет на 9 %,
+// оба закона линейны по пройденному пути. Когда страница ушла, подложка по инерции «выскакивает» вправо
+// (~12 pt) и пружинит обратно за ~0,25 с — критически демпфированная пружина с вылетом (ω 20,5, ζ 0,85).
+const POP = { under: .30, dim: .09, aim: 1.22, wTap: 9, wFlick: 27, wBack: 16, wU: 20.5, zU: .85, uGain: 1.1, vUmax: 1100 };
+let popBusy = false;
+function popSet(page, x) {
+  const W = innerWidth, p = Math.min(1, Math.max(0, x / W)), b = document.body.style;
+  page.style.transform = `translate3d(${x}px,0,0)`;
+  b.setProperty("--ux", `${(-POP.under * (1 - p) * W).toFixed(2)}px`);
+  b.setProperty("--ub", (1 - POP.dim * (1 - p)).toFixed(4));
+}
+// страница целится в точку за краем экрана и отдаёт управление, когда пересекла край, — на скорости,
+// как в оригинале (по записи: цель ≈1,2 ширины, ω ≈ 27, скорость у края ≈ 6 ширин/с)
+function popSpring(from, to, v0, w, stopAt, onFrame, onDone) {     // x(t) = to + (A + B t) e^{-w t}
+  const t0 = performance.now(), A = from - to, B = v0 + w * A;
+  const step = now => {
+    const t = (now - t0) / 1000, e = Math.exp(-w * t), x = to + (A + B * t) * e, v = (B - w * (A + B * t)) * e;
+    if (stopAt != null && x >= stopAt) { onFrame(stopAt, v); onDone(v); return; }
+    if (stopAt == null && ((Math.abs(x - to) < .4 && Math.abs(v) < 8) || t > 1.2)) { onFrame(to, 0); onDone(0); return; }
+    onFrame(x, v); requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+function popUnder(u0, v0, onDone) {                        // подложка после ухода страницы: пружина с вылетом
+  const w = POP.wU, z = POP.zU, wd = w * Math.sqrt(1 - z * z), t0 = performance.now(), root = document.body.style;
+  const step = now => {
+    const t = (now - t0) / 1000, e = Math.exp(-z * w * t);
+    const u = e * (u0 * Math.cos(wd * t) + ((v0 + z * w * u0) / wd) * Math.sin(wd * t));
+    if (t > .6 || (t > .08 && Math.abs(u) < .15)) { onDone(); return; }
+    root.setProperty("--ux", u.toFixed(2) + "px"); requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+function popEnd(page) {
+  const b = document.body;
+  b.classList.remove("swiping"); b.style.removeProperty("--ux"); b.style.removeProperty("--ub");
+  page.classList.remove("dragging"); popBusy = false;
+}
+// закрыть страницу с анимацией; x — где она сейчас, vx — скорость пальца (px/s)
+function popPage(page, closeFn, x = 0, vx = 0, fromGesture = false) {
+  if (popBusy && !fromGesture) return;
+  popBusy = true;
+  const W = innerWidth, b = document.body;
+  b.classList.add("swiping"); page.classList.add("dragging"); popSet(page, x);
+  let upd = false;
+  const w = POP.wTap + (POP.wFlick - POP.wTap) * Math.min(1, Math.max(0, vx) / 6000);
+  popSpring(x, W * POP.aim, Math.max(0, vx), w, W, px => {
+    popSet(page, px);
+    if (!upd && px > W * .35 && b.classList.contains("t-wallet")) { upd = true; showUpdating(100); }   // на кошельке мелькает «Обновление»
+  }, v => {
+    closeFn();                                              // прячет страницу (она уже за краем — картинка не меняется)
+    popUnder(0, Math.min(POP.vUmax, POP.uGain * POP.under * Math.max(0, v)), () => popEnd(page));
+  });
+}
+function popCancel(page, x, vx) {
+  popSpring(x, 0, vx, POP.wBack, null, px => popSet(page, px), () => { page.style.transform = ""; popEnd(page); });
+}
+// жест: тянуть вправо можно с любого места страницы (кроме горизонтально скроллящихся блоков)
+function bindPop(page, closeFn, skip) {
+  let st = null;
+  page.addEventListener("touchstart", e => {
+    const t = e.touches[0];
+    if (popBusy || e.touches.length !== 1 || (skip && t.clientX > 24 && e.target.closest(skip))) { st = null; return; }   // у самого края «назад» работает и на графике
+    st = { x0: t.clientX, y0: t.clientY, on: false, base: 0, x: 0, h: [] };
+  }, { passive: true });
+  page.addEventListener("touchmove", e => {
+    if (!st) return;
+    const t = e.touches[0], dx = t.clientX - st.x0, dy = t.clientY - st.y0;
+    if (!st.on) {
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+      if (dx > 0 && dx > Math.abs(dy) * 1.4) { st.on = true; st.base = t.clientX; popBusy = true; document.body.classList.add("swiping"); page.classList.add("dragging"); }
+      else { st = null; return; }
+    }
+    st.x = Math.max(0, t.clientX - st.base);
+    const now = performance.now(); st.h.push([now, st.x]); while (st.h.length > 2 && now - st.h[0][0] > 110) st.h.shift();
+    popSet(page, st.x);
+    if (e.cancelable) e.preventDefault();
+  }, { passive: false });
+  const end = () => {
+    if (!st) return; const s = st; st = null;
+    if (!s.on) return;
+    let vx = 0;
+    if (s.h.length > 1) { const a = s.h[0], z = s.h[s.h.length - 1], dt = (z[0] - a[0]) / 1000; if (dt > .005) vx = (z[1] - a[1]) / dt; }
+    vx = Math.max(-8000, Math.min(8000, vx));
+    const W = innerWidth;
+    if (s.x + vx * .2 > W * .5 && vx > -500 || vx > 500 && s.x > 4) popPage(page, closeFn, s.x, vx, true);
+    else popCancel(page, s.x, vx);
+  };
+  page.addEventListener("touchend", end); page.addEventListener("touchcancel", end);
+}
+
 // ===== История =====
 const HICON = { in: `<svg class="hi" viewBox="0 0 73.5 70.5" width="24.50" height="23.50" fill-rule="evenodd" aria-hidden="true"><path d="M4.7 68.0C3.4 67.0 1.9 64.8 2.1 64.2C2.3 63.5 19.9 45.8 20.6 45.6C21.4 45.4 21.0 44.7 18.7 42.3C15.4 38.9 15.2 38.7 15.2 36.5C15.2 33.3 17.1 31.4 20.1 31.4C22.3 31.4 22.6 31.6 27.7 36.7C30.6 39.7 31.5 40.4 31.5 39.8C31.5 39.7 31.5 32.2 31.6 23.1C31.6 5.5 31.6 6.1 32.9 4.2C34.8 1.4 39.2 1.4 41.1 4.2C42.5 6.3 42.5 6.1 42.5 23.8C42.5 35.7 42.6 40.0 42.8 40.0C42.9 40.0 44.5 38.5 46.3 36.7C51.4 31.6 51.7 31.4 53.9 31.4C57.0 31.4 58.7 33.3 58.7 36.5C58.7 38.7 58.6 38.9 55.3 42.3C53.0 44.7 52.6 45.4 53.4 45.6C54.2 45.8 71.5 63.3 71.5 63.9C71.5 64.4 69.0 67.5 68.2 68.1C67.2 68.8 5.5 68.7 4.7 68.0ZM39.7 57.0C40.3 56.6 49.3 47.6 54.6 42.0C56.0 40.6 57.4 39.0 57.7 38.5C59.8 35.0 55.6 30.8 52.0 32.6C51.5 32.9 49.2 35.0 46.9 37.3C42.7 41.5 41.8 42.1 41.4 41.1C41.3 40.9 41.2 33.0 41.2 23.6C41.2 9.6 41.2 6.3 40.9 5.7C39.5 2.3 34.5 2.4 33.1 5.7C32.8 6.3 32.8 9.6 32.8 23.6C32.8 33.0 32.7 40.9 32.6 41.1C32.2 42.1 31.3 41.5 27.3 37.5C23.0 33.1 21.8 32.2 20.1 32.2C17.1 32.2 14.7 35.8 16.2 38.3C17.5 40.4 34.3 57.4 35.2 57.6C36.6 57.9 38.9 57.6 39.7 57.0Z" fill="#424A56"/><path d="M35.2 57.6C34.3 57.4 17.5 40.4 16.2 38.3C14.7 35.8 17.1 32.2 20.1 32.2C21.8 32.2 23.0 33.1 27.3 37.5C31.3 41.5 32.2 42.1 32.6 41.1C32.7 40.9 32.8 33.0 32.8 23.6C32.8 9.6 32.8 6.3 33.1 5.7C34.5 2.4 39.5 2.3 40.9 5.7C41.2 6.3 41.2 9.6 41.2 23.6C41.2 33.0 41.3 40.9 41.4 41.1C41.8 42.1 42.7 41.5 46.9 37.3C49.2 35.0 51.5 32.9 52.0 32.6C55.6 30.8 59.8 35.0 57.7 38.5C57.4 39.0 56.0 40.6 54.6 42.0C49.3 47.6 40.3 56.6 39.7 57.0C38.9 57.6 36.6 57.9 35.2 57.6Z" fill="#7D8797"/></svg>`, out: `<svg class="hi" viewBox="0 0 73.5 70.5" width="24.50" height="23.50" fill-rule="evenodd" aria-hidden="true"><path d="M4.7 68.0C4.4 67.7 3.6 66.9 3.0 66.1L1.9 64.7L2.3 63.9C3.1 62.5 20.2 45.6 21.6 44.9C22.8 44.3 23.0 44.2 26.9 44.2C30.2 44.2 31.0 44.2 31.3 43.9C31.5 43.6 31.7 27.0 31.5 20.7C31.5 20.2 30.9 20.8 26.9 24.7C23.5 28.1 22.7 28.8 21.7 29.0C18.2 30.0 15.3 27.7 15.2 24.2C15.2 21.9 15.1 22.1 20.3 16.9C35.6 1.3 34.7 2.1 37.0 2.1C39.0 2.2 39.7 2.6 44.6 7.6C60.4 23.7 58.8 21.7 58.8 24.2C58.8 27.0 56.7 29.3 54.1 29.2C51.9 29.2 51.4 28.9 47.1 24.7C42.9 20.5 42.5 20.2 42.5 20.8C42.4 26.8 42.6 43.7 42.8 43.9C43.0 44.2 44.1 44.3 47.1 44.2C50.9 44.2 51.2 44.3 52.4 44.9C53.9 45.6 71.5 63.1 71.5 63.9C71.5 64.4 69.0 67.5 68.2 68.1C67.2 68.8 5.5 68.7 4.7 68.0ZM39.7 57.0C40.1 56.7 40.7 55.9 41.0 55.3C41.7 54.0 41.7 55.3 41.4 32.4C41.2 18.7 41.2 18.6 42.5 19.2C42.9 19.4 45.0 21.4 47.4 23.7C50.5 26.8 51.9 28.0 52.6 28.2C56.3 29.4 59.6 25.4 57.7 22.1C57.2 21.2 53.9 17.9 43.7 7.9C37.0 1.2 37.0 1.2 29.3 8.9C16.3 21.6 15.7 22.2 15.8 24.1C15.8 27.1 19.2 29.4 21.8 28.1C22.3 27.9 24.5 25.8 26.9 23.5C31.1 19.3 32.1 18.6 32.6 19.3C32.7 19.5 32.7 26.2 32.7 37.0C32.5 55.2 32.5 55.1 33.7 56.3C35.2 57.9 38.1 58.2 39.7 57.0Z" fill="#424A56"/><path d="M35.1 57.4C34.2 57.0 33.1 55.8 32.8 55.0C32.6 54.5 32.6 48.4 32.7 37.0C32.7 26.2 32.7 19.5 32.6 19.3C32.1 18.6 31.1 19.3 26.9 23.5C24.5 25.8 22.3 27.9 21.8 28.1C19.2 29.4 15.8 27.1 15.8 24.1C15.7 22.2 16.3 21.6 29.3 8.9C37.0 1.2 37.0 1.2 43.7 7.9C53.9 17.9 57.2 21.2 57.7 22.1C59.6 25.4 56.3 29.4 52.6 28.2C51.9 28.0 50.5 26.8 47.4 23.7C45.0 21.4 42.9 19.4 42.5 19.2C41.2 18.6 41.2 18.7 41.4 32.4C41.7 55.3 41.7 54.0 41.0 55.3C40.0 57.4 37.2 58.4 35.1 57.4Z" fill="#7D8797"/></svg>` };
 let histFilter = "all";
@@ -2074,22 +2170,9 @@ $("#hist-chips").addEventListener("click", e => {
 });
 function openHist() { renderHist(); const h = $("#hist"); h.setAttribute("aria-hidden", "false"); h.classList.add("open"); document.body.classList.add("hist-open"); }
 function closeHist() { const h = $("#hist"); h.style.transform = ""; h.classList.remove("open", "dragging"); h.setAttribute("aria-hidden", "true"); document.body.classList.remove("hist-open"); }
-$("#hist-back").addEventListener("click", () => { haptic("back"); closeHist(); });
+$("#hist-back").addEventListener("click", () => { haptic("back"); popPage($("#hist"), closeHist); });
 document.querySelector('.topbar .right .icon-btn[aria-label="История"]').addEventListener("click", openHist);
-// свайп от левого края — назад
-(() => {
-  const h = $("#hist"); let x0 = null, y0 = null, dx = 0, drag = false;
-  h.addEventListener("touchstart", e => { const t = e.touches[0]; if (t.clientX > 28) return; x0 = t.clientX; y0 = t.clientY; dx = 0; drag = false; }, { passive: true });
-  h.addEventListener("touchmove", e => {
-    if (x0 == null) return; const t = e.touches[0];
-    if (!drag && Math.abs(t.clientY - y0) > Math.abs(t.clientX - x0)) { x0 = null; return; }
-    drag = true; dx = Math.max(0, t.clientX - x0);
-    h.classList.add("dragging"); h.style.transform = `translateX(${dx}px)`;
-    if (e.cancelable) e.preventDefault();
-  }, { passive: false });
-  const end = () => { if (x0 == null) return; x0 = null; h.classList.remove("dragging"); if (dx > 110) closeHist(); else h.style.transform = ""; };
-  h.addEventListener("touchend", end); h.addEventListener("touchcancel", end);
-})();
+bindPop($("#hist"), closeHist, "#hist-chips");
 // обновление списка: двигается только список, шапка и фильтры стоят
 makePTR({ scroller: $("#hist-scroll"), content: $("#hist-list"), ptr: $("#hist-ptr") });
 
@@ -2291,21 +2374,9 @@ function tokSync(key) {
 }
 function closeTok() { clearInterval(tokPoll); tokEl.classList.remove("sync"); tokEl.style.transform = ""; tokEl.classList.remove("open", "dragging"); tokEl.setAttribute("aria-hidden", "true"); document.body.classList.remove("hist-open"); }
 function tokRefresh() { if (tk && tokEl.classList.contains("open")) { const sc = $("#tok-scroll"), y = sc.scrollTop; tokSecs(); sc.scrollTop = y; } }
-$("#tok-back").addEventListener("click", () => { haptic("back"); closeTok(); });
+$("#tok-back").addEventListener("click", () => { haptic("back"); popPage(tokEl, closeTok); });
 document.querySelectorAll(".row[data-token]").forEach(r => r.addEventListener("click", () => openTok(r.dataset.token)));
-(() => { // свайп от левого края — назад
-  let x0 = null, y0 = null, dx = 0, drag = false;
-  tokEl.addEventListener("touchstart", e => { const t = e.touches[0]; if (t.clientX > 28) return; x0 = t.clientX; y0 = t.clientY; dx = 0; drag = false; }, { passive: true });
-  tokEl.addEventListener("touchmove", e => {
-    if (x0 == null) return; const t = e.touches[0];
-    if (!drag && Math.abs(t.clientY - y0) > Math.abs(t.clientX - x0)) { x0 = null; return; }
-    drag = true; dx = Math.max(0, t.clientX - x0);
-    tokEl.classList.add("dragging"); tokEl.style.transform = `translateX(${dx}px)`;
-    if (e.cancelable) e.preventDefault();
-  }, { passive: false });
-  const end = () => { if (x0 == null) return; x0 = null; tokEl.classList.remove("dragging"); if (dx > 110) closeTok(); else tokEl.style.transform = ""; };
-  tokEl.addEventListener("touchend", end); tokEl.addEventListener("touchcancel", end);
-})();
+bindPop(tokEl, closeTok, "#tok-chart, .tok-per, .tok-links");
 
 // Copy address
 $("#address-row").addEventListener("click", async () => {
