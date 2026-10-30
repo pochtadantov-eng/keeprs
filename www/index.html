@@ -1705,6 +1705,15 @@ body.hist-open .app-header, body.hist-open .panel.active, body.hist-open .tabbar
 "use strict";
 const $ = s => document.querySelector(s);
 
+// Вибрация: нативный Taptic Engine через @capacitor/haptics (в PWA/Safari — тишина).
+// Сила подбирается здесь: LIGHT | MEDIUM | HEAVY.
+const HAPTIC = { tab: "LIGHT", back: "LIGHT", longpress: "MEDIUM" };
+function haptic(kind) {
+  const H = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Haptics;
+  if (!H) return;
+  try { H.impact({ style: HAPTIC[kind] || "LIGHT" }); } catch (_) {}
+}
+
 // Tab switching (быстрое затухание, как в оригинале)
 let bannersReady = false;
 const scrollMemo = { wallet: 0, trade: 0, browser: 0 };
@@ -1732,6 +1741,7 @@ function showTab(name, initial) {
 document.querySelectorAll(".tab").forEach(btn => {
   btn.addEventListener("click", () => {
     if (btn.classList.contains("active")) return;
+    haptic("tab");
     showTab(btn.dataset.tab);
   });
 });
@@ -2064,7 +2074,7 @@ $("#hist-chips").addEventListener("click", e => {
 });
 function openHist() { renderHist(); const h = $("#hist"); h.setAttribute("aria-hidden", "false"); h.classList.add("open"); document.body.classList.add("hist-open"); }
 function closeHist() { const h = $("#hist"); h.style.transform = ""; h.classList.remove("open", "dragging"); h.setAttribute("aria-hidden", "true"); document.body.classList.remove("hist-open"); }
-$("#hist-back").addEventListener("click", closeHist);
+$("#hist-back").addEventListener("click", () => { haptic("back"); closeHist(); });
 document.querySelector('.topbar .right .icon-btn[aria-label="История"]').addEventListener("click", openHist);
 // свайп от левого края — назад
 (() => {
@@ -2281,7 +2291,7 @@ function tokSync(key) {
 }
 function closeTok() { clearInterval(tokPoll); tokEl.classList.remove("sync"); tokEl.style.transform = ""; tokEl.classList.remove("open", "dragging"); tokEl.setAttribute("aria-hidden", "true"); document.body.classList.remove("hist-open"); }
 function tokRefresh() { if (tk && tokEl.classList.contains("open")) { const sc = $("#tok-scroll"), y = sc.scrollTop; tokSecs(); sc.scrollTop = y; } }
-$("#tok-back").addEventListener("click", closeTok);
+$("#tok-back").addEventListener("click", () => { haptic("back"); closeTok(); });
 document.querySelectorAll(".row[data-token]").forEach(r => r.addEventListener("click", () => openTok(r.dataset.token)));
 (() => { // свайп от левого края — назад
   let x0 = null, y0 = null, dx = 0, drag = false;
@@ -2802,7 +2812,7 @@ const gearBtn = document.querySelector('[aria-label="Настройки"]');
     clearTimeout(lpTimer);
     lpTimer = setTimeout(() => {
       lpFired = true;
-      if (navigator.vibrate) try { navigator.vibrate(12); } catch (_) {}
+      haptic("longpress");
       openDevSheet();
     }, 500);
   };
