@@ -608,6 +608,7 @@ body:not(.t-wallet) .app-header { display: none; }
 html.cap .psheet { bottom: auto; height: calc(var(--full-h, 100vh) - env(safe-area-inset-top, 0px)); }
 html.cap .psheet.stacked { height: calc(var(--full-h, 100vh) - env(safe-area-inset-top, 0px) - 10px); }
 html.cap .sh-body { padding-bottom: var(--kb, 0px); transition: padding-bottom .3s cubic-bezier(.2,.6,.15,1); }
+html.cap.kb-snap .sh-body { transition: none; }
 html.cap.kb-on .cta-row { padding-bottom: 16px; }
 html.cap.kb-on .sf-body .cta-row { padding-bottom: 0; }
 .sh-head {
@@ -1084,10 +1085,9 @@ body.hist-open .app-header, body.hist-open .panel.active, body.hist-open .tabbar
   transform: translateX(-30%); transition: transform .36s cubic-bezier(.22,.9,.28,1);
 }
 .app-header, .panel, .tabbar { transition: transform .36s cubic-bezier(.22,.9,.28,1); }
-/* жест «назад»: подложку двигает и затемняет скрипт (--ux, --ub), CSS-переходы выключены */
-body.swiping .app-header, body.swiping .panel.active, body.swiping .tabbar {
-  transform: translate3d(var(--ux, 0px), 0, 0) !important; transition: none !important; filter: brightness(var(--ub, 1));
-}
+/* жест «назад»: подложку двигает скрипт (inline transform / Web Animations), затемняет слой #pop-dim, CSS-переходы выключены */
+body.swiping .app-header, body.swiping .panel.active, body.swiping .tabbar { transition: none !important; will-change: transform; }
+#pop-dim { position: fixed; inset: 0; z-index: 44; background: #000; opacity: 0; pointer-events: none; }
 
 /* real keyboard: invisible inputs sit over the amount, we draw digits and the caret ourselves */
 .ov { position: absolute; left: 0; top: 0; width: calc(100% - 150px); height: 100%; opacity: 0; border: 0; padding: 0; margin: 0; background: transparent; font-size: 16px; color: transparent; caret-color: transparent; z-index: 3; -webkit-appearance: none; appearance: none; outline: none; }
@@ -2117,60 +2117,93 @@ makePTR({ scroller: $("#panel-wallet"), content: $("#wallet-body"), ptr: $("#ptr
 // ω 19 и стартовой скоростью 0,7·ω·(остаток пути) — совпадает с замерами до 1 px. Подложка получает инерцию страницы
 // и чуть «выскакивает» вправо (у яростного флика ≈12 pt, у обычного 1–3 pt), затем пружинит назад (ω 20,5, ζ 0,85).
 const POP = { under: .30, dim: .09, aim: 1.01, w: 19, kick: .70, wBack: 16, wU: 20.5, zU: .85, uGain: 1.1, vUmax: 1100, flick: 5000, uExtra: 290 };
-let popBusy = false;
+let popBusy = false, popU = [];
+// Подложка: три слоя едут напрямую (без CSS-переменных — они бы пересчитывали стили всего дерева на каждом кадре),
+// а затемнение — чёрный слой с прозрачностью вместо filter: оба идут только на компоновщике.
+const popDim = document.createElement("div"); popDim.id = "pop-dim"; document.body.appendChild(popDim);
+function popUnderSet(u, a) {
+  const t = `translate3d(${u.toFixed(2)}px,0,0)`;
+  for (const e of popU) e.style.transform = t;
+  popDim.style.opacity = a.toFixed(4);
+}
 function popSet(page, x) {
-  const W = innerWidth, p = Math.min(1, Math.max(0, x / W)), b = document.body.style;
+  const W = innerWidth, p = Math.min(1, Math.max(0, x / W));
   page.style.transform = `translate3d(${x}px,0,0)`;
-  b.setProperty("--ux", `${(-POP.under * (1 - p) * W).toFixed(2)}px`);
-  b.setProperty("--ub", (1 - POP.dim * (1 - p)).toFixed(4));
+  popUnderSet(-POP.under * (1 - p) * W, POP.dim * (1 - p));
 }
-// страница целится в точку за краем экрана и отдаёт управление, когда пересекла край, — на скорости,
-// как в оригинале (по записи: цель ≈1,2 ширины, ω ≈ 27, скорость у края ≈ 6 ширин/с)
-function popSpring(from, to, v0, w, stopAt, onFrame, onDone) {     // x(t) = to + (A + B t) e^{-w t}
-  const t0 = performance.now(), A = from - to, B = v0 + w * A;
-  const step = now => {
-    const t = (now - t0) / 1000, e = Math.exp(-w * t), x = to + (A + B * t) * e, v = (B - w * (A + B * t)) * e;
-    if (stopAt != null && x >= stopAt) { onFrame(stopAt, v); onDone(v); return; }
-    if (stopAt == null && ((Math.abs(x - to) < .4 && Math.abs(v) < 8) || t > 1.2)) { onFrame(to, 0); onDone(0); return; }
-    onFrame(x, v); requestAnimationFrame(step);
-  };
-  requestAnimationFrame(step);
+// Пружина x(t) = to + (A + B t) e^{-w t} считается заранее (240 точек в секунду) и отдаётся Web Animations:
+// после отпускания пальца всё движется на компоновщике с частотой экрана (120 Гц) и не зависит от занятости JS.
+// Страница целится в точку за краем и отдаёт управление, когда пересекла край, — на скорости, как в оригинале.
+function popSamples(from, to, v0, w, stopAt) {
+  const A = from - to, B = v0 + w * A, dt = 1 / 240, out = [];
+  for (let t = 0; ; t += dt) {
+    const e = Math.exp(-w * t), x = to + (A + B * t) * e, v = (B - w * (A + B * t)) * e;
+    if (stopAt != null && x >= stopAt) { out.push([t, stopAt]); return { s: out, v }; }
+    if (stopAt == null && ((Math.abs(x - to) < .4 && Math.abs(v) < 8) || t > 1.2)) { out.push([t, to]); return { s: out, v: 0 }; }
+    out.push([t, x]);
+  }
 }
-function popUnder(u0, v0, onDone) {                        // подложка после ухода страницы: пружина с вылетом
-  const w = POP.wU, z = POP.zU, wd = w * Math.sqrt(1 - z * z), t0 = performance.now(), root = document.body.style;
-  const step = now => {
-    const t = (now - t0) / 1000, e = Math.exp(-z * w * t);
-    const u = e * (u0 * Math.cos(wd * t) + ((v0 + z * w * u0) / wd) * Math.sin(wd * t));
-    if (t > .6 || (t > .08 && Math.abs(u) < .15)) { onDone(); return; }
-    root.setProperty("--ux", u.toFixed(2) + "px"); requestAnimationFrame(step);
-  };
-  requestAnimationFrame(step);
+function popUnderSamples(u0, v0, t0) {                      // подложка после ухода страницы: пружина с вылетом
+  const w = POP.wU, z = POP.zU, wd = w * Math.sqrt(1 - z * z), dt = 1 / 240, out = [];
+  for (let t = 0; ; t += dt) {
+    const e = Math.exp(-z * w * t), u = e * (u0 * Math.cos(wd * t) + ((v0 + z * w * u0) / wd) * Math.sin(wd * t));
+    if (t > .6 || (t > .08 && Math.abs(u) < .15)) { out.push([t0 + t, 0]); return out; }
+    out.push([t0 + t, u]);
+  }
 }
-function popEnd(page) {
+function popPlay(el, samples, prop, fmt) {                  // samples: [[t, value]] -> анимация на весь отрезок
+  const T = samples[samples.length - 1][0] || 1e-3;
+  return el.animate(samples.map(([t, v]) => ({ offset: Math.min(1, t / T), [prop]: fmt(v) })), { duration: T * 1000, easing: "linear", fill: "forwards" });
+}
+function popEnd(page, anims) {
   const b = document.body;
-  b.classList.remove("swiping"); b.style.removeProperty("--ux"); b.style.removeProperty("--ub");
+  for (const e of popU) e.style.transform = "";
+  popDim.style.opacity = "";
+  anims.forEach(a => a.cancel());
+  b.classList.remove("swiping"); popU = [];
   page.classList.remove("dragging"); popBusy = false;
+}
+function popBegin(page, x) {
+  popU = [$(".app-header"), $(".panel.active"), $(".tabbar")].filter(Boolean);
+  document.body.classList.add("swiping"); page.classList.add("dragging"); popSet(page, x);
 }
 // закрыть страницу с анимацией; x — где она сейчас, vx — скорость пальца (px/s)
 function popPage(page, closeFn, x = 0, vx = 0, fromGesture = false) {
   if (popBusy && !fromGesture) return;
   popBusy = true;
   const W = innerWidth, T = W * POP.aim, b = document.body;
-  b.classList.add("swiping"); page.classList.add("dragging"); popSet(page, x);
-  let upd = false;
+  if (!fromGesture || !b.classList.contains("swiping")) popBegin(page, x);
   // жест: как минимум стартовая скорость оригинала (слабый свайп не должен идти дольше быстрого); кнопка — плавно с места
   const v0 = fromGesture ? Math.max(vx, POP.kick * POP.w * (T - x)) : 0;
-  popSpring(x, T, v0, POP.w, W - 8, px => {
-    popSet(page, px);
-    if (!upd && px > W * .35 && b.classList.contains("t-wallet")) { upd = true; showUpdating(100); }   // на кошельке мелькает «Обновление»
-  }, v => {
-    closeFn();                                              // прячет страницу (последние 8 px того же цвета — картинка не меняется)
-    const extra = fromGesture ? Math.max(0, vx - POP.flick) / 3650 * POP.uExtra : 0;
-    popUnder(-POP.under * 8, Math.min(POP.vUmax, POP.uGain * POP.under * Math.max(0, v) + extra), () => popEnd(page));
-  });
+  const pg = popSamples(x, T, v0, POP.w, W - 8), tStop = pg.s[pg.s.length - 1][0];
+  const extra = fromGesture ? Math.max(0, vx - POP.flick) / 3650 * POP.uExtra : 0;
+  const ph2 = popUnderSamples(-POP.under * 8, Math.min(POP.vUmax, POP.uGain * POP.under * Math.max(0, pg.v) + extra), tStop);
+  const un = pg.s.map(([t, px]) => [t, -POP.under * (1 - px / W) * W]).concat(ph2);
+  const dm = pg.s.map(([t, px]) => [t, POP.dim * (1 - px / W)]).concat([[tStop + 1e-3, 0]]);
+  if (!b.animate) { closeFn(); popEnd(page, []); return; }
+  const anims = [];
+  const aPage = popPlay(page, pg.s, "transform", px => `translate3d(${px}px,0,0)`);
+  anims.push(aPage, popPlay(popDim, dm, "opacity", a => a.toFixed(4)));
+  let aLast = null;
+  for (const e of popU) { aLast = popPlay(e, un, "transform", u => `translate3d(${u.toFixed(2)}px,0,0)`); anims.push(aLast); }
+  if (b.classList.contains("t-wallet")) { const k = pg.s.find(q => q[1] > W * .35); setTimeout(() => showUpdating(100), (k ? k[0] : 0) * 1000); }   // на кошельке мелькает «Обновление»
+  let closed = false, ended = false;
+  const close = () => { if (!closed) { closed = true; closeFn(); } };   // прячет страницу (последние 8 px того же цвета — картинка не меняется)
+  const end = () => { close(); if (!ended) { ended = true; popEnd(page, anims); } };
+  aPage.onfinish = close; (aLast || aPage).onfinish = end;
+  setTimeout(end, un[un.length - 1][0] * 1000 + 400);       // страховка, если анимации остановили (фон, перегрузка)
 }
 function popCancel(page, x, vx) {
-  popSpring(x, 0, vx, POP.wBack, null, px => popSet(page, px), () => { page.style.transform = ""; popEnd(page); });
+  const W = innerWidth, pg = popSamples(x, 0, vx, POP.wBack, null), b = document.body;
+  if (!b.animate) { page.style.transform = ""; popEnd(page, []); return; }
+  const anims = [popPlay(page, pg.s, "transform", px => `translate3d(${px}px,0,0)`),
+    popPlay(popDim, pg.s.map(([t, px]) => [t, POP.dim * (1 - Math.min(1, Math.max(0, px / W)))]), "opacity", a => a.toFixed(4))];
+  let aLast = anims[0];
+  const un = pg.s.map(([t, px]) => [t, -POP.under * (1 - Math.min(1, Math.max(0, px / W))) * W]);
+  for (const e of popU) { aLast = popPlay(e, un, "transform", u => `translate3d(${u.toFixed(2)}px,0,0)`); anims.push(aLast); }
+  let ended = false;
+  const end = () => { if (ended) return; ended = true; page.style.transform = ""; popEnd(page, anims); };
+  aLast.onfinish = end; setTimeout(end, pg.s[pg.s.length - 1][0] * 1000 + 400);
 }
 // жест: тянуть вправо можно с любого места страницы (кроме горизонтально скроллящихся блоков)
 function bindPop(page, closeFn, skip) {
@@ -2185,7 +2218,7 @@ function bindPop(page, closeFn, skip) {
     const t = e.touches[0], dx = t.clientX - st.x0, dy = t.clientY - st.y0;
     if (!st.on) {
       if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
-      if (dx > 0 && dx > Math.abs(dy) * 1.4) { st.on = true; st.base = t.clientX; popBusy = true; document.body.classList.add("swiping"); page.classList.add("dragging"); }
+      if (dx > 0 && dx > Math.abs(dy) * 1.4) { st.on = true; st.base = t.clientX; popBusy = true; popBegin(page, 0); }
       else { st = null; return; }
     }
     st.x = Math.max(0, t.clientX - st.base);
@@ -2762,18 +2795,28 @@ if (CAP) {
     syncFullH();
     // Страховка: если плагин промолчал, высоту клавиатуры видно по сжатию окна (когда сжалось — оно и есть истина)
     const shrink = fullH - window.innerHeight;
-    if (shrink > 80) { kbShrunk = true; if (Math.abs(kbH - shrink) > 2) setKb(shrink); }
-    else if (kbShrunk) { kbShrunk = false; if (kbH) setKb(0); }
+    if (shrink > 80) { kbShrunk = true; kbReal = true; clearTimeout(kbHideT); if (Math.abs(kbH - shrink) > 2) setKb(shrink); }
+    else if (kbShrunk) { kbShrunk = false; kbReal = false; if (kbH) releaseKb(); }
   });
   window.addEventListener("orientationchange", () => { fullH = 0; setTimeout(syncFullH, 400); });
 }
-let kbH = 0;
+let kbH = 0, kbReal = false, kbHold = 0, kbRelT = 0, kbHideT = 0, lastKb = 0;
+try { lastKb = +localStorage.getItem("kbh") || 0; } catch (_) {}
+if (!(lastKb > 150)) lastKb = Math.round((fullH || window.innerHeight) * .3455);   // цифровая клавиатура iPhone ≈ 34,5 % высоты, пока не знаем точно
 const kbWait = [];   // ждут начала подъёма клавиатуры
-function setKb(px) {
+function setKb(px, snap) {
+  clearTimeout(kbRelT);
   kbH = px;
   const r = document.documentElement;
+  if (snap) { r.classList.add("kb-snap"); requestAnimationFrame(() => requestAnimationFrame(() => r.classList.remove("kb-snap"))); }
   r.style.setProperty("--kb", px + "px");
   r.classList.toggle("kb-on", px > 0);
+}
+// Клавиатура ушла: шторка, которая ещё уезжает вниз, не должна на ходу перестраиваться — отпускаем отступ, когда она скрылась
+function releaseKb() {
+  clearTimeout(kbRelT);
+  const d = kbHold - performance.now();
+  if (d > 0) kbRelT = setTimeout(releaseKb, d + 20); else if (!kbReal) setKb(0);
 }
 function whenKbStarts(fn, maxMs) {
   let done = false, t = 0;
@@ -2787,8 +2830,14 @@ function whenKbStarts(fn, maxMs) {
 }
 if (KB && KB.addListener) {
   try {
-    KB.addListener("keyboardWillShow", info => { setKb(Math.round((info && info.keyboardHeight) || 0)); kbWait.slice().forEach(f => f()); });
-    KB.addListener("keyboardWillHide", () => setKb(0));
+    KB.addListener("keyboardWillShow", info => {
+      const h = Math.round((info && info.keyboardHeight) || 0);
+      clearTimeout(kbHideT); kbReal = true;
+      if (h > 150) { lastKb = h; try { localStorage.setItem("kbh", String(h)); } catch (_) {} }
+      setKb(h); kbWait.slice().forEach(f => f());
+    });
+    // «скрылась и тут же показалась» (перевод фокуса между полями) не должно дёргать вёрстку
+    KB.addListener("keyboardWillHide", () => { clearTimeout(kbHideT); kbHideT = setTimeout(() => { kbReal = false; releaseKb(); }, 120); });
   } catch (_) {}
 }
 // Стопка шторок: форма «Отправить» ложится поверх выбора способа, выбор монеты — поверх формы.
@@ -2807,15 +2856,26 @@ function openPageSheet(id) {
   void el.offsetHeight;
   layerStack.push(el);
   const show = () => { if (layerStack.includes(el)) el.classList.add("open"); };
+  // «Продолжить» сразу встаёт туда, где будет клавиатура, — вёрстка не прыгает, даже если клавиатура поднимется с запозданием
+  if (target && CAP && kbH === 0) setKb(lastKb, true);
   // Первый показ клавиатуры подвешивает экран на пару кадров: шторка стартует вместе с ней, а не раньше.
-  if (target && KB && kbH === 0) whenKbStarts(show, 160); else show();
-  if (target) setTimeout(() => { if (layerStack[layerStack.length - 1] === el) target.focus({ preventScroll: true }); }, 380);
+  if (target && KB && !kbReal) whenKbStarts(show, 160); else show();
+  if (target) {
+    setTimeout(() => { if (layerStack[layerStack.length - 1] === el) target.focus({ preventScroll: true }); }, 380);
+    // Страховка: если клавиатура так и не поднялась (или фокус потерялся) — повторяем
+    if (KB) [800, 1500].forEach(ms => setTimeout(() => {
+      if (layerStack[layerStack.length - 1] !== el) return;
+      if (!kbReal || document.activeElement !== target) { kbProxy.focus({ preventScroll: true }); target.focus({ preventScroll: true }); }
+    }, ms));
+  }
 }
 function closePageSheet() {
   const el = layerStack.pop();
   if (!el) return;
   if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
   kbProxy.blur();
+  kbHold = performance.now() + 460;
+  releaseKb();                                  // если клавиатуры так и не было — отступ не должен остаться
   el.classList.remove("open");
   el.setAttribute("aria-hidden", "true");
   el.querySelector(".psheet").style.transform = "";
@@ -2823,12 +2883,18 @@ function closePageSheet() {
   if (below && below.dataset.refocus) {   // вернулись на форму — снова поднимаем клавиатуру
     const t = document.getElementById(below.dataset.refocus);
     kbProxy.setAttribute("inputmode", t.dataset.kb || "decimal"); kbProxy.focus({ preventScroll: true });
+    if (CAP && kbH === 0) setKb(lastKb, true);
     setTimeout(() => { if (layerStack[layerStack.length - 1] === below) t.focus({ preventScroll: true }); }, 380);
   }
 }
 function closeAllSheets() { while (layerStack.length) closePageSheet(); }
 document.querySelectorAll(".sheet-layer").forEach(layer => {
   layer.addEventListener("click", e => { if (e.target.closest("[data-close]")) closePageSheet(); });
+  // тап по пустому месту шторки с суммой возвращает клавиатуру (это жест пользователя, iOS его пропускает)
+  layer.querySelector(".sh-body").addEventListener("click", e => {
+    const t = layer.querySelector("[data-autofocus], .ov");
+    if (t && !kbReal && !e.target.closest("button, input, a") && document.activeElement !== t) { kbProxy.focus({ preventScroll: true }); t.focus({ preventScroll: true }); }
+  });
   // свайп вниз за шапку закрывает шторку
   const sheet = layer.querySelector(".psheet"), head = layer.querySelector(".sh-head");
   let y0 = null, dy = 0;

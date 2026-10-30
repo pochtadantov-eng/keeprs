@@ -42,6 +42,13 @@ jobs:
       - name: Capacitor sync (copy web + plugins into ios/)
         run: npx cap sync ios
 
+      - name: Allow 120 Hz (ProMotion) for the whole app, WebView animations included
+        run: |
+          PLIST=ios/App/App/Info.plist
+          /usr/libexec/PlistBuddy -c "Add :CADisableMinimumFrameDurationOnPhone bool true" "$PLIST" 2>/dev/null \
+            || /usr/libexec/PlistBuddy -c "Set :CADisableMinimumFrameDurationOnPhone true" "$PLIST"
+          plutil -p "$PLIST" | grep -i "CADisableMinimumFrameDurationOnPhone" || true
+
       - name: Show launch-screen keys in Info.plist (compat-mode diagnostics)
         run: |
           plutil -p ios/App/App/Info.plist | grep -iE "Launch|Scene|FullScreen|MinimumOS" || true
