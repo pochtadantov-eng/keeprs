@@ -2104,10 +2104,12 @@ const setUpdating = on => {
 makePTR({ scroller: $("#panel-wallet"), content: $("#wallet-body"), ptr: $("#ptr"), onStart: () => { setUpdating(true); liveTick(true); }, onEnd: () => setUpdating(false) });
 
 // ===== «Назад»: свайп вправо и возврат пружиной, как в оригинале =====
-// По записи 60 fps: страница едет за пальцем; подложка уходит влево на 30 % ширины и темнеет на 9 %,
-// оба закона линейны по пройденному пути. Когда страница ушла, подложка по инерции «выскакивает» вправо
-// (~12 pt) и пружинит обратно за ~0,25 с — критически демпфированная пружина с вылетом (ω 20,5, ζ 0,85).
-const POP = { under: .30, dim: .09, aim: 1.22, wTap: 9, wFlick: 27, wBack: 16, wU: 20.5, zU: .85, uGain: 1.1, vUmax: 1100 };
+// По записям 60 fps: страница едет за пальцем; подложка уходит влево на 30 % ширины и темнеет на 9 %, оба закона
+// линейны по пройденному пути. После отпускания оригинал заканчивает ВСЕГДА за ≈0,18 с: пик ≈5200 px/с и мягкая
+// посадка у края, не зависит от скорости пальца. Это критически демпфированная пружина с целью 1,01 ширины,
+// ω 19 и стартовой скоростью 0,7·ω·(остаток пути) — совпадает с замерами до 1 px. Подложка получает инерцию страницы
+// и чуть «выскакивает» вправо (у яростного флика ≈12 pt, у обычного 1–3 pt), затем пружинит назад (ω 20,5, ζ 0,85).
+const POP = { under: .30, dim: .09, aim: 1.01, w: 19, kick: .70, wBack: 16, wU: 20.5, zU: .85, uGain: 1.1, vUmax: 1100, flick: 5000, uExtra: 290 };
 let popBusy = false;
 function popSet(page, x) {
   const W = innerWidth, p = Math.min(1, Math.max(0, x / W)), b = document.body.style;
@@ -2146,16 +2148,18 @@ function popEnd(page) {
 function popPage(page, closeFn, x = 0, vx = 0, fromGesture = false) {
   if (popBusy && !fromGesture) return;
   popBusy = true;
-  const W = innerWidth, b = document.body;
+  const W = innerWidth, T = W * POP.aim, b = document.body;
   b.classList.add("swiping"); page.classList.add("dragging"); popSet(page, x);
   let upd = false;
-  const w = POP.wTap + (POP.wFlick - POP.wTap) * Math.min(1, Math.max(0, vx) / 6000);
-  popSpring(x, W * POP.aim, Math.max(0, vx), w, W, px => {
+  // жест: как минимум стартовая скорость оригинала (слабый свайп не должен идти дольше быстрого); кнопка — плавно с места
+  const v0 = fromGesture ? Math.max(vx, POP.kick * POP.w * (T - x)) : 0;
+  popSpring(x, T, v0, POP.w, W - 8, px => {
     popSet(page, px);
     if (!upd && px > W * .35 && b.classList.contains("t-wallet")) { upd = true; showUpdating(100); }   // на кошельке мелькает «Обновление»
   }, v => {
-    closeFn();                                              // прячет страницу (она уже за краем — картинка не меняется)
-    popUnder(0, Math.min(POP.vUmax, POP.uGain * POP.under * Math.max(0, v)), () => popEnd(page));
+    closeFn();                                              // прячет страницу (последние 8 px того же цвета — картинка не меняется)
+    const extra = fromGesture ? Math.max(0, vx - POP.flick) / 3650 * POP.uExtra : 0;
+    popUnder(-POP.under * 8, Math.min(POP.vUmax, POP.uGain * POP.under * Math.max(0, v) + extra), () => popEnd(page));
   });
 }
 function popCancel(page, x, vx) {
