@@ -856,7 +856,7 @@ body:not(.t-wallet) .app-header { display: none; }
 .tk img.wide { width: 61px; height: 61px; border-radius: 0; margin: 0 5px -5px 0; }   /* USD₮ вместе с бейджем TON */
 .card.dyn { padding: 8px 12px 15.5px; }
 .card.dyn .grid4 { padding: 0 0 2px; }
-#panel-trade .link { font-size: 13.9px; font-weight: 450; }
+.link { font-size: 13.9px; font-weight: 450; margin-right: 1px; }
 .seg2 { position: relative; display: grid; grid-template-columns: 1fr 1fr; height: 40px; padding: 4px 0; box-sizing: border-box; background: #151D27; border-radius: 20px; margin-bottom: 16px; }
 .seg2 .pill { position: absolute; left: 4px; top: 4px; bottom: 4px; width: calc(50% - 4px); border-radius: 16px; background: var(--surface-2); transition: transform .22s cubic-bezier(.32,.72,0,1); }
 .seg2.r .pill { transform: translateX(100%); }
@@ -875,11 +875,12 @@ body:not(.t-wallet) .app-header { display: none; }
   top: env(safe-area-inset-top, 0px);
   bottom: var(--tabbar-h);
 }
+.b-top { flex: none; position: relative; z-index: 2; background: var(--bg); padding: 16px max(16px, env(safe-area-inset-left, 0px)); }
 .b-scroll {
-  flex: 1;
+  flex: 1; min-height: 0;
   overflow-y: auto;
   scrollbar-width: none;
-  padding: 16px max(16px, env(safe-area-inset-left, 0px)) 0;
+  padding: 0 max(16px, env(safe-area-inset-left, 0px));
 }
 .b-scroll::-webkit-scrollbar { display: none; }
 .segs { display: flex; }
@@ -897,7 +898,7 @@ body:not(.t-wallet) .app-header { display: none; }
 .banners {
   display: flex;
   gap: 8px;
-  margin: 16px -16px 0;
+  margin: 0 -16px;
   padding: 0 16px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
@@ -908,9 +909,11 @@ body:not(.t-wallet) .app-header { display: none; }
 .banner {
   flex: none;
   width: calc(100vw - 32px);
-  aspect-ratio: 1108 / 536;
+  aspect-ratio: 1110 / 535;
+  object-fit: cover;
   border-radius: 20px;
   scroll-snap-align: start;
+  scroll-snap-stop: always;
   display: block;
 }
 .banner.alt-l { background: linear-gradient(180deg, #020D26, #081237); }
@@ -943,13 +946,15 @@ body:not(.t-wallet) .app-header { display: none; }
   row-gap: 22px;
 }
 .apps + .apps { margin-top: 22px; }
+.b-app + .apps { margin-top: 24.7px; }
+.app span { position: relative; top: .7px; }
 .app {
   display: flex; flex-direction: column; align-items: center;
   background: none; border: none; padding: 0;
   color: var(--fg-dim);
 }
 .app img, .app .ph { width: 64px; height: 64px; border-radius: 16px; display: block; }
-.app span { margin-top: 7px; font-size: 12px; line-height: 20px; font-weight: 450; }
+.app span { margin-top: 7px; font-size: 12px; line-height: 20px; font-weight: 450; max-width: 91px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .b-head { display: flex; align-items: center; justify-content: space-between; margin-top: 43px; }
 .b-head h2 { margin: 0; font-size: 16px; line-height: 24px; font-weight: 500; }
 .b-head + .apps { margin-top: 19px; }
@@ -1452,28 +1457,8 @@ body.swiping .app-header, body.swiping .panel.active, body.swiping .tabbar {
 
   <!-- BROWSER PANEL -->
   <div class="panel" id="panel-browser">
-    <div class="b-scroll">
-      <div class="segs"><button class="seg active">Витрина</button><button class="seg">Подключенные</button></div>
-      <div class="banners" id="banners">
-        <div class="banner alt-l"></div>
-        <img class="banner" src="img/banner.webp" alt="Get Telegram Stars −25%">
-        <div class="banner alt-r"></div>
-      </div>
-      <div class="b-app">
-        <img src="img/a-bitrefill.webp" alt="" width="44" height="44">
-        <div class="txt"><div class="t">Bitrefill</div><div class="s">Подарочные карты с GRAM</div></div>
-        <button class="open-btn">Открыть</button>
-      </div>
-      <div class="apps">
-        <button class="app"><img src="img/a-tokenstore.webp" alt="" width="64" height="64"><span>Tokenstore</span></button><button class="app"><img src="img/a-tonvpn.webp" alt="" width="64" height="64"><span>Ton VPN</span></button><button class="app"><img src="img/a-tonmobile.webp" alt="" width="64" height="64"><span>TonMobile</span></button><button class="app"><img src="img/a-bitrefill.webp" alt="" width="64" height="64"><span>Bitrefill</span></button>
-      </div>
-      <div class="b-head"><h2>DeFi</h2><button class="link">Смотреть все</button></div>
-      <div class="apps">
-        <button class="app"><img src="img/a-ston.webp" alt="" width="64" height="64"><span>STON.fi</span></button><button class="app"><img src="img/a-storm.webp" alt="" width="64" height="64"><span>Storm Trade</span></button><button class="app"><img src="img/a-swapcoffee.webp" alt="" width="64" height="64"><span>swap.coffee</span></button><button class="app"><img src="img/a-upscale.webp" alt="" width="64" height="64"><span>Upscale</span></button>
-      </div>
-      <div class="apps"><div class="app"><div class="ph" style="background:#4EB2EA"></div><div class="skel"></div></div><div class="app"><div class="ph" style="background:#0A0ADA"></div><div class="skel"></div></div><div class="app"><div class="ph" style="background:#2DB8A7"></div><div class="skel"></div></div><div class="app"><div class="ph" style="background:#28303E"></div><div class="skel"></div></div></div>
-      <div style="height:24px"></div>
-    </div>
+    <div class="b-top"><div class="segs"><button class="seg active">Витрина</button><button class="seg">Подключенные</button></div></div>
+    <div class="b-scroll"></div>
     <label class="search b-search"><svg viewBox="0 0 46 46" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M40.3 43.3C39.8 43.0 38.2 41.4 36.7 39.8C33.6 36.8 33.6 36.8 32.5 37.5C32.1 37.8 31.4 38.2 31.0 38.5C30.6 38.8 30.1 39.0 29.9 39.0C29.8 39.0 29.4 39.2 29.0 39.4C28.5 39.8 27.2 40.2 24.6 40.8C24.1 40.9 22.7 41.0 21.5 41.0C20.3 41.0 18.9 40.9 18.4 40.8C15.8 40.2 14.5 39.8 14.0 39.4C13.6 39.2 13.2 39.0 13.1 39.0C12.9 39.0 12.4 38.8 12.1 38.5C11.7 38.3 10.9 37.8 10.3 37.4C8.9 36.4 6.6 34.1 5.6 32.7C5.2 32.1 4.7 31.3 4.5 30.9C4.2 30.6 4.0 30.1 4.0 29.9C4.0 29.8 3.8 29.4 3.6 29.0C3.4 28.7 3.0 27.8 2.8 27.0C2.6 26.3 2.4 25.2 2.2 24.8C1.9 23.6 1.9 19.4 2.2 18.2C2.4 17.8 2.6 16.7 2.8 16.0C3.0 15.2 3.4 14.3 3.6 14.0C3.8 13.6 4.0 13.2 4.0 13.1C4.0 12.9 4.2 12.4 4.5 12.1C4.7 11.7 5.2 10.9 5.6 10.3C6.6 8.9 8.9 6.6 10.3 5.6C10.9 5.2 11.7 4.7 12.1 4.5C12.4 4.2 12.9 4.0 13.1 4.0C13.2 4.0 13.6 3.8 14.0 3.6C14.5 3.2 15.8 2.8 18.4 2.2C19.7 2.0 23.3 2.0 24.6 2.2C26.9 2.8 27.9 3.1 28.8 3.5C29.3 3.8 29.8 4.0 30.0 4.0C30.1 4.0 30.6 4.2 30.9 4.5C31.3 4.7 32.1 5.2 32.7 5.6C34.1 6.6 36.4 8.9 37.4 10.3C37.8 10.9 38.3 11.7 38.5 12.1C38.8 12.4 39.0 12.9 39.0 13.1C39.0 13.2 39.2 13.6 39.4 14.0C39.6 14.3 40.0 15.2 40.2 16.0C40.4 16.7 40.6 17.8 40.8 18.2C40.9 18.7 41.0 20.2 41.0 21.5C41.0 22.8 40.9 24.3 40.8 24.8C40.6 25.2 40.4 26.3 40.2 27.0C40.0 27.8 39.6 28.7 39.4 29.0C39.2 29.4 39.0 29.8 39.0 29.9C39.0 30.1 38.8 30.6 38.5 31.1C37.2 33.0 37.0 33.2 37.0 33.5C37.0 33.7 38.3 35.1 39.8 36.7C44.5 41.3 44.7 41.7 43.2 43.2C42.3 44.2 41.3 44.2 40.3 43.3ZM24.4 36.1C26.1 35.8 27.0 35.5 28.5 34.7C30.3 33.7 30.8 33.4 31.7 32.5C32.8 31.4 35.0 28.5 35.0 28.0C35.0 27.9 35.2 27.3 35.5 26.8C36.3 25.2 36.6 21.9 36.3 19.3C36.1 18.1 35.7 16.7 35.5 16.2C35.2 15.7 35.0 15.1 35.0 15.0C35.0 14.0 31.4 9.9 29.8 9.0C29.3 8.7 28.7 8.4 28.5 8.3C24.6 6.0 18.4 6.0 14.5 8.3C14.3 8.4 13.7 8.7 13.2 9.0C11.6 9.9 8.0 14.0 8.0 15.0C8.0 15.1 7.8 15.7 7.5 16.2C7.3 16.7 6.9 18.1 6.7 19.3C6.4 21.9 6.7 25.2 7.5 26.8C7.8 27.3 8.0 27.9 8.0 28.0C8.0 29.0 11.6 33.1 13.2 34.0C13.7 34.3 14.3 34.6 14.5 34.7C17.4 36.3 20.6 36.8 24.4 36.1Z"/></svg><input type="search" placeholder="Поиск" aria-label="Поиск"></label>
   </div>
 </div>
@@ -1754,12 +1739,13 @@ function showTab(name, initial) {
   document.body.className = "t-" + name;
   scroller(name).scrollTop = scrollMemo[name] || 0;
   syncHeader();
-  if (name === "browser" && !bannersReady) {
+  if (name === "browser") {                                   // скрытая панель теряет горизонтальную прокрутку — возвращаем баннер
     const bn = $("#banners");
-    bn.scrollLeft = bn.children[0].offsetWidth + 8;
+    if (bn) bn.scrollLeft = bnIdx * (bn.children[0].offsetWidth + 8);
     bannersReady = true;
   }
   if (name === "browser") browserLoad();
+  bnAuto(name === "browser");
   if (name === "wallet" && !initial) showUpdating(450);
 }
 document.querySelectorAll(".tab").forEach(btn => {
@@ -1775,6 +1761,7 @@ document.querySelectorAll(".tab").forEach(btn => {
 // Баннеры (apps с poster), затем категории; у приложения с button — строка «Открыть», иначе плитка 64×64.
 // Пока ответа нет (или нет сети) остаётся вёрстка из записи; ответ кэшируется.
 const BROWSER_API = "https://api.tonkeeper.com/apps/popular?lang=ru&build=5.0.0&chainName=mainnet&platform=ios";
+const BR_LIVE = false;   // true — витрина берётся с api.tonkeeper.com; по умолчанию показываем точную копию записи
 const BR = { data: null, at: 0, err: "" };
 try { const c = JSON.parse(localStorage.getItem("keeprs-browser") || "null"); if (c && c.data) { BR.data = c.data; BR.at = c.at || 0; } } catch (_) {}
 const brCountry = (() => { try { return ((navigator.language || "ru-RU").split("-")[1] || "").toUpperCase(); } catch (_) { return ""; } })();
@@ -1808,11 +1795,11 @@ function brRender() {
     for (let i = 0; i < tiles.length; i += 4) h += '<div class="apps">' + tiles.slice(i, i + 4).map(a =>
       `<button class="app" data-url="${brEsc(a.url)}"><img src="${brEsc(a.icon)}" alt="" width="64" height="64"><span>${brEsc(a.name)}</span></button>`).join("") + "</div>";
   }
-  const keep = sc.querySelector(".segs");
-  sc.innerHTML = ""; sc.appendChild(keep); sc.insertAdjacentHTML("beforeend", h + '<div style="height:24px"></div>');
-  bannersReady = true; const bn = $("#banners"); if (bn) bn.scrollLeft = 0;
+  sc.innerHTML = h + '<div style="height:34.7px"></div>';
+  bannersReady = false; bnBind();
 }
 async function browserLoad(force) {
+  if (!BR_LIVE) return null;
   if (!force && BR.data && BR.at && Date.now() - BR.at < 30 * 60e3) return BR.data;
   BR.err = "";
   try {
@@ -1827,11 +1814,82 @@ async function browserLoad(force) {
   if (typeof renderLiveStatus === "function") renderLiveStatus();
   return BR.data;
 }
+// ===== Витрина «как в записи»: баннеры, карточка, плитки приложений =====
+const BRD = {
+  banners: ["ston", "stars", "num888", "travel", "news", "apy"],
+  featured: ["tokenstore", "Tokenstore", "Подарочные карты с GRAM"],
+  sections: [
+    { apps: [["tokenstore", "Tokenstore"], ["tonvpn", "Ton VPN"], ["tonmobile", "TonMobile"], ["polymarket", "Polymarket"]] },
+    { title: "DeFi", more: 1, apps: [["ston", "STON.fi"], ["storm", "Storm Trade"], ["swapcoffee", "swap.coffee"], ["upscale", "Upscale"],
+      ["polymarket", "Polymarket"], ["polyfox", "Polyfox. Копитрейдинг"], ["xstocks", "xStocks Points"], ["dedust", "DeDust"]] },
+    { title: "Обменники", apps: [["mercuryo", "Mercuryo"], ["simpleswap", "SimpleSwap"], ["coindrop", "Coindrop"]] },
+    { title: "NFT", more: 1, apps: [["getgems", "Getgems"], ["marketapp", "Marketapp"], ["split", "Split"], ["chunk", "Chunk"]] },
+    { title: "Утилиты", more: 1, apps: [["tonvpn", "Ton VPN"], ["tonviewer", "Tonviewer"], ["outlinevpn", "Outline VPN"], ["playwallet", "Play Wallet"]] },
+  ],
+};
+function brRenderLocal() {
+  const sc = document.querySelector(".b-scroll"), bl = BRD.banners, f = BRD.featured;
+  const list = [bl[bl.length - 1], ...bl, bl[0]];      // зацикленная карусель: клоны по краям
+  let h = '<div class="banners" id="banners">' + list.map(k => `<img class="banner" src="img/bn-${k}.webp" alt="" draggable="false">`).join("") + "</div>";
+  h += `<div class="b-app"><img src="img/ap-${f[0]}.webp" alt="" width="44" height="44"><div class="txt"><div class="t">${f[1]}</div><div class="s">${f[2]}</div></div><button class="open-btn">Открыть</button></div>`;
+  for (const sec of BRD.sections) {
+    if (sec.title) h += `<div class="b-head"><h2>${sec.title}</h2>${sec.more ? '<button class="link">Смотреть все</button>' : ""}</div>`;
+    for (let i = 0; i < sec.apps.length; i += 4)
+      h += '<div class="apps">' + sec.apps.slice(i, i + 4).map(a => `<button class="app"><img src="img/ap-${a[0]}.webp" alt="" width="64" height="64"><span>${a[1]}</span></button>`).join("") + "</div>";
+  }
+  sc.innerHTML = h + '<div style="height:34.7px"></div>';
+  bannersReady = false; bnBind();
+}
+
+// ===== Карусель баннеров: листается сама каждые ~4 с, кривая подобрана по записи =====
+// Сдвиг на баннер (ширина + 8 pt) за 0,28 с по cubic-bezier(.40,.16,.62,.96); с краёв клоны перепрыгивают на настоящие.
+const BNA = { hold: 4000, dur: 280, bz: [.40, .16, .62, .96] };
+let bnT = 0, bnRun = false, bnAnim = 0, bnTouch = false, bnSettle = 0, bnIdx = 1;
+function bnBezier(x1, y1, x2, y2) {
+  const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx, cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+  const X = t => ((ax * t + bx) * t + cx) * t, Y = t => ((ay * t + by) * t + cy) * t;
+  return u => { let t = u; for (let i = 0; i < 8; i++) { const d = (3 * ax * t + 2 * bx) * t + cx; if (Math.abs(d) < 1e-6) break; t -= (X(t) - u) / d; } return Y(Math.min(1, Math.max(0, t))); };
+}
+const bnEase = bnBezier(...BNA.bz);
+const bnEl = () => document.getElementById("banners");
+const bnStep = bn => bn.children[0].offsetWidth + 8;
+function bnJump(bn, x) { bn.style.scrollSnapType = "none"; bn.scrollLeft = x; requestAnimationFrame(() => { bn.style.scrollSnapType = ""; }); }
+function bnNorm(bn) {
+  const W = bnStep(bn), n = bn.children.length - 2, i = Math.round(bn.scrollLeft / W);
+  bnIdx = i <= 0 ? n : i >= n + 1 ? 1 : i;
+  if (i <= 0) bnJump(bn, n * W); else if (i >= n + 1) bnJump(bn, W);
+}
+function bnSchedule() {
+  clearTimeout(bnT); if (!bnRun) return;
+  bnT = setTimeout(() => { const bn = bnEl(); if (!bn || bnTouch || bnAnim || document.hidden || !bn.offsetWidth) return bnSchedule(); bnGo(bn); }, BNA.hold);
+}
+function bnGo(bn) {
+  const W = bnStep(bn), x0 = bn.scrollLeft, x1 = Math.round(x0 / W) * W + W, t0 = performance.now();
+  bn.style.scrollSnapType = "none"; bnAnim = 1;
+  const f = now => {
+    if (!bnAnim) return;
+    const u = Math.min(1, (now - t0) / BNA.dur); bn.scrollLeft = x0 + (x1 - x0) * bnEase(u);
+    if (u < 1) requestAnimationFrame(f); else { bnAnim = 0; bn.style.scrollSnapType = ""; bnNorm(bn); bnSchedule(); }
+  };
+  requestAnimationFrame(f);
+}
+function bnAuto(on) { bnRun = on; clearTimeout(bnT); if (on) bnSchedule(); }
+function bnBind() {
+  const bn = bnEl(); if (!bn) return;
+  bn.addEventListener("touchstart", () => { bnTouch = true; bnAnim = 0; bn.style.scrollSnapType = ""; clearTimeout(bnT); }, { passive: true });
+  const rel = () => { bnTouch = false; bnSchedule(); };
+  bn.addEventListener("touchend", rel); bn.addEventListener("touchcancel", rel);
+  bn.addEventListener("scroll", () => {
+    clearTimeout(bnSettle);
+    bnSettle = setTimeout(() => { if (!bnAnim && !bnTouch) { bnNorm(bn); bnSchedule(); } }, 140);
+  }, { passive: true });
+}
+
 document.querySelector(".b-scroll").addEventListener("click", e => {
   const el = e.target.closest("[data-url]"); if (!el) return;
   try { window.open(el.dataset.url, "_blank"); } catch (_) {}
 });
-if (BR.data) brRender();
+if (BR_LIVE && BR.data) brRender(); else brRenderLocal();
 
 // «Обновление» вместо адреса
 const header = $("#app-header");
