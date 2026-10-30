@@ -585,7 +585,7 @@ body:not(.t-wallet) .app-header { display: none; }
 
 
 /* ===== Page sheets (Send / Receive / NFT / Swap / Stake) ===== */
-.sheet-layer { position: fixed; inset: 0; z-index: 50; pointer-events: none; visibility: hidden; transition: visibility 0s .4s; }
+.sheet-layer { position: fixed; inset: 0; z-index: 50; pointer-events: none; visibility: hidden; transition: visibility 0s .44s; }
 .sheet-layer.open { pointer-events: auto; visibility: visible; transition: none; }
 .sh-scrim { position: absolute; inset: 0; background: rgba(0,0,0,.5); opacity: 0; transition: opacity .35s ease; }
 .sheet-layer.open .sh-scrim { opacity: 1; }
@@ -603,6 +603,13 @@ body:not(.t-wallet) .app-header { display: none; }
 }
 .sheet-layer.open .psheet { transform: none; }
 .psheet.dragging { transition: none; }
+/* In the app the WebView is shrunk by the keyboard late and in one jump, so the sheet must not depend on its height:
+   it keeps a fixed full height and only the body padding follows the keyboard (animated like the keyboard itself). */
+html.cap .psheet { bottom: auto; height: calc(var(--full-h, 100vh) - env(safe-area-inset-top, 0px)); }
+html.cap .psheet.stacked { height: calc(var(--full-h, 100vh) - env(safe-area-inset-top, 0px) - 10px); }
+html.cap .sh-body { padding-bottom: var(--kb, 0px); transition: padding-bottom .3s cubic-bezier(.2,.6,.15,1); }
+html.cap.kb-on .cta-row { padding-bottom: 16px; }
+html.cap.kb-on .sf-body .cta-row { padding-bottom: 0; }
 .sh-head {
   flex: none;
   display: grid;
@@ -1093,7 +1100,7 @@ body.swiping .app-header, body.swiping .panel.active, body.swiping .tabbar {
 .swap-rate { margin: 12px 0 0; text-align: center; color: var(--fg-dim); font-size: 16px; line-height: 24px; font-weight: 450; }
 .swap-btn svg { transition: transform .3s ease; }
 .swap-btn.flipped svg { transform: rotate(180deg); }
-.psheet { bottom: var(--kb, 0px); }
+html:not(.cap) .psheet { bottom: var(--kb, 0px); }
 
 .htx.two .r .am { }
 .htx .ic svg.alt { width: 22px; height: auto; color: #7D8797; }
@@ -2738,6 +2745,52 @@ function closeSheet() {
 }
 
 // ===== Page sheets =====
+// В приложении окно WebView сжимается клавиатурой с запаздыванием и рывком, поэтому шторка от его высоты не зависит:
+// у неё фиксированная полная высота, а подъём «Продолжить» над клавиатурой делает отступ --kb (плагин Keyboard).
+const CAP = !!(window.Capacitor && (window.Capacitor.isNativePlatform ? window.Capacitor.isNativePlatform() : true));
+const KB = CAP && window.Capacitor.Plugins && window.Capacitor.Plugins.Keyboard;
+let fullH = 0, kbShrunk = false;
+function syncFullH() {
+  if (!CAP || window.innerHeight <= fullH) return;
+  fullH = window.innerHeight;
+  document.documentElement.style.setProperty("--full-h", fullH + "px");
+}
+if (CAP) {
+  document.documentElement.classList.add("cap");
+  syncFullH();
+  window.addEventListener("resize", () => {
+    syncFullH();
+    // Страховка: если плагин промолчал, высоту клавиатуры видно по сжатию окна (когда сжалось — оно и есть истина)
+    const shrink = fullH - window.innerHeight;
+    if (shrink > 80) { kbShrunk = true; if (Math.abs(kbH - shrink) > 2) setKb(shrink); }
+    else if (kbShrunk) { kbShrunk = false; if (kbH) setKb(0); }
+  });
+  window.addEventListener("orientationchange", () => { fullH = 0; setTimeout(syncFullH, 400); });
+}
+let kbH = 0;
+const kbWait = [];   // ждут начала подъёма клавиатуры
+function setKb(px) {
+  kbH = px;
+  const r = document.documentElement;
+  r.style.setProperty("--kb", px + "px");
+  r.classList.toggle("kb-on", px > 0);
+}
+function whenKbStarts(fn, maxMs) {
+  let done = false, t = 0;
+  const run = () => {
+    if (done) return; done = true; clearTimeout(t);
+    const i = kbWait.indexOf(run); if (i >= 0) kbWait.splice(i, 1);
+    fn();
+  };
+  t = setTimeout(run, maxMs);
+  kbWait.push(run);
+}
+if (KB && KB.addListener) {
+  try {
+    KB.addListener("keyboardWillShow", info => { setKb(Math.round((info && info.keyboardHeight) || 0)); kbWait.slice().forEach(f => f()); });
+    KB.addListener("keyboardWillHide", () => setKb(0));
+  } catch (_) {}
+}
 // Стопка шторок: форма «Отправить» ложится поверх выбора способа, выбор монеты — поверх формы.
 const layerStack = [];
 function openPageSheet(id) {
@@ -2752,8 +2805,10 @@ function openPageSheet(id) {
   el.style.zIndex = String(52 + layerStack.length * 2);
   el.setAttribute("aria-hidden", "false");
   void el.offsetHeight;
-  el.classList.add("open");
   layerStack.push(el);
+  const show = () => { if (layerStack.includes(el)) el.classList.add("open"); };
+  // Первый показ клавиатуры подвешивает экран на пару кадров: шторка стартует вместе с ней, а не раньше.
+  if (target && KB && kbH === 0) whenKbStarts(show, 160); else show();
   if (target) setTimeout(() => { if (layerStack[layerStack.length - 1] === el) target.focus({ preventScroll: true }); }, 380);
 }
 function closePageSheet() {
@@ -2815,10 +2870,10 @@ const kbProxy = document.createElement("input");
 kbProxy.className = "kb-proxy"; kbProxy.setAttribute("inputmode", "decimal"); kbProxy.setAttribute("aria-hidden", "true"); kbProxy.tabIndex = -1;
 document.body.appendChild(kbProxy);
 // Без Capacitor (браузер/PWA) окно не сжимается, поэтому поднимаем шторку на высоту клавиатуры сами.
-if (window.visualViewport) {
+if (!CAP && window.visualViewport) {
   const upd = () => {
     const kb = Math.max(0, window.innerHeight - visualViewport.height - visualViewport.offsetTop);
-    document.documentElement.style.setProperty("--kb", kb > 80 ? kb + "px" : "0px");
+    setKb(kb > 80 ? kb : 0);
   };
   visualViewport.addEventListener("resize", upd); visualViewport.addEventListener("scroll", upd);
 }
