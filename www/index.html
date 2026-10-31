@@ -2828,6 +2828,28 @@ function renderBalances() {
 }
 renderBalances();
 liveTick(true); liveSchedule(); browserLoad();
+
+// ===== Возврат в приложение =====
+// В оригинале (запись): стоит открыть приложение после паузы — через ≈0,4 с, когда iOS доиграл переход, вместо адреса
+// на ≈0,85 с появляется «Обновление ⟳», идёт настоящее обновление курсов, потом адрес возвращается. Так же при запуске.
+let hiddenAt = 0, resumeT = 0, resumeBusy = false;
+function refreshWithLabel(delay) {
+  clearTimeout(resumeT);
+  resumeT = setTimeout(async () => {
+    if (resumeBusy) return; resumeBusy = true;
+    const t0 = performance.now(), label = curTab === "wallet";
+    if (label) setUpdating(true);
+    try { await Promise.all([liveTick(true), trFetch(true)]); } catch (_) {}
+    renderBalances();
+    setTimeout(() => { if (label) setUpdating(false); resumeBusy = false; }, Math.max(0, 850 - (performance.now() - t0)));
+  }, delay);
+}
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) { hiddenAt = Date.now(); return; }
+  const away = hiddenAt ? Date.now() - hiddenAt : 0; hiddenAt = 0;
+  if (away >= 1000) refreshWithLabel(400);   // в записи хватило и 1 с
+});
+refreshWithLabel(600);                        // запуск приложения
 // После того как настоящие значения подставлены — показываем кошелёк.
 requestAnimationFrame(() => $("#wallet-body").classList.add("ready"));
 
