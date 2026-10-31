@@ -1635,7 +1635,7 @@ html:not(.cap) .psheet { bottom: var(--kb, 0px); }
   <section class="psheet stacked">
     <div class="sh-head"><span></span><h3>Отправить</h3><span class="r"><button class="sh-btn" data-close aria-label="Закрыть" data-x></button></span></div>
     <div class="sh-body sf-body">
-      <label class="sf-card" id="sf-addr"><input id="sf-addr-in" data-autofocus data-kb="text" type="text" placeholder="Адрес или имя" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next" aria-label="Адрес"><button class="sf-pill" id="sf-paste-a" type="button">Вставить</button><button class="sf-scan" id="sf-scan" type="button" aria-label="Сканировать"></button></label>
+      <label class="sf-card" id="sf-addr"><input id="sf-addr-in" data-autofocus data-kb="text" type="text" placeholder="Адрес или имя" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="Адрес"><button class="sf-pill" id="sf-paste-a" type="button">Вставить</button><button class="sf-scan" id="sf-scan" type="button" aria-label="Сканировать"></button></label>
       <div class="sf-card sf-amt" id="sf-amount"><input id="sf-amt-in" data-kb="decimal" type="text" inputmode="decimal" placeholder="Сумма" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="Сумма"><button class="tokpill sf-tok" id="sf-tok" type="button"></button></div>
       <div class="sf-sub"><button class="sf-usd" id="sf-usd" type="button"><span><span id="sf-usdv">0</span> USD</span></button><span class="sf-avail" id="sf-avail"></span></div>
       <label class="sf-card" id="sf-cm"><input id="sf-cm-in" data-kb="text" type="text" placeholder="Комментарий" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-label="Комментарий"><button class="sf-pill" id="sf-paste-c" type="button">Вставить</button></label>
@@ -2156,12 +2156,17 @@ function popPlay(el, samples, prop, fmt) {                  // samples: [[t, val
   return el.animate(samples.map(([t, v]) => ({ offset: Math.min(1, t / T), [prop]: fmt(v) })), { duration: T * 1000, easing: "linear", fill: "forwards" });
 }
 function popEnd(page, anims) {
-  const b = document.body;
+  // Safari считает «прошлый» стиль без Web Animations: отдать управление CSS при включённых переходах — значит получить
+  // «прыжок» подложки назад к значению на момент отпускания. Поэтому: переходы выключены, стили сброшены принудительно, затем возвращаем.
+  const b = document.body, els = [page, ...popU];
+  els.forEach(e => { e.style.transition = "none"; });
   for (const e of popU) e.style.transform = "";
   popDim.style.opacity = "";
   anims.forEach(a => a.cancel());
-  b.classList.remove("swiping"); popU = [];
-  page.classList.remove("dragging"); popBusy = false;
+  b.classList.remove("swiping"); page.classList.remove("dragging");
+  void page.offsetWidth; popU.forEach(e => void e.offsetWidth);
+  els.forEach(e => { e.style.transition = ""; });
+  popU = []; popBusy = false;
 }
 function popBegin(page, x) {
   popU = [$(".app-header"), $(".panel.active"), $(".tabbar")].filter(Boolean);
@@ -2187,8 +2192,9 @@ function popPage(page, closeFn, x = 0, vx = 0, fromGesture = false) {
   let aLast = null;
   for (const e of popU) { aLast = popPlay(e, un, "transform", u => `translate3d(${u.toFixed(2)}px,0,0)`); anims.push(aLast); }
   if (b.classList.contains("t-wallet")) { const k = pg.s.find(q => q[1] > W * .35); setTimeout(() => showUpdating(100), (k ? k[0] : 0) * 1000); }   // на кошельке мелькает «Обновление»
+  popU.forEach(e => { e.style.transform = "translate3d(0px,0,0)"; });   // конечное состояние подложки: при отмене анимации ничего не дёрнется
   let closed = false, ended = false;
-  const close = () => { if (!closed) { closed = true; closeFn(); } };   // прячет страницу (последние 8 px того же цвета — картинка не меняется)
+  const close = () => { if (!closed) { closed = true; page.style.transition = "none"; closeFn(); } };   // прячет страницу (последние 8 px того же цвета — картинка не меняется)
   const end = () => { close(); if (!ended) { ended = true; popEnd(page, anims); } };
   aPage.onfinish = close; (aLast || aPage).onfinish = end;
   setTimeout(end, un[un.length - 1][0] * 1000 + 400);       // страховка, если анимации остановили (фон, перегрузка)
@@ -2199,6 +2205,7 @@ function popCancel(page, x, vx) {
   const anims = [popPlay(page, pg.s, "transform", px => `translate3d(${px}px,0,0)`),
     popPlay(popDim, pg.s.map(([t, px]) => [t, POP.dim * (1 - Math.min(1, Math.max(0, px / W)))]), "opacity", a => a.toFixed(4))];
   let aLast = anims[0];
+  page.style.transform = "translate3d(0px,0,0)"; popU.forEach(e => { e.style.transform = `translate3d(${(-POP.under * W).toFixed(2)}px,0,0)`; });
   const un = pg.s.map(([t, px]) => [t, -POP.under * (1 - Math.min(1, Math.max(0, px / W))) * W]);
   for (const e of popU) { aLast = popPlay(e, un, "transform", u => `translate3d(${u.toFixed(2)}px,0,0)`); anims.push(aLast); }
   let ended = false;
@@ -2848,7 +2855,7 @@ function openPageSheet(id) {
   resetSheetInput(el);
   const target = el.querySelector("[data-autofocus]") || el.querySelector(".ov");
   if (target) {   // клавиатура поднимается сразу, пока идёт касание
-    kbProxy.setAttribute("inputmode", target.dataset.kb || target.getAttribute("inputmode") || "decimal");
+    kbMirror(target);
     kbProxy.focus({ preventScroll: true });
   } else if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
   el.style.zIndex = String(52 + layerStack.length * 2);
@@ -2882,7 +2889,7 @@ function closePageSheet() {
   const below = layerStack[layerStack.length - 1];
   if (below && below.dataset.refocus) {   // вернулись на форму — снова поднимаем клавиатуру
     const t = document.getElementById(below.dataset.refocus);
-    kbProxy.setAttribute("inputmode", t.dataset.kb || "decimal"); kbProxy.focus({ preventScroll: true });
+    kbMirror(t); kbProxy.focus({ preventScroll: true });
     if (CAP && kbH === 0) setKb(lastKb, true);
     setTimeout(() => { if (layerStack[layerStack.length - 1] === below) t.focus({ preventScroll: true }); }, 380);
   }
@@ -2935,6 +2942,14 @@ function resetSheetInput(layer) { const f = sheetInit[layer.id]; if (f) f(); }
 const kbProxy = document.createElement("input");
 kbProxy.className = "kb-proxy"; kbProxy.setAttribute("inputmode", "decimal"); kbProxy.setAttribute("aria-hidden", "true"); kbProxy.tabIndex = -1;
 document.body.appendChild(kbProxy);
+// Посредник должен выглядеть для iOS точно как поле, которое примет фокус, — иначе при передаче фокуса клавиатура
+// перестраивается (пропадает строка подсказок, меняется клавиша ввода) и мигает.
+function kbMirror(t) {
+  kbProxy.setAttribute("inputmode", t.dataset.kb || t.getAttribute("inputmode") || "decimal");
+  for (const a of ["enterkeyhint", "autocapitalize", "autocorrect", "autocomplete", "spellcheck"]) {
+    const v = t.getAttribute(a); if (v == null) kbProxy.removeAttribute(a); else kbProxy.setAttribute(a, v);
+  }
+}
 // Без Capacitor (браузер/PWA) окно не сжимается, поэтому поднимаем шторку на высоту клавиатуры сами.
 if (!CAP && window.visualViewport) {
   const upd = () => {
@@ -3218,6 +3233,16 @@ function toast(msg) {
   clearTimeout(toastT);
   toastT = setTimeout(() => t.classList.remove("show"), 2200);
 }
+
+// Окно больше не сжимается клавиатурой: поля внизу прокручиваемых шторок (меню разработчика) поднимаем над ней сами
+document.addEventListener("focusin", e => {
+  const t = e.target, sc = CAP && t.tagName === "INPUT" && t.closest(".sh-scroll");
+  if (!sc) return;
+  setTimeout(() => {
+    const top = window.innerHeight - (kbH || lastKb) - 12, r = t.getBoundingClientRect();
+    if (r.bottom > top) sc.scrollTop += r.bottom - top;
+  }, 320);
+});
 
 // ESC closes sheet
 document.addEventListener("keydown", e => { if (e.key === "Escape") { closeSheet(); closePageSheet(); } });
