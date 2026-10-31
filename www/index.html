@@ -1753,6 +1753,7 @@ function showTab(name, initial) {
   }
   if (name === "browser") browserLoad();
   bnAuto(name === "browser");
+  trLoop(name === "trade");
   if (name === "wallet" && !initial) showUpdating(450);
 }
 document.querySelectorAll(".tab").forEach(btn => {
@@ -2323,27 +2324,115 @@ const TRL = {
 };
 const trPct = v => (v < 0 ? "−&thinsp;" : "+") + new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 2 }).format(Math.abs(v)) + "&thinsp;%";
 const trCell = k => `<button class="tk" data-k="${k}"><img${k === "usdt" ? ' class="wide"' : ""} src="img/tk-${k}.webp" alt="" width="${k === "usdt" ? 61 : 56}" height="${k === "usdt" ? 61 : 56}"><span class="tk-name">${TRK[k][0]}</span><span class="tk-chg ${TRK[k][1] < 0 ? "dn" : "up"}">${trPct(TRK[k][1])}</span></button>`;
+// «Рост» и «Падение» — не фиксированные наборы, а самые сильные изменения за сутки среди всех токенов вкладки
+const trDynKeys = () => (document.querySelector("#dyn-seg button.on") || {}).dataset?.d === "down" ? TRL.down : TRL.up;
+function trRank() {
+  const s = Object.keys(TRK).sort((a, b) => TRK[b][1] - TRK[a][1]);
+  TRL.up = s.slice(0, 8); TRL.down = s.slice(-8).reverse();
+}
 function trRender() {
-  for (const [id, key] of [["g-top", "top"], ["g-us", "us"], ["g-main", "main"], ["g-dyn", "up"]]) $("#" + id).innerHTML = TRL[key].map(trCell).join("");
+  for (const [id, key] of [["g-top", "top"], ["g-us", "us"], ["g-main", "main"]]) $("#" + id).innerHTML = TRL[key].map(trCell).join("");
+  $("#g-dyn").innerHTML = trDynKeys().map(trCell).join("");
 }
 function trUpdate() {
+  trRank();
+  const g = $("#g-dyn"), want = trDynKeys();
+  if (want.join() !== [...g.children].map(b => b.dataset.k).join()) g.innerHTML = want.map(trCell).join("");
   document.querySelectorAll("#t-body .tk").forEach(b => {
     const v = TRK[b.dataset.k][1], c = b.querySelector(".tk-chg");
-    c.className = "tk-chg " + (v < 0 ? "dn" : "up"); c.innerHTML = trPct(v);
+    const cls = "tk-chg " + (v < 0 ? "dn" : "up"), html = trPct(v);
+    if (c.className !== cls) c.className = cls;
+    if (c.innerHTML !== html) c.innerHTML = html;
   });
 }
-function trRefresh() {
-  for (const k in TRK) TRK[k][1] = Math.round((TRK[k][1] + (Math.random() - .5) * .5) * 100) / 100;
-  trUpdate();
+
+// ===== Трейд: живые курсы =====
+// Как у Tonkeeper: TonAPI /v2/rates отдаёт цену и изменение за 24 ч для TON и любых жетонов одним запросом.
+// Адреса токенов взяты из официального списка Tonkeeper (github.com/tonkeeper/ton-assets, jettons.json).
+const TRA = { gram: "ton", redo: "0:59fdc69f3f20ebe4a513b3468dc61d194c3864a4464e3662c903648d1a52e6e0", atf: "0:0d716e395b44e9f756f3bc76b268f3bafba85fd4b9b85e5599e2b37a2f9a1f3d", utya: "0:5a0a05303a873a80708d967fe82736f4995b3bf581bbc18a1abe1fa8d48b5a9d", evaa: "0:4a31f8d7fdafddb0e2e6fa3bb1c95672b453fbfca2a7cc6bfa274d6419cef681", not: "0:2f956143c461769579baef2e32cc2d7bc18283f40d20bb03e432cd603ac33ffc", ston: "0:3690254dc15b2297610cda60744a45f2b710aa4234b89adb630e99d79b01bd4f", storm: "0:6ca2c99c66b0fa1478a303ba9618bc39c28fda1fc50de37e618bddf98c9fd24c", durev: "0:74d8327471d503e2240345b06fe1a606de1b5e3c70512b5b46791b429dab5eb1", tsla: "0:78230a9664f51cce7b5daf2f2f48ddadb092adfbd17b8886fb80415111860e07", nvda: "0:af6be39feda710754fe98800dd95c6f3b05b40fb127066872dcfc64e5c1741a1", googl: "0:0bc09cd79f116372436cbab0a2f4eda4560ff46f529db633927ef39e765637ee", coin: "0:af9383aada5e58b6cfd2ed0e23d3c7c1f45b73c77218fbb508d40aacb322860e", aapl: "0:ec8c0c1f2a8fba15566fd8462dfb509a65363f64bfa97e448877a8de41c84dc2", xaut: "0:3547f2ee4022c794c80ea354b81bb63b5b571dd05ac091b035d19abbadd74ac6", amzn: "0:ad0f6fbbab11e1428361c6b8b6252cc7f9d9665aa298083b65119a918b7fb9ea", spy: "0:757f204003da900cfe8b106685ddc6d4f976ebfa9e844816469ea94790720700", cbbtc: "0:e1c8fcdb223253fd69d8de01a9ae349850af5f88632358c7b3c4ef0c66251d7d", weth: "0:5390b02112d7990918117bfc4cb39644d1b32b76e63129bcb3182a575d6f1d45", tac: "0:44fe006b53798f23d8478e526847f918cab8508320850fa11459f6b8d96f13ec", dust: "0:65aac9b5e380eae928db3c8e238d9bc0d61a9320fdc2bc7a2f6c87d6fedf9208", major: "0:ae3e6d351e576276e439e7168117fd64696fd6014cb90c77b2f2cbaacd4fcc00", usdt: "0:b113a994b5024a16719f69139328eb759596c38a25f59028b146fecdc3621dfe", tsusde: "0:d0e545323c7acb7102653c073377f7e3c67f122eb94d430a250739f109d4a57d", usde: "0:086fa2a675f74347b08dd4606a549b8fdb98829cb282bc1949d3b12fbaed9dcc", xrock: "0:157c463688a4a91245218052c5580807792cf6347d9757e32f0ee88a179a6549", grc: "0:2eeeac5f560320d2da67a2c06901160e1bef96d4452e5ffe47fef390b5356e1e", hmstr: "0:09f2e59dec406ab26a5259a45d7ff23ef11f3e5c7c21de0b0d2a1cbe52b76b3d", cherry: "0:4a45235191e3f5fb68dc8394ff7ffff4b391e3fafadb7cd2cc432f1d9d9b3bc5", dogs: "0:afc49cb8786f21c87045b19ede78fc6b46c51048513f8e9a6d44060199c1bf0c" };
+const TR_BY = {};
+function tonRaw(a) {                         // любой вид адреса (friendly или 0:hex) -> "0:hex", чтобы сопоставлять ответ
+  a = String(a).trim();
+  if (a.toLowerCase() === "ton") return "ton";
+  if (/^-?\d+:[0-9a-fA-F]{64}$/.test(a)) return a.toLowerCase();
+  try {
+    const b = atob(a.replace(/-/g, "+").replace(/_/g, "/"));
+    if (b.length !== 36) return a;
+    let h = ""; for (let i = 2; i < 34; i++) h += b.charCodeAt(i).toString(16).padStart(2, "0");
+    const wc = b.charCodeAt(1); return (wc > 127 ? wc - 256 : wc) + ":" + h;
+  } catch (_) { return a; }
 }
-trRender();
+for (const k in TRA) TR_BY[tonRaw(TRA[k])] = k;
+const TR_CG = { gram: "the-open-network", usdt: "tether", xaut: "tether-gold", weth: "weth", cbbtc: "coinbase-wrapped-btc", usde: "ethena-usde" };
+const TR_LIVE = { at: 0, n: 0, err: "", src: "", fail: 0, busy: false, p: null, timer: 0 };
+try {
+  const c = JSON.parse(localStorage.getItem("keeprs-trade") || "null");
+  if (c && c.d) { for (const k in c.d) if (TRK[k] && isFinite(c.d[k])) TRK[k][1] = c.d[k]; TR_LIVE.at = c.at || 0; TR_LIVE.n = c.n || 0; TR_LIVE.src = c.src || ""; }
+} catch (_) {}
+function trSave() {
+  try { const d = {}; for (const k in TRK) d[k] = TRK[k][1]; localStorage.setItem("keeprs-trade", JSON.stringify({ at: TR_LIVE.at, n: TR_LIVE.n, src: TR_LIVE.src, d })); } catch (_) {}
+}
+async function trFetchRates() {
+  const list = Object.values(TRA).map(encodeURIComponent).join(",");
+  const j = await jget("https://tonapi.io/v2/rates?tokens=" + list + "&currencies=usd", 9000, true);
+  const R = (j && j.rates) || {}, got = {};
+  for (const [addr, o] of Object.entries(R)) {
+    const k = TR_BY[tonRaw(addr)]; if (!k || !o) continue;
+    const d = o.diff_24h && (o.diff_24h.USD != null ? o.diff_24h.USD : o.diff_24h.usd), ch = livePct(d);
+    if (ch != null && isFinite(ch)) got[k] = ch;
+  }
+  return got;
+}
+async function trFetchGecko(missing) {         // запасной путь, если TonAPI не ответил: крупные токены с CoinGecko
+  const ids = missing.filter(k => TR_CG[k]).map(k => TR_CG[k]);
+  if (!ids.length) return {};
+  const j = await jget("https://api.coingecko.com/api/v3/simple/price?ids=" + ids.join(",") + "&vs_currencies=usd&include_24hr_change=true", 8000);
+  const got = {};
+  for (const k of missing) { const o = TR_CG[k] && j[TR_CG[k]]; if (o && isFinite(o.usd_24h_change)) got[k] = o.usd_24h_change; }
+  return got;
+}
+function trFetch(force) {
+  if (TR_LIVE.busy) return TR_LIVE.p;
+  if (!force && Date.now() - TR_LIVE.at < 5e3) return Promise.resolve();
+  TR_LIVE.busy = true;
+  TR_LIVE.p = (async () => {
+    let got = {}, src = "", err = "";
+    try { got = await trFetchRates(); src = "TonAPI"; } catch (e) { err = "TonAPI: " + e.message; }
+    const missing = Object.keys(TRK).filter(k => !(k in got));
+    if (missing.length && missing.some(k => TR_CG[k])) {
+      try { const g = await trFetchGecko(missing); if (Object.keys(g).length) { Object.assign(got, g); src = src ? src + "+CoinGecko" : "CoinGecko"; } } catch (e) { err += (err ? "; " : "") + "CoinGecko: " + e.message; }
+    }
+    const n = Object.keys(got).length;
+    if (n) {
+      for (const k in got) TRK[k][1] = Math.round(got[k] * 100) / 100;
+      TR_LIVE.at = Date.now(); TR_LIVE.n = n; TR_LIVE.src = src; TR_LIVE.fail = 0; trSave(); trUpdate();
+    } else TR_LIVE.fail = Math.min(TR_LIVE.fail + 1, 3);
+    TR_LIVE.err = err; TR_LIVE.busy = false;
+    if (typeof renderLiveStatus === "function") renderLiveStatus();
+  })();
+  return TR_LIVE.p;
+}
+// Пока открыта вкладка «Трейд» цены обновляются сами (раз в 15 с, при ошибках реже); при возврате в приложение — сразу
+function trLoop(on) {
+  clearTimeout(TR_LIVE.timer);
+  if (!on) return;
+  const tick = async () => {
+    if (!document.hidden && curTab === "trade") await trFetch(true);
+    TR_LIVE.timer = setTimeout(tick, Math.min(120e3, 15e3 * Math.pow(2, TR_LIVE.fail)));
+  };
+  const age = Date.now() - TR_LIVE.at;
+  if (age > 8e3) tick(); else TR_LIVE.timer = setTimeout(tick, 15e3 - age);
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden && curTab === "trade") trLoop(true); });
+trRank(); trRender();
+setTimeout(() => trFetch(), 2500);            // подготовить свежие значения, пока пользователь ещё на кошельке
 $("#dyn-seg").addEventListener("click", e => {
   const b = e.target.closest("button[data-d]"); if (!b || b.classList.contains("on")) return;
   $("#dyn-seg").querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
   $("#dyn-seg").classList.toggle("r", b.dataset.d === "down");
   $("#g-dyn").innerHTML = TRL[b.dataset.d].map(trCell).join("");
 });
-makePTR({ scroller: $("#t-scroll"), content: $("#t-body"), ptr: $("#t-ptr"), onEnd: trRefresh });
+makePTR({ scroller: $("#t-scroll"), content: $("#t-body"), ptr: $("#t-ptr"), onStart: () => { trFetch(true); }, onEnd: trUpdate });
 
 // ===== Страница токена (открывается тапом по строке в «Крипто») =====
 const TOKP = {
@@ -3165,6 +3254,8 @@ function renderLiveStatus() {
   const g = LIVE.rate.gram, u = LIVE.rate.usdt;
   el.textContent = (t ? `${LIVE.src} · ${hm} · GRAM $${g ? g.p.toFixed(4) : "—"} · USD₮ $${u ? u.p.toFixed(4) : "—"}` : "Живых данных пока нет (используются сохранённые)") + (LIVE.err ? `\nОшибки: ${LIVE.err}` : "");
   const bd = BR.data; el.textContent += "\nВитрина: " + (bd ? `${bd.categories.length} категорий, ${bd.apps.length} баннеров, ${tp2(new Date(BR.at).getHours())}:${tp2(new Date(BR.at).getMinutes())}` : "ещё не загружена") + (BR.err ? ` (ошибка: ${BR.err})` : "");
+  const tt = TR_LIVE.at ? new Date(TR_LIVE.at) : null;
+  el.textContent += "\nТрейд: " + (tt ? `${TR_LIVE.src} · ${TR_LIVE.n}/${Object.keys(TRK).length} токенов · ${tp2(tt.getHours())}:${tp2(tt.getMinutes())}:${tp2(tt.getSeconds())}` : "живых данных нет") + (TR_LIVE.err ? ` (${TR_LIVE.err})` : "");
   el.style.whiteSpace = "pre-line";
 }
 function fillDevInputs() {
@@ -3218,7 +3309,7 @@ function doTx(kind) {
 $("#dev-live-btn").addEventListener("click", async () => {
   try { localStorage.setItem("tonapi-key", $("#dev-key").value.trim()); } catch (_) {}
   const b = $("#dev-live-btn"); b.disabled = true; b.textContent = "Обновляю…";
-  LIVE.chart = {}; await liveTick(true); renderBalances();
+  LIVE.chart = {}; await Promise.all([liveTick(true), trFetch(true)]); renderBalances();
   b.disabled = false; b.textContent = "Обновить курсы"; renderLiveStatus();
 });
 $("#dev-tx-in").addEventListener("click", () => doTx("in"));
