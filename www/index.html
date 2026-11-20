@@ -1001,6 +1001,19 @@ html.cap.kb-on .sf-body .cta-row { padding-bottom: 0; }
 .dev-live { font-size: 13px; line-height: 18px; color: var(--fg-dim); margin: 0 2px 12px; overflow-wrap: anywhere; }
 .dev-btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .dev-btn-row .btn-big { margin: 0; }
+.dev-field { display: flex; align-items: center; gap: 10px; padding: 10px 12px 10px 14px; background: var(--surface); border-radius: 14px; margin-bottom: 10px; }
+.dev-field input {
+  flex: 1; min-width: 0; background: transparent; border: 0; outline: none;
+  color: var(--fg); font: inherit; font-size: 15px; font-weight: 500; text-align: left;
+  -webkit-appearance: none; appearance: none;
+}
+.dev-field input::placeholder { color: var(--fg-faint); font-weight: 450; }
+.dev-paste {
+  flex: none; height: 28px; padding: 0 12px; border: none; border-radius: 14px;
+  background: var(--surface-2, #2A3342); color: #fff; font: inherit; font-size: 13px; font-weight: 550;
+}
+.dev-paste:active { opacity: .75; }
+.dev-hint { margin: -2px 2px 12px; font-size: 12px; line-height: 16px; color: var(--fg-faint); }
 .dev-log { list-style: none; padding: 0; margin: 0; font-size: 14px; color: var(--fg-dim); }
 .dev-log li { padding: 10px 0; border-top: 1px solid var(--divider); display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; }
 .dev-log li:first-child { border-top: 0; }
@@ -1687,7 +1700,7 @@ html:not(.cap) .psheet { bottom: var(--kb, 0px); }
         <button class="btn-big primary" id="dev-live-btn">Обновить курсы</button>
       </div>
       <div class="dev-sect">
-        <div class="dev-ttl">Операция с рандомного адреса</div>
+        <div class="dev-ttl">Операция</div>
         <div class="dev-row">
           <select id="dev-tx-token" class="dev-sel">
             <option value="gram">GRAM</option>
@@ -1695,6 +1708,15 @@ html:not(.cap) .psheet { bottom: var(--kb, 0px); }
           </select>
           <input id="dev-tx-amount" type="text" inputmode="decimal" class="dev-num" placeholder="Сумма" />
         </div>
+        <label class="dev-field">
+          <input id="dev-tx-addr" type="text" placeholder="Адрес или имя" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="Адрес" />
+          <button class="dev-paste" id="dev-tx-paste-a" type="button">Вставить</button>
+        </label>
+        <label class="dev-field">
+          <input id="dev-tx-cm" type="text" placeholder="Комментарий" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-label="Комментарий" />
+          <button class="dev-paste" id="dev-tx-paste-c" type="button">Вставить</button>
+        </label>
+        <p class="dev-hint">Без адреса — случайный. Поле не сбрасывается, можно слать с одного и того же.</p>
         <div class="dev-btn-row">
           <button class="btn-big primary" id="dev-tx-in">+ Пополнить</button>
           <button class="btn-big secondary" id="dev-tx-out">− Списать</button>
@@ -2571,7 +2593,7 @@ function tokSecs() {
       <button data-a="recv"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.8"/><path d="M14.4 14.4h.1M19.9 14.4h.1M14.4 19.9h.1M19.9 19.9h.1" stroke-width="2.6" stroke-linecap="round"/></svg>Получить</button></div></section>`;
   if (hist.length) {
     h += `<section class="tok-sec"><div class="section-head"><h2>История транзакций</h2><button class="tok-link" data-a="hist">Смотреть все</button></div><div class="tok-card tok-hist">` +
-      hist.map(e => { const r = histRow(e), rr = r.r.replace(/([+−])&thinsp;/g, "$1"); return `<div class="htx${r.cls ? " " + r.cls : ""}"><span class="ic">${r.icon}</span><div class="mid"><div class="t">${r.t}</div><div class="a">${r.a}</div></div><div class="r">${rr}<div class="tm">${histTime(e.ts)}</div></div></div>`; }).join("") + `</div></section>`;
+      hist.map(e => { const r = histRow(e), rr = r.r.replace(/([+−])&thinsp;/g, "$1"); return `<div class="htx${r.cls ? " " + r.cls : ""}"><span class="ic">${r.icon}</span><div class="mid"><div class="t">${r.t}</div><div class="a">${r.a}</div></div><div class="r">${rr}<div class="tm">${histTime(e.ts)}</div></div>${r.cm ? `<div class="cm">${r.cm}</div>` : ""}</div>`; }).join("") + `</div></section>`;
   }
   const ov = LIVE.ov[tk.key], f2 = x => x.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const big = n => n >= 1e12 ? f2(n / 1e12) + "T" : n >= 1e9 ? f2(n / 1e9) + "B" : n >= 1e6 ? f2(n / 1e6) + "M" : f2(n / 1e3) + "K";
@@ -3286,18 +3308,32 @@ function fillDevInputs() {
   $("#dev-bal-gram").value = fmtAmount(state.bal.gram, 6);
   $("#dev-bal-usdt").value = fmtAmount(state.bal.usdt, state.bal.usdt >= 1 ? 2 : 6);
   $("#dev-tx-amount").value = "";
+  syncDevPasteBtns();
   renderDevLog();
+}
+function syncDevPasteBtns() {
+  const a = $("#dev-tx-addr"), c = $("#dev-tx-cm");
+  $("#dev-tx-paste-a").textContent = a.value ? "Очистить" : "Вставить";
+  $("#dev-tx-paste-c").textContent = c.value ? "Очистить" : "Вставить";
+}
+function pasteDevField(input) {
+  if (input.value) { input.value = ""; syncDevPasteBtns(); input.focus({ preventScroll: true }); return; }
+  const done = t => { input.value = (t || "").trim(); syncDevPasteBtns(); };
+  if (navigator.clipboard && navigator.clipboard.readText) navigator.clipboard.readText().then(done).catch(() => toast("Не удалось вставить"));
+  else toast("Не удалось вставить");
 }
 function renderDevLog() {
   const ul = $("#dev-log");
   if (!state.log.length) { ul.innerHTML = '<li class="dev-empty">Пока нет операций</li>'; return; }
+  const esc = t => String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   ul.innerHTML = state.log.slice(0, 8).map(e => {
     const f = (n, t) => fmtAmount(n, n >= 1 ? 2 : 6) + " " + (t === "usdt" ? "USD₮" : "GRAM");
     if (e.kind === "swap") return `<li><span class="amt">${f(e.amtFrom, e.from)} → ${f(e.amtTo, e.to)}</span><span class="addr">обмен</span></li>`;
     if (e.kind === "stake") return `<li><span class="amt amt-out">−${f(e.amount, e.token)}</span><span class="addr">стейкинг</span></li>`;
     const sign = e.kind === "in" ? "+" : "−";
     const cls = e.kind === "in" ? "amt-in" : "amt-out";
-    return `<li><span class="amt ${cls}">${sign}${f(e.amount, e.token)}</span><span class="addr">${e.kind === "in" ? "от " : "на "}${shortAddr(e.address)}</span></li>`;
+    const cm = e.comment ? ` · ${esc(e.comment)}` : "";
+    return `<li><span class="amt ${cls}">${sign}${f(e.amount, e.token)}</span><span class="addr">${e.kind === "in" ? "от " : "на "}${shortAddr(e.address)}${cm}</span></li>`;
   }).join("");
 }
 function openDevSheet() { fillDevInputs(); openPageSheet("sh-dev"); }
@@ -3317,14 +3353,19 @@ function doTx(kind) {
   if (!isFinite(amt) || amt <= 0) { toast("Введите сумму"); return; }
   if (kind === "out" && state.bal[token] < amt) { toast("Недостаточно " + (token === "usdt" ? "USD₮" : "GRAM")); return; }
   state.bal[token] = kind === "in" ? state.bal[token] + amt : state.bal[token] - amt;
-  const address = randomTonAddress();
-  state.log.unshift({ kind, token, amount: amt, address, ts: Date.now() });
+  const typed = $("#dev-tx-addr").value.trim();
+  const address = typed || randomTonAddress();
+  const comment = $("#dev-tx-cm").value.trim();
+  const entry = { kind, token, amount: amt, address, ts: Date.now() };
+  if (comment) entry.comment = comment;
+  state.log.unshift(entry);
   if (state.log.length > 100) state.log.length = 100;
   saveState(); renderBalances(); renderDevLog();
   // освежить поля балансов, чтобы они соответствовали новой правде
   $("#dev-bal-gram").value = fmtAmount(state.bal.gram, 6);
   $("#dev-bal-usdt").value = fmtAmount(state.bal.usdt, state.bal.usdt >= 1 ? 2 : 6);
   $("#dev-tx-amount").value = "";
+  // адрес и комментарий оставляем — можно снова слать с того же адреса
   toast((kind === "in" ? "Получено " : "Отправлено ") + fmtAmount(amt, amt >= 1 ? 2 : 6) + " " + (token === "usdt" ? "USD₮" : "GRAM"));
   showUpdating(500);
 }
@@ -3334,6 +3375,9 @@ $("#dev-live-btn").addEventListener("click", async () => {
   LIVE.chart = {}; await Promise.all([liveTick(true), trFetch(true)]); renderBalances();
   b.disabled = false; b.textContent = "Обновить курсы"; renderLiveStatus();
 });
+$("#dev-tx-paste-a").addEventListener("click", e => { e.preventDefault(); pasteDevField($("#dev-tx-addr")); });
+$("#dev-tx-paste-c").addEventListener("click", e => { e.preventDefault(); pasteDevField($("#dev-tx-cm")); });
+["dev-tx-addr", "dev-tx-cm"].forEach(id => $(`#${id}`).addEventListener("input", syncDevPasteBtns));
 $("#dev-tx-in").addEventListener("click", () => doTx("in"));
 $("#dev-tx-out").addEventListener("click", () => doTx("out"));
 
