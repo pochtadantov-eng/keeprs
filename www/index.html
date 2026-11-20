@@ -1023,6 +1023,64 @@ html.cap.kb-on .sf-body .cta-row { padding-bottom: 0; }
 .dev-log .addr { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; opacity: .75; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dev-log .dev-empty { color: var(--fg-faint); font-size: 14px; justify-content: center; display: block; text-align: center; padding: 14px 0; }
 
+/* ===== Receive address / wallets / settings / battery / manage / scan ===== */
+.recv-box { display: flex; flex-direction: column; align-items: center; padding: 8px 20px 24px; text-align: center; }
+.recv-qr {
+  width: 220px; height: 220px; border-radius: 20px; background: #fff; padding: 14px; box-sizing: border-box;
+  display: grid; grid-template-columns: repeat(21, 1fr); grid-template-rows: repeat(21, 1fr); gap: 0; margin: 8px 0 20px;
+}
+.recv-qr i { background: #10161F; border-radius: 1px; }
+.recv-qr i.off { background: transparent; }
+.recv-addr {
+  width: 100%; padding: 14px 16px; border-radius: 16px; background: var(--surface);
+  font-size: 14px; line-height: 20px; font-weight: 500; word-break: break-all; color: var(--fg); text-align: left;
+}
+.recv-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-top: 16px; }
+.recv-actions .btn-big { margin: 0; }
+.recv-hint { margin: 14px 4px 0; font-size: 13px; line-height: 18px; color: var(--fg-dim); }
+.w-list, .set-list, .mg-list { display: grid; gap: 8px; padding: 4px 20px 28px; }
+.w-row, .set-row, .mg-row {
+  display: flex; align-items: center; gap: 14px; width: 100%; padding: 14px 16px; border: none; border-radius: 16px;
+  background: var(--surface); color: var(--fg); text-align: left; font: inherit;
+}
+.w-row:active, .set-row:active, .mg-row:active { background: var(--surface-2); }
+.w-row .av {
+  width: 40px; height: 40px; border-radius: 50%; background: #2B6DE5; display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 650; flex: none;
+}
+.w-row .tx, .set-row .tx, .mg-row .tx { flex: 1; min-width: 0; }
+.w-row .t, .set-row .t, .mg-row .t { font-size: 16px; line-height: 22px; font-weight: 550; }
+.w-row .s, .set-row .s, .mg-row .s { font-size: 13px; line-height: 18px; color: var(--fg-dim); font-weight: 450; }
+.w-row .chk, .set-row .val { color: var(--accent); font-size: 14px; font-weight: 550; flex: none; }
+.mg-tog {
+  width: 46px; height: 28px; border-radius: 14px; border: none; background: #3A4556; position: relative; flex: none; padding: 0;
+}
+.mg-tog.on { background: #3388F9; }
+.mg-tog i { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: transform .18s ease; }
+.mg-tog.on i { transform: translateX(18px); }
+.bat-card {
+  margin: 8px 20px 20px; padding: 20px 18px; border-radius: 20px; background: var(--surface); text-align: center;
+}
+.bat-card .big { font-size: 40px; font-weight: 650; letter-spacing: -.02em; }
+.bat-card .sub { margin-top: 6px; color: var(--fg-dim); font-size: 14px; }
+.bat-bar { height: 8px; border-radius: 4px; background: #2A3342; margin: 18px 4px 0; overflow: hidden; }
+.bat-bar i { display: block; height: 100%; width: 72%; background: linear-gradient(90deg, #3C95FA, #5BB0FF); border-radius: 4px; }
+.scan-stage {
+  margin: 12px 20px 20px; aspect-ratio: 1; border-radius: 24px; background: #0B1018;
+  border: 1.5px solid #2A3342; position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.scan-stage::before {
+  content: ""; position: absolute; inset: 18% 18%; border: 2px solid rgba(60,149,250,.85); border-radius: 16px;
+  box-shadow: 0 0 0 999px rgba(0,0,0,.35);
+}
+.scan-stage .laser {
+  position: absolute; left: 20%; right: 20%; height: 2px; background: #3C95FA;
+  animation: scanY 2.2s ease-in-out infinite; box-shadow: 0 0 12px #3C95FA;
+}
+@keyframes scanY { 0%,100% { top: 22%; } 50% { top: 76%; } }
+.scan-stage .hint { position: relative; z-index: 1; margin-top: 58%; color: #fff; font-size: 14px; font-weight: 500; }
+
 /* ===== TT Firs Neue baseline: its glyphs sit a little higher in the line box than the reference ===== */
 .cat-label { position: relative; top: 1.3px; }
 .tk-name { position: relative; top: 1.7px; }
@@ -1042,10 +1100,10 @@ html.cap.kb-on .sf-body .cta-row { padding-bottom: 0; }
   background: var(--bg);
   transform: translateX(100%);
   visibility: hidden;
-  transition: transform .36s cubic-bezier(.22,.9,.28,1), visibility 0s .36s;
+  transition: none;
   will-change: transform;
 }
-.hist.open { transform: none; visibility: visible; transition: transform .36s cubic-bezier(.22,.9,.28,1); }
+.hist.open { transform: none; visibility: visible; }
 .hist.dragging { transition: none; }
 .hist::before { content: ""; position: absolute; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); background: var(--bg); z-index: 5; pointer-events: none; }
 .hist-scroll { position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
@@ -1094,12 +1152,10 @@ html.cap.kb-on .sf-body .cta-row { padding-bottom: 0; }
   font-size: 15px; line-height: 20px; font-weight: 450; color: #fff; overflow-wrap: anywhere;
 }
 .hist-empty { padding: 60px 0; text-align: center; color: var(--fg-dim); font-size: 15px; }
-body.hist-open .app-header, body.hist-open .panel.active, body.hist-open .tabbar {
-  transform: translateX(-30%); transition: transform .36s cubic-bezier(.22,.9,.28,1);
-}
-.app-header, .panel, .tabbar { transition: transform .36s cubic-bezier(.22,.9,.28,1); }
-/* жест «назад»: подложку двигает скрипт (inline transform / Web Animations), затемняет слой #pop-dim, CSS-переходы выключены */
-body.swiping .app-header, body.swiping .panel.active, body.swiping .tabbar { transition: none !important; will-change: transform; }
+/* Подложку при открытии/закрытии истории и токена двигает только JS (WAAPI) — без CSS transform,
+   иначе при смене режима получается рывок между % и px. */
+.app-header, .panel, .tabbar { transition: none; }
+body.swiping .app-header, body.swiping .panel.active, body.swiping .tabbar { will-change: transform; }
 #pop-dim { position: fixed; inset: 0; z-index: 44; background: #000; opacity: 0; pointer-events: none; }
 
 /* real keyboard: invisible inputs sit over the amount, we draw digits and the caret ourselves */
@@ -1168,13 +1224,13 @@ html:not(.cap) .psheet { bottom: var(--kb, 0px); }
 .action .ring { transition: transform .2s cubic-bezier(.2,.7,.3,1), background-color .2s ease; }
 .btn-big { transition: filter .2s ease, transform .2s cubic-bezier(.2,.7,.3,1), background-color .2s ease, opacity .2s ease; }
 .tab, .tab svg, .tab .tab-label { transition: color .2s ease, opacity .2s ease; }
-.app-header { transition: transform .36s cubic-bezier(.22,.9,.28,1), box-shadow .25s ease; }
+.app-header { transition: box-shadow .25s ease; }
 .app-header, .tabbar { will-change: transform; }
 #panel-wallet, .t-scroll, .b-scroll, .hist-scroll, .sh-scroll { -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; }
 /* ===== Страница токена (по записи оригинала) ===== */
 .tok { position: fixed; inset: 0; z-index: 45; background: var(--bg); transform: translateX(100%); visibility: hidden;
-  transition: transform .36s cubic-bezier(.22,.9,.28,1), visibility 0s .36s; will-change: transform; }
-.tok.open { transform: none; visibility: visible; transition: transform .36s cubic-bezier(.22,.9,.28,1); }
+  transition: none; will-change: transform; }
+.tok.open { transform: none; visibility: visible; }
 .tok.dragging { transition: none; }
 .tok-head { position: absolute; left: 0; right: 0; top: 0; z-index: 6; background: var(--bg); }
 .tok-head h1 { display: inline-flex; align-items: center; gap: 4px; font-size: 19.65px; font-weight: 590; }
@@ -1663,6 +1719,68 @@ html:not(.cap) .psheet { bottom: var(--kb, 0px); }
     <div class="sh-body">
       <label class="pk-search" id="pk-search"><input id="pk-in" data-kb="text" type="search" placeholder="Поиск" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Поиск"></label>
       <div class="pk-list" id="pk-list"></div>
+    </div>
+  </section>
+</div>
+<div class="sheet-layer" id="sh-recvaddr" aria-hidden="true">
+  <div class="sh-scrim" data-close></div>
+  <section class="psheet stacked">
+    <div class="sh-head"><span></span><h3>Получить</h3><span class="r"><button class="sh-btn" data-close aria-label="Закрыть" data-x></button></span></div>
+    <div class="sh-body sh-scroll">
+      <div class="recv-box">
+        <div class="recv-qr" id="recv-qr" aria-hidden="true"></div>
+        <div class="recv-addr" id="recv-addr-full"></div>
+        <div class="recv-actions">
+          <button class="btn-big secondary" id="recv-share" type="button">Поделиться</button>
+          <button class="btn-big primary" id="recv-copy" type="button">Скопировать</button>
+        </div>
+        <p class="recv-hint">Отправьте только GRAM и токены сети TON на этот адрес. Другие сети будут потеряны.</p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="sheet-layer" id="sh-wallets" aria-hidden="true">
+  <div class="sh-scrim" data-close></div>
+  <section class="psheet">
+    <div class="sh-head left-title"><h3>Кошельки</h3><span class="r"><button class="sh-btn" data-close aria-label="Закрыть" data-x></button></span></div>
+    <div class="sh-body sh-scroll"><div class="w-list" id="w-list"></div></div>
+  </section>
+</div>
+<div class="sheet-layer" id="sh-settings" aria-hidden="true">
+  <div class="sh-scrim" data-close></div>
+  <section class="psheet">
+    <div class="sh-head left-title"><h3>Настройки</h3><span class="r"><button class="sh-btn" data-close aria-label="Закрыть" data-x></button></span></div>
+    <div class="sh-body sh-scroll"><div class="set-list" id="set-list"></div></div>
+  </section>
+</div>
+<div class="sheet-layer" id="sh-battery" aria-hidden="true">
+  <div class="sh-scrim" data-close></div>
+  <section class="psheet">
+    <div class="sh-head left-title"><h3>Battery</h3><span class="r"><button class="sh-btn" data-close aria-label="Закрыть" data-x></button></span></div>
+    <div class="sh-body">
+      <div class="bat-card">
+        <div class="big" id="bat-pct">72%</div>
+        <div class="sub">Хватает примерно на 140 операций без газа</div>
+        <div class="bat-bar"><i id="bat-fill"></i></div>
+      </div>
+      <div class="cta-row" style="padding:0 20px 28px"><button class="cta2 on" id="bat-refill" type="button">Пополнить Battery</button></div>
+    </div>
+  </section>
+</div>
+<div class="sheet-layer" id="sh-manage" aria-hidden="true">
+  <div class="sh-scrim" data-close></div>
+  <section class="psheet">
+    <div class="sh-head left-title"><h3>Управление</h3><span class="r"><button class="sh-btn" data-close aria-label="Закрыть" data-x></button></span></div>
+    <div class="sh-body sh-scroll"><div class="mg-list" id="mg-list"></div></div>
+  </section>
+</div>
+<div class="sheet-layer" id="sh-scan" aria-hidden="true">
+  <div class="sh-scrim" data-close></div>
+  <section class="psheet">
+    <div class="sh-head left-title"><h3>Сканер</h3><span class="r"><button class="sh-btn" data-close aria-label="Закрыть" data-x></button></span></div>
+    <div class="sh-body">
+      <div class="scan-stage"><div class="laser"></div><div class="hint">Наведите на QR-код</div></div>
+      <div class="cta-row" style="padding:0 20px 28px"><button class="cta2 on" id="scan-demo" type="button">Вставить из буфера</button></div>
     </div>
   </section>
 </div>
@@ -2178,13 +2296,17 @@ function popPlay(el, samples, prop, fmt) {                  // samples: [[t, val
   const T = samples[samples.length - 1][0] || 1e-3;
   return el.animate(samples.map(([t, v]) => ({ offset: Math.min(1, t / T), [prop]: fmt(v) })), { duration: T * 1000, easing: "linear", fill: "forwards" });
 }
-function popEnd(page, anims) {
-  // Safari считает «прошлый» стиль без Web Animations: отдать управление CSS при включённых переходах — значит получить
-  // «прыжок» подложки назад к значению на момент отпускания. Поэтому: переходы выключены, стили сброшены принудительно, затем возвращаем.
+function popEnd(page, anims, keepUnder) {
+  // Стили сбрасываем при выключенных переходах — иначе Safari даёт рывок к «старому» CSS-значению.
   const b = document.body, els = [page, ...popU];
   els.forEach(e => { e.style.transition = "none"; });
-  for (const e of popU) e.style.transform = "";
-  popDim.style.opacity = "";
+  if (!keepUnder) for (const e of popU) e.style.transform = "";
+  else {
+    const u = (-POP.under * innerWidth).toFixed(2);
+    for (const e of popU) e.style.transform = `translate3d(${u}px,0,0)`;
+    popDim.style.opacity = String(POP.dim);
+  }
+  if (!keepUnder) popDim.style.opacity = "";
   anims.forEach(a => a.cancel());
   b.classList.remove("swiping"); page.classList.remove("dragging");
   void page.offsetWidth; popU.forEach(e => void e.offsetWidth);
@@ -2195,8 +2317,46 @@ function popBegin(page, x) {
   popU = [$(".app-header"), $(".panel.active"), $(".tabbar")].filter(Boolean);
   document.body.classList.add("swiping"); page.classList.add("dragging"); popSet(page, x);
 }
+// открыть страницу слева направо той же системой, что и «назад» — без CSS-% рывка
+function pushPage(page) {
+  if (popBusy) return;
+  popBusy = true;
+  const W = innerWidth, b = document.body;
+  popU = [$(".app-header"), $(".panel.active"), $(".tabbar")].filter(Boolean);
+  b.classList.add("swiping", "hist-open");
+  page.classList.add("open", "dragging");
+  page.setAttribute("aria-hidden", "false");
+  page.style.transition = "none";
+  page.style.transform = `translate3d(${W}px,0,0)`;
+  popUnderSet(0, 0);
+  void page.offsetWidth;
+  if (!b.animate) {
+    page.style.transform = "";
+    popUnderSet(-POP.under * W, POP.dim);
+    page.classList.remove("dragging"); b.classList.remove("swiping");
+    popU = []; popBusy = false;
+    return;
+  }
+  // тот же easing, что был в CSS: cubic-bezier(.22,.9,.28,1) ≈ 0.36 с
+  const dur = 360, ease = "cubic-bezier(.22,.9,.28,1)";
+  const anims = [
+    page.animate([{ transform: `translate3d(${W}px,0,0)` }, { transform: "translate3d(0px,0,0)" }], { duration: dur, easing: ease, fill: "forwards" }),
+    popDim.animate([{ opacity: 0 }, { opacity: POP.dim }], { duration: dur, easing: ease, fill: "forwards" }),
+  ];
+  const uTo = `translate3d(${(-POP.under * W).toFixed(2)}px,0,0)`;
+  for (const e of popU) anims.push(e.animate([{ transform: "translate3d(0px,0,0)" }, { transform: uTo }], { duration: dur, easing: ease, fill: "forwards" }));
+  const end = () => {
+    page.style.transform = "";
+    popUnderSet(-POP.under * W, POP.dim);
+    anims.forEach(a => a.cancel());
+    page.classList.remove("dragging"); b.classList.remove("swiping");
+    popU = []; popBusy = false;
+  };
+  anims[anims.length - 1].onfinish = end;
+  setTimeout(end, dur + 80);
+}
 // закрыть страницу с анимацией; x — где она сейчас, vx — скорость пальца (px/s)
-function popPage(page, closeFn, x = 0, vx = 0, fromGesture = false) {
+function popPage(page, closeFn, x = 0, vx = 0, fromGesture = false, afterFn) {
   if (popBusy && !fromGesture) return;
   popBusy = true;
   const W = innerWidth, T = W * POP.aim, b = document.body;
@@ -2208,23 +2368,22 @@ function popPage(page, closeFn, x = 0, vx = 0, fromGesture = false) {
   const ph2 = popUnderSamples(-POP.under * 8, Math.min(POP.vUmax, POP.uGain * POP.under * Math.max(0, pg.v) + extra), tStop);
   const un = pg.s.map(([t, px]) => [t, -POP.under * (1 - px / W) * W]).concat(ph2);
   const dm = pg.s.map(([t, px]) => [t, POP.dim * (1 - px / W)]).concat([[tStop + 1e-3, 0]]);
-  if (!b.animate) { closeFn(); popEnd(page, []); return; }
+  if (!b.animate) { closeFn(); popEnd(page, []); if (afterFn) afterFn(); return; }
   const anims = [];
   const aPage = popPlay(page, pg.s, "transform", px => `translate3d(${px}px,0,0)`);
   anims.push(aPage, popPlay(popDim, dm, "opacity", a => a.toFixed(4)));
   let aLast = null;
   for (const e of popU) { aLast = popPlay(e, un, "transform", u => `translate3d(${u.toFixed(2)}px,0,0)`); anims.push(aLast); }
-  if (b.classList.contains("t-wallet")) { const k = pg.s.find(q => q[1] > W * .35); setTimeout(() => showUpdating(100), (k ? k[0] : 0) * 1000); }   // на кошельке мелькает «Обновление»
   popU.forEach(e => { e.style.transform = "translate3d(0px,0,0)"; });   // конечное состояние подложки: при отмене анимации ничего не дёрнется
   let closed = false, ended = false;
   const close = () => { if (!closed) { closed = true; page.style.transition = "none"; closeFn(); } };   // прячет страницу (последние 8 px того же цвета — картинка не меняется)
-  const end = () => { close(); if (!ended) { ended = true; popEnd(page, anims); } };
+  const end = () => { close(); if (!ended) { ended = true; popEnd(page, anims); if (afterFn) afterFn(); } };
   aPage.onfinish = close; (aLast || aPage).onfinish = end;
   setTimeout(end, un[un.length - 1][0] * 1000 + 400);       // страховка, если анимации остановили (фон, перегрузка)
 }
 function popCancel(page, x, vx) {
   const W = innerWidth, pg = popSamples(x, 0, vx, POP.wBack, null), b = document.body;
-  if (!b.animate) { page.style.transform = ""; popEnd(page, []); return; }
+  if (!b.animate) { page.style.transform = ""; popEnd(page, [], true); return; }
   const anims = [popPlay(page, pg.s, "transform", px => `translate3d(${px}px,0,0)`),
     popPlay(popDim, pg.s.map(([t, px]) => [t, POP.dim * (1 - Math.min(1, Math.max(0, px / W)))]), "opacity", a => a.toFixed(4))];
   let aLast = anims[0];
@@ -2232,7 +2391,7 @@ function popCancel(page, x, vx) {
   const un = pg.s.map(([t, px]) => [t, -POP.under * (1 - Math.min(1, Math.max(0, px / W))) * W]);
   for (const e of popU) { aLast = popPlay(e, un, "transform", u => `translate3d(${u.toFixed(2)}px,0,0)`); anims.push(aLast); }
   let ended = false;
-  const end = () => { if (ended) return; ended = true; page.style.transform = ""; popEnd(page, anims); };
+  const end = () => { if (ended) return; ended = true; page.style.transform = ""; popEnd(page, anims, true); };
   aLast.onfinish = end; setTimeout(end, pg.s[pg.s.length - 1][0] * 1000 + 400);
 }
 // жест: тянуть вправо можно с любого места страницы (кроме горизонтально скроллящихся блоков)
@@ -2320,9 +2479,19 @@ $("#hist-chips").addEventListener("click", e => {
   document.querySelectorAll(".hchip").forEach(x => x.classList.toggle("active", x === b));
   renderHist();
 });
-function openHist() { renderHist(); const h = $("#hist"); h.setAttribute("aria-hidden", "false"); h.classList.add("open"); document.body.classList.add("hist-open"); }
-function closeHist() { const h = $("#hist"); h.style.transform = ""; h.classList.remove("open", "dragging"); h.setAttribute("aria-hidden", "true"); document.body.classList.remove("hist-open"); }
-$("#hist-back").addEventListener("click", () => { haptic("back"); popPage($("#hist"), closeHist); });
+function openHist() {
+  if (popBusy || $("#hist").classList.contains("open")) return;
+  renderHist();
+  pushPage($("#hist"));
+}
+function closeHist() {
+  const h = $("#hist");
+  h.style.transform = "";
+  h.classList.remove("open", "dragging");
+  h.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("hist-open");
+}
+$("#hist-back").addEventListener("click", () => { if (popBusy) return; haptic("back"); popPage($("#hist"), closeHist); });
 document.querySelector('.topbar .right .icon-btn[aria-label="История"]').addEventListener("click", openHist);
 bindPop($("#hist"), closeHist, "#hist-chips");
 // обновление списка: двигается только список, шапка и фильтры стоят
@@ -2623,20 +2792,21 @@ tokEl.addEventListener("click", e => {
   const b = e.target.closest("[data-a]"); if (!b) return;
   const a = b.dataset.a;
   if (a === "send") openPageSheet("sh-send"); else if (a === "recv") openPageSheet("sh-recv");
-  else if (a === "hist") { closeTok(); openHist(); }
+  else if (a === "hist") { if (!popBusy) popPage(tokEl, closeTok, 0, 0, false, openHist); }
 });
 $("#tok-buy").addEventListener("click", () => tokOpenSwap("buy"));
 $("#tok-sell").addEventListener("click", () => tokOpenSwap("sell"));
 function openTok(key) {
+  if (popBusy || (tokEl.classList.contains("open") && tk && tk.key === key)) return;
   tk = TOKP[key];
   $("#tok-title").textContent = tk.title;
   $("#tok-ic").innerHTML = document.querySelector('.row[data-token="' + key + '"] .token').outerHTML;
   const chip = $("#tok-chip"); chip.hidden = !tk.apy;
   if (tk.apy) chip.innerHTML = document.querySelector('.action[data-action="stake"] svg').outerHTML + "<span>Доход до " + tk.apy + " % годовых</span>";
-  tokEl.classList.add("loading"); tokEl.setAttribute("aria-hidden", "false");
+  tokEl.classList.add("loading");
   $("#tok-scroll").scrollTop = 0;
   tokSecs(); tokSetPer("d");
-  tokEl.classList.add("open"); document.body.classList.add("hist-open");
+  pushPage(tokEl);
   clearTimeout(tokTimer); tokTimer = setTimeout(() => tokEl.classList.remove("loading"), tAt ? 520 : 3500);
   tokSync(key);
   liveOverview(key).then(o => { if (o && tk && tk.key === key) tokRefresh(); });
@@ -2654,23 +2824,20 @@ function tokSync(key) {
 }
 function closeTok() { clearInterval(tokPoll); tokEl.classList.remove("sync"); tokEl.style.transform = ""; tokEl.classList.remove("open", "dragging"); tokEl.setAttribute("aria-hidden", "true"); document.body.classList.remove("hist-open"); }
 function tokRefresh() { if (tk && tokEl.classList.contains("open")) { const sc = $("#tok-scroll"), y = sc.scrollTop; tokSecs(); sc.scrollTop = y; } }
-$("#tok-back").addEventListener("click", () => { haptic("back"); popPage(tokEl, closeTok); });
+$("#tok-back").addEventListener("click", () => { if (popBusy) return; haptic("back"); popPage(tokEl, closeTok); });
 document.querySelectorAll(".row[data-token]").forEach(r => r.addEventListener("click", () => openTok(r.dataset.token)));
 bindPop(tokEl, closeTok, "#tok-chart, .tok-per, .tok-links");
 
-// Copy address
-$("#address-row").addEventListener("click", async () => {
-  const full = "UQBQ4bN3kR8vP2tL9mXjH7cDqY1aZ6fS0wE3nR4";
-  try {
-    await navigator.clipboard.writeText(full);
-    toast("Адрес скопирован");
-  } catch (_) {
-    const t = document.createElement("textarea");
-    t.value = full; document.body.appendChild(t); t.select();
-    try { document.execCommand("copy"); toast("Адрес скопирован"); } catch (__) {}
-    document.body.removeChild(t);
-  }
-});
+// Адрес кошелька (визуальный прототип)
+const MY_ADDR = "UQBQ4bN3kR8vP2tL9mXjH7cDqY1aZ6fS0wE3nR4";
+async function copyText(text, okMsg) {
+  try { await navigator.clipboard.writeText(text); toast(okMsg || "Скопировано"); return; } catch (_) {}
+  const t = document.createElement("textarea");
+  t.value = text; document.body.appendChild(t); t.select();
+  try { document.execCommand("copy"); toast(okMsg || "Скопировано"); } catch (__) { toast("Не удалось скопировать"); }
+  document.body.removeChild(t);
+}
+$("#address-row").addEventListener("click", () => copyText(MY_ADDR, "Адрес скопирован"));
 
 // ===== State: баланс каждой криптовалюты + история операций =====
 const PRICES = { gram: 1.18, usdt: 0.99, usdt_trc: 0.99, trx: 0.25 };     // $ за токен (как показано на карточке)
@@ -2886,23 +3053,11 @@ function randomTonAddress() {
 }
 function shortAddr(a) { return a.length > 12 ? a.slice(0, 4) + "…" + a.slice(-4) : a; }
 
-// Actions open explanatory sheet
-const sheetDefs = {
-  send:    { t: "Отправить", b: "Отправка криптовалюты на любой адрес сети. Введите адрес получателя, выберите токен и сумму." },
-  receive: { t: "Пополнить", b: "Покажите QR-код своего адреса или скопируйте его, чтобы получить перевод." },
-  swap:    { t: "Обменять", b: "Моментальный обмен между токенами в сети TON по лучшей ставке." },
-  stake:   { t: "Застейкать", b: "Разместите TON в стейкинге и получайте пассивный доход ~5–6 % годовых." },
-};
 const actionSheet = { send: "sh-send", receive: "sh-recv", swap: "sh-swap", stake: "sh-stake" };
 document.querySelectorAll(".action").forEach(btn => {
   btn.addEventListener("click", () => openPageSheet(actionSheet[btn.dataset.action]));
 });
 document.querySelector(".nft").addEventListener("click", () => openPageSheet("sh-nft"));
-$("#wallet-pill").addEventListener("click", () => {
-  $("#sheet-title").textContent = "Кошельки";
-  $("#sheet-body").textContent = "Переключение между кошельками: основной, резервный, тестовая сеть.";
-  openSheet();
-});
 $("#sheet-cta").addEventListener("click", closeSheet);
 $("#scrim").addEventListener("click", closeSheet);
 
@@ -3215,7 +3370,7 @@ sheetInit["sh-stake"] = (() => {
   };
   pasteA.addEventListener("click", e => { e.preventDefault(); paste(addrIn); });
   pasteC.addEventListener("click", e => { e.preventDefault(); paste(cmIn); });
-  $("#sf-scan").addEventListener("click", e => { e.preventDefault(); toast("Сканер QR недоступен в прототипе"); });
+  $("#sf-scan").addEventListener("click", e => { e.preventDefault(); openScan(addrIn); });
   [addrIn, cmIn].forEach(i => i.addEventListener("input", render));
   amtIn.addEventListener("input", () => { amtIn.value = cleanAmount(amtIn.value); render(); });
   $("#sf-avail").addEventListener("click", e => {
@@ -3248,9 +3403,240 @@ sheetInit["sh-stake"] = (() => {
     cur = r.dataset.id; amtIn.value = ""; render(); closePageSheet();
   });
   sheetInit["sh-picker"] = () => { q.value = ""; renderList(); };
-  // «Отправить токены» в окне выбора способа вывода
-  document.querySelector("#sh-send .opt").addEventListener("click", () => openPageSheet("sh-sendform"));
+  // способы вывода / пополнения
+  const sendOpts = document.querySelectorAll("#sh-send .opt");
+  sendOpts[0].addEventListener("click", () => openPageSheet("sh-sendform"));
+  sendOpts[1].addEventListener("click", () => { closeAllSheets(); openPageSheet("sh-swap"); toast("Продажа на карту · через обмен"); });
+  sendOpts[2].addEventListener("click", () => { closeAllSheets(); openPageSheet("sh-swap"); });
+  const recvOpts = document.querySelectorAll("#sh-recv .opt");
+  recvOpts[0].addEventListener("click", () => openRecvAddr());
+  recvOpts[1].addEventListener("click", () => { closeAllSheets(); openPageSheet("sh-swap"); toast("Покупка через Apple Pay"); });
+  recvOpts[2].addEventListener("click", () => { closeAllSheets(); openPageSheet("sh-swap"); });
+  recvOpts[3].addEventListener("click", () => openRecvAddr());
 })();
+
+// ===== Получить / Кошельки / Настройки / Battery / Управление / Сканер =====
+function paintRecvQr(el, seed) {
+  // декоративный QR под адрес — выглядит как настоящий, без внешней библиотеки
+  let s = 0; for (let i = 0; i < seed.length; i++) s = (s * 33 + seed.charCodeAt(i)) >>> 0;
+  const rnd = () => { s ^= s << 13; s ^= s >>> 17; s ^= s << 5; return (s >>> 0) / 4294967296; };
+  const N = 21, cells = Array.from({ length: N * N }, () => 0);
+  const set = (x, y, v) => { if (x >= 0 && y >= 0 && x < N && y < N) cells[y * N + x] = v; };
+  const finder = (ox, oy) => {
+    for (let y = 0; y < 7; y++) for (let x = 0; x < 7; x++) {
+      const edge = x === 0 || y === 0 || x === 6 || y === 6, core = x >= 2 && x <= 4 && y >= 2 && y <= 4;
+      set(ox + x, oy + y, edge || core ? 1 : 0);
+    }
+  };
+  finder(0, 0); finder(N - 7, 0); finder(0, N - 7);
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    if (cells[y * N + x]) continue;
+    if ((x < 8 && y < 8) || (x >= N - 8 && y < 8) || (x < 8 && y >= N - 8)) continue;
+    cells[y * N + x] = rnd() > .45 ? 1 : 0;
+  }
+  el.innerHTML = cells.map(v => `<i class="${v ? "" : "off"}"></i>`).join("");
+}
+function openRecvAddr() {
+  $("#recv-addr-full").textContent = MY_ADDR;
+  paintRecvQr($("#recv-qr"), MY_ADDR);
+  openPageSheet("sh-recvaddr");
+}
+$("#recv-copy").addEventListener("click", () => copyText(MY_ADDR, "Адрес скопирован"));
+$("#recv-share").addEventListener("click", async () => {
+  if (navigator.share) {
+    try { await navigator.share({ title: "Адрес Keeper", text: MY_ADDR }); return; } catch (_) {}
+  }
+  copyText(MY_ADDR, "Адрес скопирован");
+});
+
+const WALLETS = [
+  { id: "main", name: "Кошелёк", addr: MY_ADDR, av: "K" },
+  { id: "spare", name: "Резервный", addr: "UQAc9kR2mP7vL4nX1hQ8wE5tY0uI3oA6sD2fG8jK1mN4", av: "R" },
+  { id: "test", name: "Тестовая сеть", addr: "0QBt5uY1iO3pA6sD2fG8jK1mN4qR7vL0xC3zE6hB9wF2", av: "T" },
+];
+let curWallet = "main";
+try { curWallet = localStorage.getItem("keeprs-wallet") || "main"; } catch (_) {}
+function renderWallets() {
+  $("#w-list").innerHTML = WALLETS.map(w => {
+    const short = w.addr.slice(0, 4) + "…" + w.addr.slice(-4);
+    return `<button class="w-row" data-id="${w.id}" type="button"><span class="av">${w.av}</span><span class="tx"><div class="t">${w.name}</div><div class="s">${short}</div></span>${w.id === curWallet ? '<span class="chk">✓</span>' : ""}</button>`;
+  }).join("") + `<button class="w-row" data-id="add" type="button"><span class="av" style="background:#3A4556">+</span><span class="tx"><div class="t">Добавить кошелёк</div><div class="s">Импорт или создание</div></span></button>`;
+  const w = WALLETS.find(x => x.id === curWallet) || WALLETS[0];
+  $("#wallet-pill span").textContent = w.name;
+}
+$("#w-list").addEventListener("click", e => {
+  const b = e.target.closest(".w-row"); if (!b) return;
+  if (b.dataset.id === "add") { toast("Импорт кошелька скоро"); return; }
+  curWallet = b.dataset.id;
+  try { localStorage.setItem("keeprs-wallet", curWallet); } catch (_) {}
+  renderWallets(); closePageSheet(); toast("Кошелёк выбран"); showUpdating(400);
+});
+$("#wallet-pill").addEventListener("click", () => { renderWallets(); openPageSheet("sh-wallets"); });
+renderWallets();
+
+let setCurrency = "USD";
+try { setCurrency = localStorage.getItem("keeprs-ccy") || "USD"; } catch (_) {}
+function renderSettings() {
+  $("#set-list").innerHTML = [
+    ["ccy", "Валюта", setCurrency],
+    ["lang", "Язык", "Русский"],
+    ["notif", "Уведомления", "Вкл"],
+    ["sec", "Безопасность", "Face ID"],
+    ["net", "Сеть", "Mainnet"],
+    ["ver", "Версия", "1.0.0"],
+  ].map(([id, t, v]) => `<button class="set-row" data-id="${id}" type="button"><span class="tx"><div class="t">${t}</div></span><span class="val">${v}</span></button>`).join("");
+}
+$("#set-list").addEventListener("click", e => {
+  const b = e.target.closest(".set-row"); if (!b) return;
+  if (b.dataset.id === "ccy") {
+    setCurrency = setCurrency === "USD" ? "RUB" : "USD";
+    try { localStorage.setItem("keeprs-ccy", setCurrency); } catch (_) {}
+    altBalance = setCurrency === "RUB";
+    renderBalances(); renderSettings(); toast("Валюта: " + setCurrency);
+  } else if (b.dataset.id === "notif") toast("Уведомления включены");
+  else if (b.dataset.id === "sec") toast("Face ID активен");
+  else if (b.dataset.id === "net") toast("Сеть Mainnet");
+  else if (b.dataset.id === "lang") toast("Язык: Русский");
+  else toast("Keeper 1.0.0");
+});
+
+let batPct = 72;
+try { batPct = Math.max(5, Math.min(100, +(localStorage.getItem("keeprs-bat") || 72))); } catch (_) {}
+function openBattery() {
+  $("#bat-pct").textContent = batPct + "%";
+  $("#bat-fill").style.width = batPct + "%";
+  openPageSheet("sh-battery");
+}
+$("#bat-refill").addEventListener("click", () => {
+  batPct = Math.min(100, batPct + 18);
+  try { localStorage.setItem("keeprs-bat", String(batPct)); } catch (_) {}
+  $("#bat-pct").textContent = batPct + "%";
+  $("#bat-fill").style.width = batPct + "%";
+  toast("Battery пополнен");
+});
+document.querySelector(".bolt").addEventListener("click", openBattery);
+
+const MG_TOKENS = [
+  { key: "gram", name: "GRAM", on: true },
+  { key: "usdt", name: "USD₮", on: true },
+  { key: "usdt_trc", name: "USD₮ TRC20", on: true },
+  { key: "trx", name: "TRX", on: true },
+];
+try {
+  const s = JSON.parse(localStorage.getItem("keeprs-mg") || "null");
+  if (s) MG_TOKENS.forEach(t => { if (s[t.key] != null) t.on = !!s[t.key]; });
+} catch (_) {}
+function saveMg() {
+  const o = {}; MG_TOKENS.forEach(t => o[t.key] = t.on);
+  try { localStorage.setItem("keeprs-mg", JSON.stringify(o)); } catch (_) {}
+}
+function applyMgVisibility() {
+  document.querySelectorAll(".row[data-token]").forEach(r => {
+    const t = MG_TOKENS.find(x => x.key === r.dataset.token);
+    r.style.display = t && !t.on ? "none" : "";
+  });
+}
+function renderManage() {
+  $("#mg-list").innerHTML = MG_TOKENS.map(t =>
+    `<button class="mg-row" data-key="${t.key}" type="button"><span class="tx"><div class="t">${t.name}</div><div class="s">${t.on ? "Показан в кошельке" : "Скрыт"}</div></span><span class="mg-tog${t.on ? " on" : ""}" aria-hidden="true"><i></i></span></button>`
+  ).join("");
+}
+$("#mg-list").addEventListener("click", e => {
+  const b = e.target.closest(".mg-row"); if (!b) return;
+  const t = MG_TOKENS.find(x => x.key === b.dataset.key); if (!t) return;
+  if (t.key === "gram" && t.on) { toast("GRAM нельзя скрыть"); return; }
+  t.on = !t.on; saveMg(); applyMgVisibility(); renderManage();
+});
+applyMgVisibility();
+document.querySelector(".section .manage").addEventListener("click", () => { renderManage(); openPageSheet("sh-manage"); });
+document.querySelector(".section .title").addEventListener("click", () => { renderManage(); openPageSheet("sh-manage"); });
+
+function openScan(targetInput) {
+  openPageSheet("sh-scan");
+  $("#scan-demo").onclick = async () => {
+    let text = "";
+    try { text = (await navigator.clipboard.readText() || "").trim(); } catch (_) {}
+    if (!text) text = MY_ADDR;
+    closePageSheet();
+    if (targetInput) {
+      targetInput.value = text;
+      targetInput.dispatchEvent(new Event("input", { bubbles: true }));
+      toast("Адрес вставлен");
+    } else {
+      openPageSheet("sh-sendform");
+      setTimeout(() => {
+        const inp = $("#sf-addr-in");
+        if (inp) { inp.value = text; inp.dispatchEvent(new Event("input", { bubbles: true })); }
+      }, 80);
+      toast("QR распознан");
+    }
+  };
+}
+document.querySelector('.topbar .left .icon-btn[aria-label="Сканировать"]').addEventListener("click", () => openScan());
+
+// NFT
+document.querySelector("#sh-nft .nft-actions .primary").addEventListener("click", () => {
+  closePageSheet();
+  openPageSheet("sh-sendform");
+  setTimeout(() => {
+    const inp = $("#sf-addr-in");
+    if (inp) { inp.value = "UQ…nft-collect"; inp.dispatchEvent(new Event("input", { bubbles: true })); }
+  }, 80);
+});
+document.querySelector("#sh-nft .nft-actions .secondary").addEventListener("click", () => toast("Домен jowuz.ton привязан"));
+document.querySelector('#sh-nft .sh-btn[aria-label="Ещё"]').addEventListener("click", () => toast("Поделиться · Скрыть · В Getgems"));
+
+// Стейкинг: инфо и провайдер
+document.querySelector('#sh-stake .sh-btn[aria-label="Информация"]').addEventListener("click", () => {
+  $("#sheet-title").textContent = "О стейкинге";
+  $("#sheet-body").textContent = "Вы делегируете GRAM валидаторам через Tonstakers и получаете доход около 12,6 % годовых. Вывести можно в любой момент.";
+  openSheet();
+});
+document.querySelector("#sh-stake .provider").addEventListener("click", () => toast("Провайдер: Tonstakers · APY ≈ 12,58 %"));
+
+// Токен: «Ещё»
+document.querySelector(".tok-more").addEventListener("click", () => {
+  $("#sheet-title").textContent = tk ? tk.title : "Токен";
+  $("#sheet-body").textContent = "Поделиться адресом jetton, скрыть из списка или открыть в обозревателе.";
+  openSheet();
+});
+
+// Трейд: «Смотреть все»
+document.querySelectorAll("#panel-trade .link").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const head = btn.closest(".section-head");
+    const title = head ? head.querySelector("h2").textContent : "Токены";
+    $("#sheet-title").textContent = title;
+    $("#sheet-body").textContent = "Полный список доступен во вкладке Трейд. Потяните вниз, чтобы обновить цены.";
+    openSheet();
+  });
+});
+
+// Браузер: локальные приложения и «Открыть»
+const APP_URLS = {
+  tokenstore: "https://tokenstore.app", tonvpn: "https://t.me/tonvpn", tonmobile: "https://tonmobile.app",
+  polymarket: "https://polymarket.com", ston: "https://app.ston.fi", storm: "https://storm.tg",
+  swapcoffee: "https://swap.coffee", upscale: "https://upscale.finance", polyfox: "https://polyfox.io",
+  xstocks: "https://xstocks.fi", dedust: "https://dedust.io", mercuryo: "https://mercuryo.io",
+  simpleswap: "https://simpleswap.io", coindrop: "https://coindrop.io", getgems: "https://getgems.io",
+  marketapp: "https://marketapp.ws", split: "https://split.tg", chunk: "https://chunk.tg",
+  tonviewer: "https://tonviewer.com", outlinevpn: "https://getoutline.org", playwallet: "https://playwallet.io",
+};
+document.querySelector(".b-scroll").addEventListener("click", e => {
+  if (e.target.closest(".link")) {
+    $("#sheet-title").textContent = "Все приложения";
+    $("#sheet-body").textContent = "Раздел скоро откроет полный каталог мини-приложений TON.";
+    openSheet();
+    return;
+  }
+  const app = e.target.closest(".app, .b-app, .banner");
+  if (!app || app.dataset.url) return;
+  const img = app.querySelector("img");
+  const key = img && (img.getAttribute("src") || "").match(/(?:ap|bn)-([a-z0-9]+)/i);
+  const url = key && APP_URLS[key[1]];
+  if (url) { try { window.open(url, "_blank"); } catch (_) {} }
+  else toast("Открываю…");
+}, true);
 
 // Нигде ничего не выделяется и не копируется (кроме полей ввода)
 {
@@ -3265,7 +3651,7 @@ sheetInit["sh-stake"] = (() => {
 try { localStorage.removeItem("font"); } catch (e) {}
 delete document.documentElement.dataset.font;
 
-// Долгое удержание (500мс) по шестерёнке — открывает лист «Отладка».
+// Короткий тап по шестерёнке — Настройки; долгое удержание (500 мс) — Отладка.
 const gearBtn = document.querySelector('[aria-label="Настройки"]');
 (() => {
   let lpTimer = null, lpFired = false;
@@ -3282,7 +3668,8 @@ const gearBtn = document.querySelector('[aria-label="Настройки"]');
   gearBtn.addEventListener("pointerdown", start);
   ["pointerup", "pointercancel", "pointerleave", "pointerout"].forEach(ev => gearBtn.addEventListener(ev, cancel));
   gearBtn.addEventListener("click", (e) => {
-    if (lpFired) { e.preventDefault(); e.stopPropagation(); lpFired = false; }
+    if (lpFired) { e.preventDefault(); e.stopPropagation(); lpFired = false; return; }
+    renderSettings(); openPageSheet("sh-settings");
   });
 })();
 
